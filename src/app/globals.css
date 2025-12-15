@@ -1,0 +1,110 @@
+@import url(./demo-page/demo-page.css);
+
+@font-face {
+  font-family: "Subjectivity";
+  src: url("/fonts/subjectivity/Subjectivity-Regular.woff2") format("woff2"),
+    url("/fonts/subjectivity/Subjectivity-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --primary-color: #628ecb;
+  --secondary-color: #8aaeed;
+  --accent-color: #b1c9ef;
+  --text-color: #1f2937;
+  --background-color: #d5deef;
+
+  /* Success - Positive actions, completion */
+  --status-success: #10b981;
+  --status-success-bg: #ecfdf5;
+  --status-success-border: #6ee7b7;
+  --status-success-text: #065f46;
+
+  /* Error/Danger - Failures, destructive actions */
+  --status-error: #ef4444;
+  --status-error-bg: #fef2f2;
+  --status-error-border: #fca5a5;
+  --status-error-text: #991b1b;
+
+  /* Warning - Cautions, non-blocking issues */
+  --status-warning: #f59e0b;
+  --status-warning-bg: #fffbeb;
+  --status-warning-border: #fcd34d;
+  --status-warning-text: #92400e;
+
+  /* Info - General information, neutral updates */
+  --status-info: #3b82f6;
+  --status-info-bg: #eff6ff;
+  --status-info-border: #93c5fd;
+  --status-info-text: #1e40af;
+
+  /* Neutral - Disabled states, subtle metadata */
+  --status-neutral: #6b7280;
+  --status-neutral-bg: #f9fafb;
+  --status-neutral-border: #e5e7eb;
+  --status-neutral-text: #374151;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #29343d;
+    --secondary-color: #5a7480;
+    --accent-color: #92a4b1;
+    --text-color: #e5e7eb;
+    --background-color: #1e2025;
+  }
+} */
+
+[data-theme="dark"] {
+  --primary-color: #29343d;
+  --secondary-color: #5a7480;
+  --accent-color: #92a4b1;
+  --background-color: #1e2025;
+  --text-color: #e5e7eb;
+}
+
+[data-theme="light"] {
+  --primary-color: #628ecb;
+  --secondary-color: #8aaeed;
+  --accent-color: #b1c9ef;
+  --background-color: #d5deef;
+  --text-color: #1f2937;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--text-color);
+  background: var(--background-color);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.heading {
+  font-family: "Subjectivity", serif;
+  letter-spacing: -0.03em;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
