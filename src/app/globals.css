@@ -1,5 +1,6 @@
 @import url(./demo-page/demo-page.css);
 @import url("./css/register.css");
+@import url("./css/login.css");
 
 @font-face {
   font-family: "Subjectivity";
@@ -48,7 +49,7 @@
   --status-neutral-text: #374151;
 }
 
-/* @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
   :root {
     --primary-color: #29343d;
     --secondary-color: #5a7480;
@@ -56,7 +57,7 @@
     --text-color: #e5e7eb;
     --background-color: #1e2025;
   }
-} */
+}
 
 [data-theme="dark"] {
   --primary-color: #29343d;
