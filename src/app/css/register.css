@@ -1,0 +1,124 @@
+.signup-container {
+  width: 750px;
+  height: 550px;
+  margin: 60px auto;
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  background-color: #0b2a3f;
+}
+.signup-line {
+  border: none;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 20px 0 25px;
+}
+.signup-left {
+  width: 50%;
+  background: #e6f7fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+}
+
+.signup-right {
+  width: 50%;
+  background: #0b2a3f;
+  color: #fff;
+  padding: 30px 40px;
+  position: relative;
+}
+.signup-right h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #b1c9ef;
+}
+
+.signup-right form {
+  display: flex;
+  flex-direction: column;
+}
+
+.signup-right label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #b1c9ef;
+}
+signup-right input {
+  background: transparent;
+  border: 1px solid #4c6a80;
+  border-radius: 8px;
+  padding: 12px;
+  color: #b1c9ef;
+  margin-bottom: 18px;
+  outline: none;
+}
+
+.signup-right input::placeholder {
+  color: #9fb3c2;
+}
+
+.signup-right input:focus {
+  border-color: #6ec1e4;
+  transform: scaleX(1.02) 0.09s;
+ 
+  width: 102%; 
+}
+.signup-right input {
+  background: transparent;
+  border: 1px solid #4c6a80;
+  border-radius: 8px;
+  padding: 12px;
+  color: #b1c9ef;
+  margin-bottom: 18px;
+  outline: none;
+}
+
+.signup-right input::placeholder {
+  color: #9fb3c2;
+}
+
+.signup-right input:focus {
+  border-color: #6ec1e4;
+}
+
+.signup-right button {
+  background: #3d5afe;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.signup-right button:hover {
+  background: #304ffe;
+}
+
+.signin {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 20px;
+  color: #b1c9ef;
+}
+
+.signin span {
+  color: #6ec1e4;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: underline;
+  
+}
+.brand {
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  font-size: 18px;
+  color: #b1c9ef;
+  font-weight: bold;
+}
