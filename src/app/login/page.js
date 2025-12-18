@@ -3,6 +3,8 @@ const Login = () => {
     <div className="login-wrapper">
 
       <div className="login-left">
+        <img src="./Images/loginphoto1.jpg" alt="loginphoto1.jpg" className="icon-img"></img>
+         <img src="./Images/loginphoto2.jpg" alt="loginphoto2.jpg" className="people-img"></img>
       
       </div>
 
