@@ -1,26 +1,38 @@
 .login-wrapper {
-  width: 900px;
-  height: 520px;
+  max-width: 900px;
+  width: 100%;
+  min-height: 520px;
   margin: 60px auto;
   display: flex;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
-.login-line {
-  border: none;
-  height: 1px;
-  background-color: rgba(255, 255, 255, 0.3);
-  margin: 35px 0 25px;
-}
+
 .login-left {
   width: 50%;
   background: #e6f7fb;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
+  gap: 40px;
+  padding: 40px 20px;
 }
 
+.icon-img {
+  max-width: 900px;
+  width: 100%;
+  height: auto;
+}
+
+.people-img {
+  max-width: 5000px;
+  width: 100%;
+  height: auto;
+}
+
+/* RIGHT SIDE */
 .login-right {
   width: 50%;
   background: #0b2a3f;
@@ -28,10 +40,18 @@
   padding: 50px 40px;
   position: relative;
 }
+
 .login-right h2 {
   text-align: center;
   margin-bottom: 40px;
   font-weight: 500;
+}
+
+.login-line {
+  border: none;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 35px 0 25px;
 }
 
 .login-right form {
@@ -44,23 +64,7 @@
   margin-bottom: 6px;
   color: #cfd8dc;
 }
-login-right input {
-  background: transparent;
-  border: 1px solid #4c6a80;
-  border-radius: 8px;
-  padding: 12px;
-  color: #fff;
-  margin-bottom: 18px;
-  outline: none;
-}
 
-.login-right input::placeholder {
-  color: #9fb3c2;
-}
-
-.login-right input:focus {
-  border-color: #6ec1e4;
-}
 .login-right input {
   background: transparent;
   border: 1px solid #4c6a80;
@@ -78,6 +82,7 @@ login-right input {
 .login-right input:focus {
   border-color: #6ec1e4;
 }
+
 .forgot {
   text-align: right;
   font-size: 12px;
@@ -86,9 +91,6 @@ login-right input {
   text-decoration: none;
 }
 
-.forgot:hover {
-  color: #fff;
-}
 .login-right button {
   background: #3d5afe;
   border: none;
@@ -97,10 +99,6 @@ login-right input {
   color: #fff;
   font-weight: 600;
   cursor: pointer;
-}
-
-.login-right button:hover {
-  background: #304ffe;
 }
 
 .signup {
@@ -113,8 +111,8 @@ login-right input {
 .signup span {
   color: #6ec1e4;
   cursor: pointer;
-  
 }
+
 .brand {
   position: absolute;
   bottom: 20px;
@@ -123,7 +121,22 @@ login-right input {
   color: #9fb3c2;
 }
 
+@media (max-width: 768px) {
+  .login-wrapper {
+    min-height: 100vh;
+    margin: 0;
+    justify-content: center;
+    align-items: center;
+  }
 
+  .login-left {
+    display: none;
+  }
 
-
-
+  .login-right {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 24px;
+    padding: 40px 24px;
+  }
+}
