@@ -11,12 +11,24 @@ import { useCallback, useEffect, useState } from "react";
 // icons
 import AutorenewOutlinedIcon from "@mui/icons-material/AutorenewOutlined";
 import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
+import Button from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const Register = () => {
   const apiFetch = useApi();
 
+  const { accessToken, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (accessToken && !authLoading) {
+      router.replace("/");
+    }
+  }, [accessToken, authLoading, router]);
+
   /* ---------------- STATES ---------------- */
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
   const [direction, setDirection] = useState("forward");
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -278,9 +290,9 @@ const Register = () => {
                 helperText={errors.confirmPassword?.message ?? ""}
               />
 
-              <button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading}>
                 {loading ? "CREATING..." : "SIGN UP"}
-              </button>
+              </Button>
             </form>
           )}
 
@@ -350,9 +362,9 @@ const Register = () => {
                 onChange={getHandler("phoneNumber")}
               />
 
-              <button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading}>
                 {loading ? "SAVING..." : "COMPLETE"}
-              </button>
+              </Button>
             </form>
           )}
 

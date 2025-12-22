@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }) => {
       email: data.data.email,
       displayUsername: data.data.display_username,
     });
+    return data;
   };
 
   // Logout function
