@@ -4,6 +4,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 900px;
+  min-height: 650px;
   display: flex;
   border-radius: 20px;
   overflow: hidden;
@@ -154,12 +155,64 @@
   font-weight: bold;
 }
 
+.profile-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview {
+  position: relative;
+}
+
 .profile-preview {
-  width: 120px;
-  height: 120px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   object-fit: cover;
-  margin: 10px 0;
+  cursor: pointer;
+}
+
+.profile-image-change-icon {
+  position: absolute;
+  background-color: var(--bg-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 3px 2.5px;
+  width: 29px;
+  height: 29px;
+  right: -5px;
+  bottom: 5px;
+}
+
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  opacity: 0.4;
+}
+
+.step-dot.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  opacity: 1;
+}
+
+.success-step {
+  text-align: center;
+  padding: 40px 0;
 }
 
 @media (max-width: 768px) {
