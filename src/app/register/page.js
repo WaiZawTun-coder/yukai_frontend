@@ -16,11 +16,11 @@ const Register = () => {
   const apiFetch = useApi();
 
   /* ---------------- STATES ---------------- */
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
   const [direction, setDirection] = useState("forward");
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const [loading, setLoading] = useState(false); // ⭐ loading state
+  const [loading, setLoading] = useState(false);
   const [auth, setAuth] = useState(null);
 
   const [formData, setFormData] = useState({});
@@ -65,13 +65,22 @@ const Register = () => {
     const confirmPassword = (formData.confirmPassword ?? "").trim();
 
     const nextErrors = {};
-    if (!fullName) nextErrors.fullName = { status: true, message: "Required" };
-    if (!email) nextErrors.email = { status: true, message: "Required" };
-    if (!password) nextErrors.password = { status: true, message: "Required" };
+    if (!fullName)
+      nextErrors.fullName = { status: true, message: "Fullname is required" };
+    if (!email)
+      nextErrors.email = { status: true, message: "Email is required" };
+    if (!password)
+      nextErrors.password = { status: true, message: "Password is required" };
     if (password !== confirmPassword) {
       nextErrors.confirmPassword = {
         status: true,
         message: "Passwords do not match",
+      };
+    }
+    if (!confirmPassword) {
+      nextErrors.confirmPassword = {
+        status: true,
+        message: "Confirm password is required",
       };
     }
 
@@ -131,12 +140,36 @@ const Register = () => {
     try {
       setLoading(true);
 
+      const nextErrors = {};
+
+      const username = formData.username?.trim() ?? "";
+      const dateOfBirth = formData.dateOfBirth ?? null;
+      const gender = formData.gender?.trim() ?? "";
+
+      if (!username) {
+        nextErrors.username = { status: true, message: "Username is required" };
+      }
+      if (!dateOfBirth) {
+        nextErrors.dateOfBirth = {
+          status: true,
+          message: "Date of birth is required",
+        };
+      }
+      if (!gender) {
+        nextErrors.gender = { status: true, message: "Gender is required" };
+      }
+
+      if (Object.keys(nextErrors).length) {
+        setErrors(nextErrors);
+        return;
+      }
+
       const fd = new FormData();
       fd.append("userId", formData.userId);
       fd.append("email", formData.email);
-      fd.append("username", formData.username);
-      fd.append("dateOfBirth", formData.dateOfBirth);
-      fd.append("gender", formData.gender);
+      fd.append("username", username);
+      fd.append("dateOfBirth", dateOfBirth);
+      fd.append("gender", gender);
 
       if (formData.phoneNumber) {
         fd.append("phoneNumber", formData.phoneNumber);
@@ -187,7 +220,7 @@ const Register = () => {
 
       <div className="signup-right">
         <h2 className="heading">
-          Yukai –{" "}
+          Yukai -{" "}
           {step === 1
             ? "Create Account"
             : step === 2
@@ -218,17 +251,31 @@ const Register = () => {
           {/* -------- STEP 1 -------- */}
           {step === 1 && (
             <form onSubmit={handleStep1}>
-              <TextField label="Full Name" onChange={getHandler("fullName")} />
-              <TextField label="Email" onChange={getHandler("email")} />
+              <TextField
+                label="Full Name"
+                onChange={getHandler("fullName")}
+                error={errors.fullName?.status ?? false}
+                helperText={errors.fullName?.message ?? ""}
+              />
+              <TextField
+                label="Email"
+                onChange={getHandler("email")}
+                error={errors.email?.status ?? false}
+                helperText={errors.email?.message ?? ""}
+              />
               <TextField
                 label="Password"
                 type="password"
                 onChange={getHandler("password")}
+                error={errors.password?.status ?? false}
+                helperText={errors.password?.message ?? ""}
               />
               <TextField
                 label="Confirm Password"
                 type="password"
                 onChange={getHandler("confirmPassword")}
+                error={errors.confirmPassword?.status ?? false}
+                helperText={errors.confirmPassword?.message ?? ""}
               />
 
               <button type="submit" disabled={loading}>
@@ -270,6 +317,8 @@ const Register = () => {
                 label="Username"
                 value={formData.username ?? ""}
                 onChange={getHandler("username")}
+                error={errors.username?.status ?? false}
+                helperText={errors.username?.message ?? ""}
               />
 
               <TextField
@@ -277,6 +326,8 @@ const Register = () => {
                 type="date"
                 InputLabelProps={{ shrink: true }}
                 onChange={getHandler("dateOfBirth")}
+                error={errors.dateOfBirth?.status ?? false}
+                helperText={errors.dateOfBirth?.message ?? ""}
               />
 
               <RadioButtons
@@ -290,6 +341,8 @@ const Register = () => {
                   { label: "Other", value: "other" },
                 ]}
                 row
+                error={errors.dateOfBirth?.status ?? false}
+                helperText={errors.dateOfBirth?.message ?? ""}
               />
 
               <TextField
