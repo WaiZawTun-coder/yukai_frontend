@@ -1,6 +1,7 @@
 @import url(./demo-page/demo-page.css);
 @import url("./css/register.css");
 @import url("./css/login.css");
+@import url("./css/sidebar.css");
 
 @font-face {
   font-family: "Subjectivity";
