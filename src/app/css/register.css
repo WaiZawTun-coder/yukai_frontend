@@ -1,22 +1,26 @@
 .signup-container {
-  width: 750px;
-  height: 550px;
-  margin: 60px auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px;
   display: flex;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  background-color: #0b2a3f;
+  box-shadow: 0 15px 40px var(--shadow-card);
+  background-color: var(--bg-primary);
 }
+
 .signup-line {
   border: none;
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--line-light);
   margin: 20px 0 25px;
 }
+
 .signup-left {
   width: 50%;
-  background: #e6f7fb;
+  background: var(--bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,100 +29,155 @@
 
 .signup-right {
   width: 50%;
-  background: #0b2a3f;
-  color: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding: 30px 40px;
   position: relative;
 }
+
 .signup-right h2 {
   text-align: center;
   margin-bottom: 10px;
   font-weight: 500;
-  color: #b1c9ef;
+  color: var(--text-secondary);
 }
 
 .signup-right form {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 26px;
 }
 
 .signup-right label {
   font-size: 13px;
   margin-bottom: 6px;
-  color: #b1c9ef;
-}
-signup-right input {
-  background: transparent;
-  border: 1px solid #4c6a80;
-  border-radius: 8px;
-  padding: 12px;
-  color: #b1c9ef;
-  margin-bottom: 18px;
-  outline: none;
+  color: var(--text-secondary);
 }
 
-.signup-right input::placeholder {
-  color: #9fb3c2;
-}
-
-.signup-right input:focus {
-  border-color: #6ec1e4;
-  transform: scaleX(1.02) 0.09s;
- 
-  width: 102%; 
-}
 .signup-right input {
-  background: transparent;
-  border: 1px solid #4c6a80;
+  /* background: transparent; */
+  /* border: 1px solid var(--border-default); */
   border-radius: 8px;
   padding: 12px;
-  color: #b1c9ef;
-  margin-bottom: 18px;
+  color: var(--text-secondary);
   outline: none;
 }
 
 .signup-right input::placeholder {
-  color: #9fb3c2;
+  color: var(--text-placeholder);
 }
 
 .signup-right input:focus {
-  border-color: #6ec1e4;
+  border-color: var(--border-focus);
+  width: 102%;
 }
 
 .signup-right button {
-  background: #3d5afe;
+  background: var(--btn-primary);
   border: none;
   padding: 12px;
   border-radius: 8px;
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 600;
   cursor: pointer;
 }
 
 .signup-right button:hover {
-  background: #304ffe;
+  background: var(--btn-primary-hover);
 }
 
 .signin {
   text-align: center;
   font-size: 13px;
   margin-top: 20px;
-  color: #b1c9ef;
+  color: var(--text-secondary);
 }
 
 .signin span {
-  color: #6ec1e4;
+  color: var(--border-focus);
   cursor: pointer;
   font-size: 15px;
   font-weight: bold;
   text-decoration: underline;
-  
 }
+
 .brand {
   position: absolute;
   bottom: 20px;
   right: 30px;
   font-size: 18px;
-  color: #b1c9ef;
+  color: var(--text-secondary);
   font-weight: bold;
+}
+
+.step-wrapper {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  will-change: opacity, transform;
+}
+
+/* Desktop */
+.fade-in.forward {
+  opacity: 1;
+  transform: translateX(0);
+}
+.fade-out.forward {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.fade-in.back {
+  opacity: 1;
+  transform: translateX(0);
+}
+.fade-out.back {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .fade-out.forward {
+    transform: translateY(-20px);
+  }
+  .fade-out.back {
+    transform: translateY(20px);
+  }
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--border-focus);
+  cursor: pointer;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.profile-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 10px 0;
+}
+
+@media (max-width: 768px) {
+  .signup-container {
+    max-width: 360px;
+    margin: 0;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .signup-left {
+    display: none;
+  }
+
+  .signup-right {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 24px;
+    padding: 40px 24px;
+  }
 }

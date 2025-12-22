@@ -47,11 +47,35 @@
   --status-neutral-bg: #f9fafb;
   --status-neutral-border: #e5e7eb;
   --status-neutral-text: #374151;
+
+  /* Backgrounds */
+  --bg-primary: #0b2a3f;
+  --bg-secondary: #e6f7fb;
+
+  /* Text colors */
+  --text-primary: #ffffff;
+  --text-secondary: #b1c9ef;
+  --text-placeholder: #9fb3c2;
+
+  /* Borders */
+  --border-default: #4c6a80;
+  --border-focus: #6ec1e4;
+
+  /* Buttons */
+  --btn-primary: #3d5afe;
+  --btn-primary-hover: #304ffe;
+
+  /* Shadows */
+  --shadow-card: rgba(0, 0, 0, 0.15);
+
+  /* Lines */
+  --line-light: rgba(255, 255, 255, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary-color: #29343d;
+    /* --primary-color: #29343d; */
+    --primary-color: #0b2a3f;
     --secondary-color: #5a7480;
     --accent-color: #92a4b1;
     --text-color: #e5e7eb;
@@ -102,7 +126,7 @@ a {
 
 .heading {
   font-family: "Subjectivity", serif;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.05em;
 }
 
 @media (prefers-color-scheme: dark) {

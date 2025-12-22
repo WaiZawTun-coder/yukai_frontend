@@ -1,8 +1,11 @@
 .login-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   max-width: 900px;
   width: 100%;
   min-height: 520px;
-  margin: 60px auto;
   display: flex;
   border-radius: 20px;
   overflow: hidden;
@@ -32,10 +35,9 @@
   height: auto;
 }
 
-/* RIGHT SIDE */
 .login-right {
   width: 50%;
-  background: #0b2a3f;
+  background: var(--primary-color);
   color: #fff;
   padding: 50px 40px;
   position: relative;
@@ -57,21 +59,18 @@
 .login-right form {
   display: flex;
   flex-direction: column;
-}
-
-.login-right label {
-  font-size: 13px;
-  margin-bottom: 6px;
-  color: #cfd8dc;
+  /* align-items: center; */
+  justify-content: center;
+  gap: 26px;
 }
 
 .login-right input {
-  background: transparent;
-  border: 1px solid #4c6a80;
+  /* background: transparent; */
+  /* border: 1px solid #4c6a80; */
   border-radius: 8px;
   padding: 12px;
   color: #fff;
-  margin-bottom: 18px;
+  /* margin-bottom: 18px; */
   outline: none;
 }
 
@@ -106,6 +105,7 @@
   font-size: 13px;
   margin-top: 25px;
   color: #cfd8dc;
+  width: 100%;
 }
 
 .signup span {
