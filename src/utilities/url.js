@@ -1,6 +1,6 @@
 const getBackendUrl = () => {
   const environment = process.env.ENVIRONMENT;
-  console.log({ environment });
+  console.log({ environments: process.env });
   if (environment == "Production" || environment == "Preview") {
     return "https://yukai-backend.onrender.com";
   }
