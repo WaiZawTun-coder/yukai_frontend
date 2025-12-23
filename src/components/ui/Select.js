@@ -9,160 +9,100 @@ import {
 } from "@mui/material";
 
 const Select = ({
-  options = [], // options to select in array [{ label, value }]
-  value, // selected value
-  defaultValue, // default selected value
-  onChange, // action on change
-  label, // field label
-  placeholder, // placeholder text
-  disabled = false, // boolean
-  error = false, // boolean
-  helperText, // text below input box
-  multiple = false, // boolean
-  fullWidth = true, // boolean
-  size = "medium", // small | medium
-  color = "primary", // primary, secondary, accent
-  renderValue,
+  options = [], // [{ label, value }]
+  value = "",
+  onChange,
+  label,
+  placeholder,
+  disabled = false,
+  error = false,
+  helperText,
+  multiple = false,
+  fullWidth = true,
+  size = "medium",
+  color = "accent",
   ...props
 }) => {
   const baseColor = `var(--${color}-color)`;
 
   return (
     <FormControl
+      variant="outlined"
       fullWidth={fullWidth}
       size={size}
       disabled={disabled}
       error={error}
       sx={{
-        /* INPUT ROOT */
         "& .MuiOutlinedInput-root": {
-          bgcolor: "var(--background-color)",
-          borderColor: "var(--text-color)",
-        },
-
-        /* SELECTED VALUE (IMPORTANT) */
-        "& .MuiSelect-select": {
+          bgcolor: "transparent",
           color: "var(--text-color)",
-        },
+          borderRadius: "8px",
+          transition: "all 0.2s ease",
 
-        /* LABEL */
-        "& .MuiInputLabel-root": {
-          color: "var(--text-color)",
-        },
-        "& .MuiInputLabel-root.Mui-focused": {
-          color: "var(--text-color)",
-        },
-
-        /* DISABLED */
-        "&.Mui-disabled": {
-          color: "var(--disabled-color)",
-        },
-
-        /* DROPDOWN ICON */
-        "& .MuiSelect-icon": {
-          color: "var(--text-color)",
-          opacity: 0.6,
-          transition: "color 0.2s ease",
-          "&:hover": {
-            color: baseColor,
-            opacity: 1,
+          "& fieldset": {
+            borderColor: "var(--border-default)",
           },
-        },
 
-        /* HELPER TEXT */
-        "& .MuiFormHelperText-root": {
-          color: error ? "var(--disabled-color)" : "var(--text-color)",
-        },
+          "&:hover fieldset": {
+            borderColor: "var(--border-focus)",
+          },
 
-        /* DEFAULT BORDER */
-        "& .MuiOutlinedInput-notchedOutline": {
-          //   borderColor: "var(--accent-color)",
-        },
-
-        /* HOVER BORDER */
-        "&:hover .MuiOutlinedInput-notchedOutline": {
-          borderColor: baseColor,
-        },
-
-        /* FOCUS BORDER */
-        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
-          {
+          "&.Mui-focused fieldset": {
             borderColor: baseColor,
             borderWidth: 2,
           },
 
-        /* ERROR BORDER */
-        "& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline": {
-          borderColor: "var(--disabled-color)",
-        },
+          "&.Mui-error fieldset": {
+            borderColor: "var(--status-error-border)",
+          },
 
-        /* DISABLED BORDER */
-        "& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline":
-          {
+          "&.Mui-disabled fieldset": {
             borderColor: "var(--disabled-color)",
           },
+        },
+
+        "& .MuiInputLabel-root": {
+          fontSize: "16px",
+          color: "var(--text-color)",
+        },
+
+        "& .MuiInputLabel-root.Mui-focused": {
+          color: "var(--text-color)",
+        },
+
+        "& .MuiInputLabel-root.Mui-error": {
+          color: "var(--status-error-text)",
+        },
 
         "& .MuiSelect-icon": {
           color: "var(--text-color)",
+          opacity: 0.6,
+        },
+
+        "& .MuiFormHelperText-root": {
+          color: error ? "var(--status-error-text)" : "var(--text-color)",
         },
       }}
     >
       {label && <InputLabel>{label}</InputLabel>}
 
       <MuiSelect
+        label={label}
         value={value}
-        defaultValue={defaultValue}
         onChange={onChange}
         multiple={multiple}
-        displayEmpty
-        renderValue={
-          value === "" && placeholder
-            ? () => (
-                <span style={{ color: "var(--disabled-color)" }}>
-                  {placeholder}
-                </span>
-              )
-            : renderValue
-        }
-        MenuProps={{
-          PaperProps: {
-            sx: {
-              bgcolor: "var(--background-color)",
-              color: "var(--text-color)",
-
-              "& .MuiMenuItem-root": {
-                bgcolor: "transparent",
-                color: "var(--text-color)",
-
-                "&.Mui-selected": {
-                  bgcolor: "var(--background-color)",
-                  fontWeight: 600,
-                },
-
-                "&.Mui-selected:hover": {
-                  bgcolor: "var(--accent-color)",
-                },
-
-                "&:hover": {
-                  bgcolor: "var(--accent-color)",
-                },
-              },
-            },
-          },
-        }}
-        sx={{
-          "& .MuiOutlinedSelect-root": {
-            bgcolor: "var(--background-color)",
-          },
-        }}
         {...props}
       >
+        {/* Placeholder */}
         {placeholder && !multiple && (
-          <MenuItem disabled value="">
-            {placeholder}
+          <MenuItem value="" disabled>
+            <span style={{ color: "var(--disabled-color)" }}>
+              {placeholder}
+            </span>
           </MenuItem>
         )}
 
+        {/* Options */}
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>
             {option.label}

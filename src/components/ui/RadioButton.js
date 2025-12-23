@@ -59,7 +59,7 @@ const RadioButtons = ({
 
                   /* CHECKED */
                   "&.Mui-checked": {
-                    color: baseColor,
+                    color: "var(--default-border)",
                   },
 
                   /* HOVER */
