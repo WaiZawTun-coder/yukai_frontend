@@ -22,7 +22,7 @@ const Sidebar = () => {
     <div className="info">
       <h4>Silva</h4>
       <p>@growwithsilva</p>
-      <div class="stats">
+      <div className="stats">
         <span><b>67</b><br></br>follower</span>
         <span><b>300</b><br></br>following</span>
         <span><b>21</b><br></br>posts</span>
