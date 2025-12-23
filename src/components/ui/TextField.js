@@ -5,7 +5,7 @@ import { TextField as MuiTextField } from "@mui/material";
 const TextField = ({
   variant = "outlined", // outlined, filled, standard
   size = "medium", // small, medium, large
-  color = "primary", // primary, secondary, accent
+  color = "accent", // primary, secondary, accent
   label, // input label
   helperText, // text below input box
   error = false, // boolean
@@ -40,14 +40,18 @@ const TextField = ({
       InputLabelProps={InputLabelProps}
       sx={{
         "& .MuiOutlinedInput-root": {
-          bgcolor: "var(--background-color)",
+          bgcolor: "transparent",
           color: "var(--text-color)",
+          borderRadius: "8px",
           transition: "all 0.2s ease",
+          "& fieldset": {
+            borderColor: "var(--border-default)",
+          },
           "&:hover fieldset": {
-            borderColor: baseColor,
+            borderColor: "var(--border-focus)",
           },
           "&.Mui-focused fieldset": {
-            borderColor: baseColor,
+            borderColor: "var(--border-focus)",
             borderWidth: 2,
           },
           "&.Mui-disabled": {
@@ -56,6 +60,7 @@ const TextField = ({
           },
         },
         "& .MuiInputLabel-root": {
+          fontSize: "16px",
           color: "var(--text-color)",
         },
         "& .MuiInputLabel-root.Mui-focused": {
