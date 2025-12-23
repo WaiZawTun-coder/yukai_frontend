@@ -3,14 +3,24 @@
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useApi } from "@/utilities/api";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
-  const apiFetch = useApi();
   const [formData, setFormData] = useState({}); // handle form data
   const [errors, setErrors] = useState({});
+
+  const { login, accessToken, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (accessToken && !authLoading) {
+      router.replace("/");
+    }
+  }, [accessToken, authLoading, router]);
 
   // to handle input changes
   const handleFieldChange = useCallback((name, value) => {
@@ -72,16 +82,30 @@ const Login = () => {
 
     const data = { username, password };
 
-    try {
-      const response = await apiFetch("/auth/login", {
-        method: "POST",
-        body: data,
-      });
-      console.log({ response });
-    } catch (err) {
-      console.error(err);
-      // throw err;
+    const response = await login(username, password);
+    // console.log({ response });
+    if (response.status) {
+      const timer = setTimeout(() => {
+        router.replace("/");
+      }, 3000);
+      return () => clearTimeout(timer);
     }
+
+    // try {
+    //   const response = await apiFetch("/auth/login", {
+    //     method: "POST",
+    //     body: data,
+    //   });
+    //   console.log({ response });
+    //   const timer = setTimeout(() => {
+    //     window.location.href = "/";
+    //   }, 3000);
+
+    //   return () => clearTimeout(timer);
+    // } catch (err) {
+    //   console.error(err);
+    //   // throw err;
+    // }
   };
 
   return (
