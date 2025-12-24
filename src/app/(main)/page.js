@@ -1,20 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import styles from "./page.module.css";
-import { useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import styles from "../page.module.css";
 
 export default function Home() {
-  const { accessToken, loading: authLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!accessToken && !authLoading) {
-      router.replace("/login");
-    }
-  }, [accessToken, authLoading, router]);
   return (
     <div className={styles.page}>
       <main className={styles.main}>

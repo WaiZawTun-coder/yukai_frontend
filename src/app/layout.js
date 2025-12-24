@@ -1,7 +1,7 @@
+import { AuthProvider } from "@/context/AuthContext";
 import { Geist, Geist_Mono } from "next/font/google";
 import { subjectitvity } from "./fonts";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Yukai - Social",
-  description: "To connect more firends",
+  description: "Connect more firends",
 };
 
 export default function RootLayout({ children }) {
