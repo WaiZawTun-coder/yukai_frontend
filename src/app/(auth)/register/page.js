@@ -14,6 +14,7 @@ import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutli
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 const Register = () => {
   const apiFetch = useApi();
@@ -41,6 +42,8 @@ const Register = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [defaultPreviewImage, setDefaultPreviewImage] = useState("male");
   const [generatedUsername, setGeneratedUsername] = useState("");
+
+  const { showSnackbar } = useSnackbar();
 
   /* ---------------- STEP CONTROL ---------------- */
   const goToStep = (nextStep) => {
@@ -128,9 +131,19 @@ const Register = () => {
           goToStep(2);
           setIsTransitioning(false);
         }, 300);
+      } else {
+        showSnackbar({
+          title: "Registration Failed",
+          message: res.message,
+          variant: "error",
+        });
       }
     } catch (err) {
-      console.error(err);
+      showSnackbar({
+        title: "Registration failed",
+        message: err,
+        variant: "error",
+      });
     } finally {
       setLoading(false);
     }

@@ -8,14 +8,14 @@
   display: flex;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 15px 40px var(--shadow-card);
+  box-shadow: var(--shadow-medium);
   background-color: var(--bg-primary);
 }
 
 .signup-line {
   border: none;
   height: 1px;
-  background-color: var(--line-light);
+  background-color: var(--divider);
   margin: 20px 0 25px;
 }
 
@@ -57,11 +57,11 @@
 }
 
 .signup-right input {
-  /* background: transparent; */
-  /* border: 1px solid var(--border-default); */
+  background: var(--surface-2);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   padding: 12px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   outline: none;
 }
 
@@ -71,7 +71,7 @@
 
 .signup-right input:focus {
   border-color: var(--border-focus);
-  width: 102%;
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .signup-right button {
@@ -82,6 +82,7 @@
   color: var(--text-primary);
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .signup-right button:hover {
@@ -137,7 +138,7 @@
 }
 
 /* Mobile */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .fade-out.forward {
     transform: translateY(-20px);
   }
@@ -171,6 +172,7 @@
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
+  border: 2px solid var(--accent-color);
 }
 
 .profile-image-change-icon {
@@ -183,6 +185,11 @@
   height: 29px;
   right: -5px;
   bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-soft);
 }
 
 .step-indicator {
@@ -202,6 +209,7 @@
   justify-content: center;
   font-weight: 600;
   opacity: 0.4;
+  color: var(--text-primary);
 }
 
 .step-dot.active {
@@ -215,7 +223,7 @@
   padding: 40px 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .signup-container {
     max-width: 360px;
     margin: 0;

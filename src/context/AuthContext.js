@@ -1,22 +1,25 @@
 "use client";
 
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { getBackendUrl } from "@/utilities/url";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { useSnackbar } from "./SnackbarContext";
+import { useRouter } from "next/navigation";
 
-// Create context
 const AuthContext = createContext();
 
-// Provider component
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Refresh token on app start
+  const { showSnackbar } = useSnackbar();
+  const router = useRouter();
+
   useEffect(() => {
     const initAuth = async () => {
       try {
-        await refreshToken();
+        const token = await refreshToken();
+        if (token) await getUser(token);
       } catch (err) {
         setAccessToken(null);
         setUser(null);
@@ -24,60 +27,88 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     };
+
     initAuth();
   }, []);
 
-  // Login function
   const login = async (username, password) => {
     const res = await fetch(getBackendUrl() + "/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ username, password }),
-      credentials: "include", // important for HttpOnly cookie
     });
-
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.message || "Login failed");
-    }
 
     const data = await res.json();
+
+    if (!res.ok) {
+      showSnackbar({ message: data.message, variant: "error" });
+      throw new Error(data.message);
+    }
+
     setAccessToken(data.data.access_token);
-    setUser({
-      username: data.data.username,
-      email: data.data.email,
-      displayUsername: data.data.display_username,
-    });
+    setUser(data.data);
+
     return data;
   };
 
-  // Logout function
-  const logout = () => {
+  const logout = async () => {
     setAccessToken(null);
     setUser(null);
-    // Optionally call backend to invalidate refresh token
-    fetch(getBackendUrl() + "/auth/logout", {
+    await fetch(getBackendUrl() + "/auth/logout", {
       method: "POST",
       credentials: "include",
     });
+    router.replace("/login");
   };
 
-  // Refresh access token
   const refreshToken = async () => {
     const res = await fetch(getBackendUrl() + "/auth/refresh", {
       method: "POST",
-      credentials: "include", // send HttpOnly cookie
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showSnackbar({
+        message: data.message || "Refresh failed",
+        variant: "error",
+      });
+      router.replace("/login");
+      throw new Error(data.message || "Refresh failed");
+    }
+
+    if (!data.status) {
+      showSnackbar({
+        message: data.message || "Refresh failed",
+        variant: "error",
+      });
+      router.replace("/login");
+    }
+
+    setAccessToken(data.data.access_token);
+    return data.data.access_token;
+  };
+
+  const getUser = async (token) => {
+    if (!token) return;
+
+    const res = await fetch(getBackendUrl() + "/api/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
     });
 
     if (!res.ok) {
-      setAccessToken(null);
-      setUser(null);
-      throw new Error("Could not refresh token");
+      showSnackbar({ message: data.message, variant: "error" });
+      throw new Error("Failed to load user");
     }
 
     const data = await res.json();
-    setAccessToken(data.data.access_token);
-    return data.data.access_token;
+    setUser(data.data);
   };
 
   return (
@@ -89,5 +120,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook for easy access
 export const useAuth = () => useContext(AuthContext);
