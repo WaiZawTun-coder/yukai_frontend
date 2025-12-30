@@ -1,4 +1,3 @@
-/* RESET */
 * {
   margin: 0;
   padding: 0;
@@ -6,13 +5,13 @@
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* MAIN FEED */
+
 .feed-wrapper {
   width: 720px;
   margin: 30px auto;
 }
 
-/* NAVBAR */
+
 .navbar {
   background: #9eb6c8;
   padding: 15px 25px;
@@ -39,7 +38,7 @@
   padding-bottom: 5px;
 }
 
-/* SEARCH */
+
 .search-box {
   display: flex;
   align-items: center;
@@ -56,7 +55,7 @@
   margin-left: 6px;
 }
 
-/* POST INPUT */
+
 .post-box {
   background: #6b7c95;
   padding: 20px;
@@ -129,14 +128,14 @@
   text-decoration: underline;
 }
 
-/* IMAGE */
+
 .post-image {
   width: 100%;
   border-radius: 18px;
   margin-bottom: 12px;
 }
 
-/* STATS */
+
 .post-stats {
   display: flex;
   justify-content: space-between;
@@ -159,7 +158,7 @@
   transform: scale(1.05);
 }
 
-/* COMMENT */
+
 .comment-input {
   width: 100%;
   padding: 10px;
@@ -168,14 +167,14 @@
   outline: none;
 }
 
-/* ICON */
+
 .icon {
   font-size: 20px;
   color: #e6eef5;
   cursor: pointer;
 }
 
-/* RESPONSIVE */
+
 @media (max-width: 768px) {
   .feed-wrapper {
     width: 95%;
