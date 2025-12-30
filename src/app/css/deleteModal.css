@@ -1,0 +1,131 @@
+/* Backdrop / Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); 
+  backdrop-filter: blur(2px); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Main Card Container */
+.modal-container {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 400px; 
+  margin: 16px;
+  border-radius: 20px; 
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: scaleIn 0.2s ease-out;
+}
+
+
+.modal-content {
+  padding: 24px;
+  text-align: center;
+}
+
+.icon-container {
+  margin: 0 auto 20px auto;
+  width: 48px;
+  height: 48px;
+  background-color: #FEF2F2; 
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-bg-inner {
+  width: 40px;
+  height: 40px;
+  background-color: #FEE2E2; 
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-svg {
+  width: 20px;
+  height: 20px;
+  color: #DC2626; 
+}
+
+
+.modal-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0e1043;
+}
+
+.modal-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #515969;
+  line-height: 1.5;
+  font-weight: bold;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  padding: 0 24px 24px 24px;
+}
+
+.btn {
+  flex: 1; 
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel {
+  background-color: #F3F4F6;
+  color: #374151;
+}
+
+.btn-cancel:hover {
+  background-color: #E5E7EB;
+}
+
+.btn-delete {
+  background-color: #EF4444;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3); 
+}
+
+.btn-delete:hover {
+  background-color: #DC2626; 
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .modal-container {
+    margin: 20px;
+    width: calc(100% - 40px);
+  }
+}
