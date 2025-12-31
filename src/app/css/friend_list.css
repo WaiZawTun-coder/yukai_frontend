@@ -1,0 +1,112 @@
+/* Layout wrapper */
+.friends-page {
+  min-height: 100vh;
+  background: #04213a;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 500px;  
+}
+
+.tabs button {
+  flex: 1;              /* ← makes all buttons equal width */
+  text-align: center;   /* keeps text centered */
+  background: #cfe5f8;
+  border: none;
+  padding: 2px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+
+.tabs .active {
+  background: white;
+  font-size: 17px;
+  font-weight:bold;
+  border:solid rgba(110, 193, 228, 0.6) 3px;
+  
+}
+
+/* Friends container */
+.friends-card {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  padding: 12px;
+  margin: 0 auto;  
+  box-sizing: border-box;
+  overflow-y: auto;
+  max-height: calc(100vh - 140px);
+}
+
+/* Individual row */
+.friend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.friend-row:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* User info */
+.user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Name */
+.user span {
+  color: #022136;
+  font-weight: 500;
+}
+
+/* Menu button */
+.menu-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #022136;
+}
+
+/* -------- Responsive -------- */
+
+@media (max-width: 600px) {
+  .friends-card {
+    max-width: 100%;
+  }
+
+  .user span {
+    font-size: 14px;
+  }
+
+  .tabs button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
