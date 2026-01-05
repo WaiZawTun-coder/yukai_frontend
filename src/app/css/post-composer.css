@@ -2,25 +2,29 @@
    POST COMPOSER CONTAINER
 ====================================================== */
 .post-box {
-  width: 720px;
-  max-width: 95vw;
-  margin: 0 auto;
+  max-width: 720px;
+  width: 100%;
+  min-width: 400px;
 
   background: var(--surface-1);
-  padding: 18px;
+  padding: 8px;
   border-radius: 22px;
 
   display: flex;
+  flex-direction: column;
   gap: 12px;
 
   position: relative;
-  z-index: 20;
+  z-index: 1;
 
-  transform: scale(0.96);
-  opacity: 0.92;
+  /* transform: scale(0.96); */
+  opacity: 1;
 
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
+
+  margin: 0 auto;
+  margin-top: 52px;
 
   transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
 }
@@ -32,11 +36,17 @@
   left: 50%;
   transform: translateX(-50%) scale(1);
   opacity: 1;
+  z-index: 100;
 
   box-shadow: var(--shadow-strong);
 }
 
 .profile-icon {
+  display: flex;
+  gap: 10px;
+}
+
+.profile-icon img {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -60,6 +70,7 @@
 .composer-backdrop.active {
   opacity: 1;
   pointer-events: auto;
+  z-index: 99;
 }
 
 /* ======================================================
@@ -74,6 +85,11 @@
 /* ======================================================
    TEXTAREA
 ====================================================== */
+.post-input {
+  width: 100%;
+  flex: 1;
+}
+
 .post-input textarea {
   width: 100%;
   min-height: 44px;

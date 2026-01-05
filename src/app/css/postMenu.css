@@ -1,0 +1,57 @@
+/* ======================================================
+   POST MENU
+====================================================== */
+.post-menu {
+  margin-left: auto;
+  position: relative;
+}
+
+.post-menu-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.post-menu-btn:hover {
+  background: var(--hover-overlay);
+  color: var(--text-primary);
+}
+
+.post-menu-dropdown {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  min-width: 160px;
+
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  box-shadow: var(--shadow-medium);
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 20;
+}
+
+.post-menu-dropdown button {
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.post-menu-dropdown button:hover {
+  background: var(--hover-overlay);
+}
+
+.post-menu-dropdown button.danger {
+  color: #ef4444;
+}

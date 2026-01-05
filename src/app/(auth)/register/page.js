@@ -132,6 +132,7 @@ const Register = () => {
           setIsTransitioning(false);
         }, 300);
       } else {
+        console.log(res.message);
         showSnackbar({
           title: "Registration Failed",
           message: res.message,
@@ -141,7 +142,7 @@ const Register = () => {
     } catch (err) {
       showSnackbar({
         title: "Registration failed",
-        message: err,
+        message: err.message,
         variant: "error",
       });
     } finally {

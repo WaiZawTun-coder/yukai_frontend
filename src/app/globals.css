@@ -13,7 +13,7 @@
 @import url("./css/postCard.css");
 @import url("./css/deleteModal.css");
 @import url("./css/friend_list.css");
-
+@import url("./css/modal.css");
 
 /* =====================================================
    FONTS
@@ -113,9 +113,9 @@
   --sidebar-width: 350px;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1200px) {
   :root {
-    --sidebar-width: 64px;
+    --sidebar-width: 0px;
   }
 }
 
@@ -183,4 +183,50 @@ a:hover {
   justify-content: flex-start;
   gap: 24px;
   padding: 16px;
+  flex: 1;
+  margin: 0 calc(var(--sidebar-width) + 24px);
+  padding: 16px 0;
+}
+
+.main-container {
+  /* max-width: 95vw;
+  min-width: 430px; */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin: 0;
+  }
+  .main-container {
+    max-width: 95vw;
+  }
+}
+
+.post-actions button {
+  cursor: pointer;
+}
+
+.post-action {
+  font-weight: 500;
+}
+
+/* Slide-up fade-in for reaction picker */
+.post-actions div.absolute > button {
+  opacity: 0;
+  transform: translateY(10px) scale(0.9);
+  animation: slideUp 0.2s forwards;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

@@ -1,0 +1,43 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* start from top */
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding-top: 50px; /* spacing from top */
+  backdrop-filter: blur(20px);
+}
+
+.modal-content {
+  border-radius: 10px;
+  max-width: 750px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(-50px) scale(0.8); /* start above */
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+}
+.modal-overlay.close {
+  opacity: 0;
+}
+
+.modal-content.open {
+  transform: translateY(0) scale(1); /* slide to position */
+  opacity: 1;
+}
+.modal-content.close {
+  transform: translateY(-50px) scale(0.8); /* slide up on close */
+  opacity: 0;
+}
