@@ -1,5 +1,6 @@
 import { getBackendUrl } from "./url";
 import { useAuth } from "../context/AuthContext";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export const useApi = () => {
   const { accessToken, refreshToken, logout } = useAuth();
@@ -39,6 +40,7 @@ export const useApi = () => {
           throw err;
         }
       }
+      // showSnackbar("Failed", "", "error");
       throw data;
     }
 

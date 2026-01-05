@@ -5,8 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function RootLayout({ children }) {
-  const { accessToken, loading: authLoading } = useAuth();
+export default function MainLayout({ children }) {
+  const { accessToken, loading: authLoading, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -14,6 +14,11 @@ export default function RootLayout({ children }) {
       router.replace("/login");
     }
   }, [accessToken, authLoading, router]);
+
+  if (authLoading || !accessToken) {
+    return <div className="auth-loading-screen">Loading...</div>;
+  }
+
   return (
     <div className="main-layout-container">
       <Sidebar />

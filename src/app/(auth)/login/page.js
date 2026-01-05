@@ -8,13 +8,17 @@ import { useApi } from "@/utilities/api";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({}); // handle form data
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const { login, accessToken, loading: authLoading } = useAuth();
   const router = useRouter();
+
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     if (accessToken && !authLoading) {
@@ -80,32 +84,35 @@ const Login = () => {
       return;
     }
 
-    const data = { username, password };
-
-    const response = await login(username, password);
-    // console.log({ response });
-    if (response.status) {
-      const timer = setTimeout(() => {
-        router.replace("/");
-      }, 3000);
-      return () => clearTimeout(timer);
+    try {
+      setIsLoading(true);
+      const response = await login(username, password);
+      if (response.status) {
+        showSnackbar({
+          title: "Login Success",
+          message: "Redirecting...",
+          variant: "success",
+        });
+        const timer = setTimeout(() => {
+          router.replace("/");
+        }, 3000);
+        return () => clearTimeout(timer);
+      } else {
+        showSnackbar({
+          title: "Login Failed",
+          message: response.message,
+          variant: "error",
+        });
+      }
+    } catch (err) {
+      showSnackbar({
+        title: "Login Failed",
+        message: err,
+        variant: "error",
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    // try {
-    //   const response = await apiFetch("/auth/login", {
-    //     method: "POST",
-    //     body: data,
-    //   });
-    //   console.log({ response });
-    //   const timer = setTimeout(() => {
-    //     window.location.href = "/";
-    //   }, 3000);
-
-    //   return () => clearTimeout(timer);
-    // } catch (err) {
-    //   console.error(err);
-    //   // throw err;
-    // }
   };
 
   return (
@@ -152,8 +159,8 @@ const Login = () => {
           <a href="#" className="forgot">
             forgot password?
           </a>
-          <Button type="submit" onClick={handleLogin}>
-            LOGIN
+          <Button type="submit" onClick={handleLogin} disabled={isLoading}>
+            {isLoading ? "LOGGING IN..." : "LOGIN"}
           </Button>
           {/* </div> */}
         </form>
