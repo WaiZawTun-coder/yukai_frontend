@@ -28,8 +28,6 @@ const TopBar = ({ setData }) => {
 
       if (Math.abs(currentY - lastScrollY.current) < 10) return;
 
-      console.log("hidden: ", currentY > lastScrollY.current);
-
       if (currentY > lastScrollY.current && currentY > 80) {
         // scrolling down
         setHidden(true);
