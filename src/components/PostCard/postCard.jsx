@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import PostActions from "./PostActions";
 import PostImages from "./PostImages";
+import PostMenu from "./PostMenu";
 
 function PrivacyIcon({ type }) {
   switch (type) {
@@ -43,6 +44,8 @@ export default function PostCard({
   onLike,
   onComment,
   onShare,
+  postId,
+  userReaction = null,
 }) {
   const [time, setTime] = useState("");
 
@@ -79,6 +82,7 @@ export default function PostCard({
             <PrivacyIcon type={privacy} />
           </div>
         </div>
+        <PostMenu isOwner={true} postId={postId} />
       </div>
       <hr className="post-divider"></hr>
 
@@ -90,11 +94,13 @@ export default function PostCard({
 
       {/* ACTIONS */}
       <PostActions
+        postId={postId}
         likes={likes}
         comments={comments}
         onLike={onLike}
         onComment={onComment}
         onShare={onShare}
+        userReaction={userReaction}
       />
     </div>
   );

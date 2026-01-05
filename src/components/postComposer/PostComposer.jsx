@@ -65,6 +65,10 @@ export default function PostComposer() {
     textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
   }, [text]);
 
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
+
   async function handleSubmit() {
     if (!text && images.length === 0) return; // prevent empty post
 
@@ -104,15 +108,13 @@ export default function PostComposer() {
         <div className="profile-icon">
           <Image
             src={
-              user.profileImage ?? `/Images/default-profiles/${user.gender}.jpg`
+              `/api/images?url=${user.profile_image}` ??
+              `/Images/default-profiles/${user.gender}.jpg`
             }
             alt="profile"
             width={48}
             height={48}
           />
-        </div>
-
-        <div className="action">
           <div className="post-input">
             <textarea
               ref={textareaRef}
@@ -122,7 +124,9 @@ export default function PostComposer() {
               onChange={(e) => setText(e.target.value)}
             />
           </div>
+        </div>
 
+        <div className="action">
           {images.length > 0 && (
             <ImagePreview
               images={images}
@@ -164,28 +168,29 @@ export default function PostComposer() {
               />
             </div>
 
-            {open && (
-              <div className="action-buttons">
-                <button className="ghost" onClick={() => setOpen(false)}>
-                  Cancel
-                </button>
-                <button
-                  className="ghost"
-                  onClick={async () => {
-                    setIsDraft(true);
-                    await handleSubmit();
-                  }}
-                >
-                  Save Draft
-                </button>
-                <button
-                  className="primary"
-                  onClick={async () => await handleSubmit()}
-                >
-                  Post
-                </button>
-              </div>
-            )}
+            {open ||
+              (images.length > 0 && (
+                <div className="action-buttons">
+                  <button className="ghost" onClick={() => setOpen(false)}>
+                    Cancel
+                  </button>
+                  <button
+                    className="ghost"
+                    onClick={async () => {
+                      setIsDraft(true);
+                      await handleSubmit();
+                    }}
+                  >
+                    Save Draft
+                  </button>
+                  <button
+                    className="primary"
+                    onClick={async () => await handleSubmit()}
+                  >
+                    Post
+                  </button>
+                </div>
+              ))}
           </div>
 
           {showEmoji && (

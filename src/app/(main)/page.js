@@ -2,6 +2,8 @@
 
 import PostCard from "@/components/PostCard/postCard";
 import PostComposer from "@/components/postComposer/PostComposer";
+import Modal from "@/components/ui/Modal";
+import { useAuth } from "@/context/AuthContext";
 import { useApi } from "@/utilities/api";
 import { useEffect, useRef, useState } from "react";
 
@@ -9,10 +11,13 @@ const { default: TopBar } = require("@/components/TopBar");
 
 const Home = () => {
   const apiFetch = useApi();
-  // const { user } = useAuth();
+  const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState("foryou");
   const [isFetchPosts, setIsFetchPosts] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalPost, setModalPost] = useState(null);
 
   const [data, setData] = useState({ foryou: [], following: [], friends: [] });
   const [hasMore, setHasMore] = useState({
@@ -84,10 +89,6 @@ const Home = () => {
   }, [activeTab, apiFetch, isFetchPosts, curPage]);
 
   useEffect(() => {
-    console.table(data);
-  }, [data]);
-
-  useEffect(() => {
     const update = () => setIsFetchPosts(true);
     update();
   }, [activeTab]);
@@ -97,8 +98,21 @@ const Home = () => {
     update();
   }, []);
 
+  const handleReact = async (postId, reactType = "like") => {
+    const res = await apiFetch("/api/react-post", {
+      method: "POST",
+      body: {
+        reaction_type: reactType,
+        post_id: postId,
+        user_id: user.user_id,
+      },
+    });
+
+    console.log(res);
+  };
+
   return (
-    <div>
+    <div className="main-container">
       <TopBar setData={setActiveTab} />
       {/* POST INPUT */}
       {/* <CreatePost /> */}
@@ -112,7 +126,7 @@ const Home = () => {
             <div ref={isLast ? lastPostRef : null} key={post.post_id ?? index}>
               <PostCard
                 user={{
-                  name: post.creator.display_username,
+                  name: post.creator.display_name,
                   avatar:
                     post.creator.profile_image != ""
                       ? post.creator.profile_image
@@ -123,14 +137,51 @@ const Home = () => {
                 images={post.attachments}
                 likes={post.react_count}
                 comments={post.comment_count}
-                onLike={() => console.log("Liked post: " + post.post_id)}
-                onComment={() => console.log("Comment post: " + post.post_id)}
+                onLike={handleReact}
+                onComment={() => {
+                  if (!isModalOpen) {
+                    setIsModalOpen(true);
+                    setModalPost(post);
+                  }
+                }}
                 onShare={() => console.log("Share post: " + post.post_id)}
+                postId={post.post_id}
+                userReaction={post.reaction_type}
               />
             </div>
           );
         })}
       </div>
+
+      {modalPost && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setModalPost(null);
+          }}
+        >
+          <PostCard
+            user={{
+              name: modalPost.creator.display_name,
+              avatar:
+                modalPost.creator.profile_image != ""
+                  ? modalPost.creator.profile_image
+                  : `/Images/default-profiles/${modalPost.creator.gender}.jpg`,
+            }}
+            createdAt={modalPost.created_at}
+            content={modalPost.content}
+            images={modalPost.attachments}
+            likes={modalPost.react_count}
+            comments={modalPost.comment_count}
+            onLike={handleReact}
+            onComment={() => {}}
+            onShare={() => console.log("Share post: " + modalPost.post_id)}
+            postId={modalPost.post_id}
+            userReaction={modalPost.reaction_type}
+          />
+        </Modal>
+      )}
     </div>
   );
 };
