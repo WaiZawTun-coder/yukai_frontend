@@ -1,6 +1,8 @@
 "use client";
 
+import AuthLoadingScreen from "@/components/ui/Loading";
 import Sidebar from "@/components/SideBar";
+import TopBar from "@/components/TopBar";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -16,7 +18,7 @@ export default function MainLayout({ children }) {
   }, [accessToken, authLoading, router]);
 
   if (authLoading || !accessToken) {
-    return <div className="auth-loading-screen">Loading...</div>;
+    return <AuthLoadingScreen text="Authentication Loading..." />;
   }
 
   return (
