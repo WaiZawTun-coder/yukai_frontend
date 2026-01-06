@@ -21,7 +21,7 @@ const PRIVACY_OPTIONS = [
   { label: "Only Me", value: "private" },
 ];
 
-export default function PostComposer() {
+export default function PostComposer({ handleCreate }) {
   const apiFetch = useApi();
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
@@ -91,10 +91,16 @@ export default function PostComposer() {
     if (!data.status)
       showSnackbar("Post creation failed", res.message, "error");
     else {
-      showSnackbar("Post creation successful", "", "success");
+      showSnackbar({
+        title: "Post creation successful",
+        message: "",
+        variant: "success",
+      });
       setText("");
       setImages([]);
       setOpen(false);
+
+      handleCreate(data.data[0]);
     }
   }
 
@@ -104,15 +110,13 @@ export default function PostComposer() {
         <div className="profile-icon">
           <Image
             src={
-              user.profileImage ?? `/Images/default-profiles/${user.gender}.jpg`
+              `/api/images?url=${user.profile_image}` ??
+              `/Images/default-profiles/${user.gender}.jpg`
             }
             alt="profile"
             width={48}
             height={48}
           />
-        </div>
-
-        <div className="action">
           <div className="post-input">
             <textarea
               ref={textareaRef}
@@ -122,7 +126,9 @@ export default function PostComposer() {
               onChange={(e) => setText(e.target.value)}
             />
           </div>
+        </div>
 
+        <div className="action">
           {images.length > 0 && (
             <ImagePreview
               images={images}
@@ -164,11 +170,13 @@ export default function PostComposer() {
               />
             </div>
 
-            {open && (
+            {(open || images.length > 0 || text) && (
               <div className="action-buttons">
-                <button className="ghost" onClick={() => setOpen(false)}>
-                  Cancel
-                </button>
+                {open && (
+                  <button className="ghost" onClick={() => setOpen(false)}>
+                    Cancel
+                  </button>
+                )}
                 <button
                   className="ghost"
                   onClick={async () => {
