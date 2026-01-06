@@ -33,28 +33,39 @@
 
 .search-wrapper {
   position: relative;
-  width: 260px;
+  width: 250px;
 }
 
 .search-box {
-  padding: 8px 15px;
-  border-radius: 20px;
-  border: none;
-  outline: none;
   width: 100%;
-  padding-right: 35px;
+  padding: 10px 12px 10px 40px;
+  font-size: 14px;
+  border-radius: 20px;         
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.search-box:focus {
+  border-color: #555;          
 }
 
 .search-icon {
   position: absolute;
-  right: 10px;
+  left: 12px;                  
   top: 50%;
   transform: translateY(-50%);
-  color: #0e2a44;
-  font-size: 16px;
-  pointer-events: none;
+  width: 20px;                 
+  height: 20px;
+  stroke: #555;
+  stroke-width: 2;
+  fill: none;
+  cursor: pointer;
+  transition: stroke 0.2s;      
 }
 
+.search-icon:hover {
+  stroke: #000;                  
+}
 
 .profile-card {
   width: 92%;
@@ -113,7 +124,9 @@
 }
 
 .extra-info .status {
+   margin-top: auto;
   margin-bottom: 6px;
+  
 }
 
 .extra-info .see-info {
@@ -172,12 +185,24 @@
 }
 
 
-.divider {
-  width: 100%;
-  margin: 55px 0 20px;
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
+.profile-divider {
+  position: relative;
+  margin: 90px  1px 0px 0px;
+  padding: 10px;
 }
+.profile-divider::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 100%; /* card မကျော်အောင် */
+  height: 4px;     /* line ထူ */
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+}
+
 
 
 .tabs {
@@ -231,7 +256,7 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .stats,
+  .s,
   .actions {
     position: static;
     margin-top: 15px;

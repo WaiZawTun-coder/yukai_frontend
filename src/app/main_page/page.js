@@ -98,13 +98,6 @@ const main_page = () => {
             className={activeTab === "friends" ? "active" : ""}
             onClick={() => setActiveTab("friends")}
           >
-            friends
-          </span>
-
-          <span
-            className={activeTab === "following" ? "active" : ""}
-            onClick={() => setActiveTab("following")}
-          >
             following
           </span>
         </div>
