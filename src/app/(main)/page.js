@@ -172,7 +172,10 @@ const Home = () => {
   }, [activeTab, data, hasMore]);
 
   useEffect(() => {
-    if (!modalPost) return;
+    if (!modalPost) {
+      setHasMoreComments(true);
+      return;
+    }
 
     const getComment = async () => {
       if (!hasMoreComments) return;
