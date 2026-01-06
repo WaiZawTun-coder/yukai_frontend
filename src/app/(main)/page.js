@@ -335,15 +335,15 @@ const Home = () => {
     <div className="main-container">
       <TopBar setData={setActiveTab} />
       <PostComposer handleCreate={updatePosts} />
-      {loading && (
-        <>
-          <PostSkeleton />
-          <PostSkeleton />
-          <PostSkeleton />
-        </>
-      )}
 
       <div className="post-container">
+        {loading && (
+          <>
+            <PostSkeleton />
+            <PostSkeleton />
+            <PostSkeleton />
+          </>
+        )}
         {data[activeTab] &&
           data[activeTab].map((post, index) => {
             const isLast = index === data[activeTab].length - 1;
