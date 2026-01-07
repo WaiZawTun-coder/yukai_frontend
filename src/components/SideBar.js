@@ -25,41 +25,42 @@ import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const menuList = [
   {
     id: 1,
     name: "Home",
-    icon: <HomeOutlinedIcon />,
-    activeIcon: <HomeRoundedIcon />,
+    icon: HomeOutlinedIcon,
+    activeIcon: HomeRoundedIcon,
     link: "/",
   },
   {
     id: 2,
     name: "Friends",
-    icon: <PeopleAltOutlinedIcon />,
-    activeIcon: <PeopleAltRoundedIcon />,
+    icon: PeopleAltOutlinedIcon,
+    activeIcon: PeopleAltRoundedIcon,
     link: "/friends",
   },
   {
     id: 3,
     name: "Saves",
-    icon: <BookmarkBorderOutlinedIcon />,
-    activeIcon: <BookmarkRoundedIcon />,
+    icon: BookmarkBorderOutlinedIcon,
+    activeIcon: BookmarkRoundedIcon,
     link: "/saves",
   },
   {
     id: 4,
     name: "Settings",
-    icon: <SettingsOutlinedIcon />,
-    activeIcon: <SettingsRoundedIcon />,
+    icon: SettingsOutlinedIcon,
+    activeIcon: SettingsRoundedIcon,
     link: "/settings",
   },
   {
     id: 5,
     name: "Premium",
-    icon: <WorkspacePremiumOutlinedIcon />,
-    activeIcon: <WorkspacePremiumRoundedIcon />,
+    icon: WorkspacePremiumOutlinedIcon,
+    activeIcon: WorkspacePremiumRoundedIcon,
     link: "/premium",
   },
 ];
@@ -68,92 +69,83 @@ const Sidebar = () => {
   const pathname = usePathname();
   const { loading, user } = useAuth();
 
-  if (!loading)
-    return (
-      <div className="sidebar">
-        <div className="logo">
-          <small>yukai</small>
-          <span>愉快</span>
-        </div>
+  const [hidden, setHidden] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
-        <Link href="/profile/me">
-          <div className="profile">
-            <Image
-              src={
-                user.profileImage ??
-                `/Images/default-profiles/${user.gender}.jpg`
-              }
-              alt="profile"
-              width={48}
-              height={48}
-            />
-            {/* <div className="edit">
-            <BorderColorRoundedIcon />
-          </div> */}
-            <div className="info">
-              <h4>{user.display_username}</h4>
-              <p>@{user.username}</p>
-              {user.profileImage}
-              {/* <div className="stats">
-            <span>
-              <b>67</b>
-              <br></br>follower
-            </span>
-            <span>
-              <b>300</b>
-              <br></br>following
-            </span>
-            <span>
-              <b>21</b>
-              <br></br>posts
-            </span>
-          </div> */}
-            </div>
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+
+      // ignore tiny scrolls
+      if (Math.abs(currentY - lastScrollY) < 10) return;
+
+      if (currentY > lastScrollY && currentY > 80) {
+        // scrolling down
+        setHidden(true);
+      } else {
+        // scrolling up
+        setHidden(false);
+      }
+
+      setLastScrollY(currentY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+  if (loading) return null;
+
+  return (
+    <div className={`sidebar ${hidden ? "sidebar--hidden" : ""}`}>
+      <div className="logo">
+        <small>yukai</small>
+        <span>愉快</span>
+      </div>
+
+      <Link href="/profile/me">
+        <div className="profile">
+          <Image
+            src={
+              `/api/images?url=${user.profile_image}` ??
+              `/Images/default-profiles/${user.gender}.jpg`
+            }
+            alt="profile"
+            width={48}
+            height={48}
+          />
+          <div className="info">
+            <h4>{user.display_name}</h4>
+            <p>@{user.username}</p>
+            {user.profileImage}
           </div>
-        </Link>
+        </div>
+      </Link>
 
-        <hr className="profile-horizontal-bar" />
+      <hr className="profile-horizontal-bar" />
 
-        <div className="menu">
-          {menuList.map((menu) => (
+      <div className="menu">
+        {menuList.map((menu) => {
+          const isActive = pathname === menu.link;
+          const Icon = isActive ? menu.activeIcon : menu.icon;
+
+          return (
             <Link
-              href={menu.link ?? "/"}
+              href={menu.link}
               key={menu.id}
-              className={menu.link == pathname && `active`}
+              className={`menu-item ${isActive ? "active" : ""}`}
             >
-              {menu.link == pathname ? menu.activeIcon : menu.icon}
+              <Icon />
               <span>{menu.name}</span>
             </Link>
-          ))}
-        </div>
-
-        {/* <ul className="menu">
-        <li className="active">
-          <HomeRoundedIcon />
-          Home
-        </li>
-        <li>
-          <PeopleAltRoundedIcon />
-          Friends
-        </li>
-        <li>
-          <BookmarkRoundedIcon />
-          Saves
-        </li>
-        <li>
-          <SettingsRoundedIcon />
-          Settings
-        </li>
-        <li>
-          <WorkspacePremiumRoundedIcon />
-          Premium
-        </li>
-      </ul> */}
-
-        <div className="toggle">
-          <DarkModeRoundedIcon />
-        </div>
+          );
+        })}
       </div>
-    );
+
+      <div className="toggle">
+        <DarkModeRoundedIcon />
+      </div>
+    </div>
+  );
 };
 export default Sidebar;

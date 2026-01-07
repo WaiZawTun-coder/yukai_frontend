@@ -15,9 +15,33 @@ const TopBar = ({ setData }) => {
   const [searchText, setSearchText] = useState("");
   const [searchActive, setSearchActive] = useState(false);
 
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
   const tabsRef = useRef([]);
   const indicatorRef = useRef(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+
+      if (Math.abs(currentY - lastScrollY.current) < 10) return;
+
+      if (currentY > lastScrollY.current && currentY > 80) {
+        // scrolling down
+        setHidden(true);
+      } else {
+        // scrolling up
+        setHidden(false);
+      }
+
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // 🔹 Tab indicator logic
   useEffect(() => {
@@ -33,6 +57,7 @@ const TopBar = ({ setData }) => {
 
     if (searchActive) {
       indicator.style.opacity = "0";
+      inputRef.current?.focus();
       return;
     }
 
@@ -69,7 +94,7 @@ const TopBar = ({ setData }) => {
   };
 
   return (
-    <div className="feed-wrapper">
+    <div className={`feed-wrapper ${hidden ? "topbar--hidden" : ""}`}>
       <div className="navbar">
         {/* BACK BUTTON */}
         <div style={{ display: "inline-flex" }}>
@@ -100,7 +125,12 @@ const TopBar = ({ setData }) => {
         </div>
 
         {/* SEARCH */}
-        <div className={`search-box ${searchActive ? "active" : ""}`}>
+        <div
+          className={`search-box ${searchActive ? "active" : ""}`}
+          onClick={() => {
+            setSearchActive(true);
+          }}
+        >
           <SearchIcon className="icon" />
           <input
             ref={inputRef}
