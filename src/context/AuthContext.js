@@ -77,7 +77,6 @@ export const AuthProvider = ({ children }) => {
         message: data.message || "Refresh failed",
         variant: "error",
       });
-      console.log(pathname == "/login");
       if (
         pathname != "/login" &&
         pathname != "/register" &&
