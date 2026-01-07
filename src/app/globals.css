@@ -16,6 +16,7 @@
 @import url("./css/comment-skeleton.css");
 @import url("./css/popup.css");
 @import url("./css/post.css");
+@import url("./css/profile.css");
 
 /* update in post.css */
 /* =====================================================
@@ -25,6 +26,7 @@
   font-family: "Subjectivity";
   src: url("/fonts/subjectivity/Subjectivity-Regular.woff2") format("woff2"),
     url("/fonts/subjectivity/Subjectivity-Regular.otf") format("opentype");
+
   font-weight: 400;
   font-style: normal;
   font-display: swap;
