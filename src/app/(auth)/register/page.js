@@ -232,12 +232,12 @@ const Register = () => {
   useEffect(() => {
     if (step === 3) {
       const timer = setTimeout(() => {
-        window.location.href = "/login";
+        router.replace("/login");
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [step]);
+  }, [step, router]);
 
   /* ---------------- UI ---------------- */
   return (
@@ -279,6 +279,7 @@ const Register = () => {
             <form onSubmit={handleStep1}>
               <TextField
                 label="Full Name"
+                color="accent"
                 onChange={getHandler("fullName")}
                 error={errors.fullName?.status ?? false}
                 helperText={errors.fullName?.message ?? ""}
