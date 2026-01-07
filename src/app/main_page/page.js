@@ -13,7 +13,6 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import ImageIcon from "@mui/icons-material/Image";
 import PersonIcon from "@mui/icons-material/Person";
-
 const main_page = () => {
   // TAB STATE
   const [activeTab, setActiveTab] = useState("forYou");
@@ -40,11 +39,7 @@ const main_page = () => {
         <span className="follow">follow</span>
       </div>
 
-      <img
-        src="/Images/loginphoto2.jpg"
-        alt="post"
-        className="post-image"
-      />
+      <img src="/Images/loginphoto2.jpg" alt="post" className="post-image" />
 
       <div className="post-stats">
         <span className="icon-btn" onClick={handleLike}>
@@ -128,9 +123,7 @@ const main_page = () => {
       {/* FEED CONTENT */}
       {activeTab === "forYou" && <PostCard username="Phyoe" />}
       {activeTab === "friends" && <PostCard username="Friend" />}
-      {activeTab === "following" && (
-        <PostCard username="Following User" />
-      )}
+      {activeTab === "following" && <PostCard username="Following User" />}
     </div>
   );
 };

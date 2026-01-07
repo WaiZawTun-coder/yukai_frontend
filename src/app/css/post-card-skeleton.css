@@ -1,0 +1,134 @@
+/* Card container */
+.skeleton-post-card {
+  width: 100%;
+  max-width: 720px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #0e2a3d;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.skeleton-post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Avatar */
+.skeleton-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+/* Menu icon placeholder */
+.skeleton-menu {
+  margin-left: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+/* User info */
+.skeleton-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Divider */
+.skeleton-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 14px 0;
+}
+
+/* Content text */
+.skeleton-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Image placeholder */
+.skeleton-image {
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  margin-top: 14px;
+}
+
+/* Actions */
+.skeleton-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.skeleton-action {
+  width: 100%;
+  height: 36px;
+  border-radius: 10px;
+}
+
+/* ========================= */
+/* Skeleton specific styles  */
+/* ========================= */
+
+.skeleton-container {
+  animation: skeleton-fade-in 0.3s ease-out;
+}
+
+.skeleton-box,
+.skeleton-line {
+  background: linear-gradient(90deg, #1c3b52 25%, #2c5574 37%, #1c3b52 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+/* Text line base */
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+}
+
+/* Text sizes */
+.skeleton-full {
+  width: 100%;
+}
+
+.skeleton-medium {
+  width: 60%;
+}
+
+.skeleton-short {
+  width: 120px;
+}
+
+.skeleton-tiny {
+  width: 80px;
+  height: 10px;
+}
+
+/* Animations */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes skeleton-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

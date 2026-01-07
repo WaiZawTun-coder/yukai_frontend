@@ -1,0 +1,84 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 1000;
+}
+
+.modal-content {
+  border-radius: 10px;
+  max-width: 750px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(-50px) scale(0.8); /* start above */
+  opacity: 0;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+  margin: 24px 0;
+  /* background-color: var(--accent-color); */
+}
+
+.modal-overlay.open {
+  opacity: 1;
+}
+.modal-overlay.close {
+  opacity: 0;
+}
+
+.modal-content.open {
+  transform: translateY(0) scale(1); /* slide to position */
+  opacity: 1;
+}
+.modal-content.close {
+  transform: translateY(-50px) scale(0.8); /* slide up on close */
+  opacity: 0;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.1)
+  );
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f9fafb;
+  letter-spacing: 0.3px;
+}
+
+/* Close button */
+.modal-close-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.modal-close-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.modal-close-button:active {
+  transform: scale(0.96);
+}

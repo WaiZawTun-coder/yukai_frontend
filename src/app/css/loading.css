@@ -1,0 +1,61 @@
+/* Fullscreen backdrop */
+.auth-loader-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.35s ease-out;
+}
+
+/* Card container */
+.auth-loader-card {
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 34px;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Spinner */
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #d1d5db;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+/* Text */
+.loading-text {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
