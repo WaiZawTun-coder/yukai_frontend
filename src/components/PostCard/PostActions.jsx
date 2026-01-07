@@ -97,7 +97,7 @@ export default function PostActions({
   }, []);
 
   const handleShare = async () => {
-    const postUrl = `${window.location.origin}/post/${postId}`;
+    const postUrl = `${window.location.origin}/post?post_id=${postId}`;
 
     if (navigator.share) {
       try {

@@ -4,27 +4,21 @@ export default function PostImages({ images }) {
   if (!images.length) return null;
 
   return (
-    <div className={`post-images ${images.length === 1 ? "single" : "grid"}`}>
+    <div className={`post-images post-images-${Math.min(images.length, 6)}`}>
       {images.map((img, i) => (
-        <img
-          key={i}
-          src={`/api/images?url=${img.file_path}`}
-          alt={img.post_id}
-        />
-        // <Image
-        //   key={i}
-        //   src={`/api/images?url=${img.file_path}`}
-        //   alt={img.post_id}
-        //   width={100}
-        //   height={100}
-        // />
+        <div key={img.post_attachment_id} className="image-wrapper">
+          <Image
+            src={`/api/images?url=${img.file_path}`}
+            alt={img.post_id}
+            fill
+            sizes={`(max-width: 768px) 100vw, (max-width: 1024px) 50vw, ${
+              100 / 3
+            }vw`}
+            loading="eager"
+            style={{ objectFit: "cover" }}
+          />
+        </div>
       ))}
-      {/* <Image
-        src={`/api/images?url=http://localhost/yukai_backend/public/uploads/posts-images/img_6957668b56a8b8.16379627.png`}
-        alt="Post image"
-        width={400}
-        height={300}
-      /> */}
     </div>
   );
 }

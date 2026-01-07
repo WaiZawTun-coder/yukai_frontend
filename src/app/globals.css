@@ -1,6 +1,3 @@
-/* =====================================================
-   IMPORTS
-===================================================== */
 @import url("./demo-page/demo-page.css");
 @import url("./css/register.css");
 @import url("./css/login.css");
@@ -12,16 +9,15 @@
 @import url("./css/snackbar.css");
 @import url("./css/post-composer.css");
 @import url("./css/postCard.css");
-@import url("./css/friend_list.css");
-@import url("./css/post.css");
-
 @import url("./css/friends.css");
 @import url("./css/modal.css");
 @import url("./css/loading.css");
 @import url("./css/post-card-skeleton.css");
 @import url("./css/comment-skeleton.css");
 @import url("./css/popup.css");
+@import url("./css/post.css");
 
+/* update in post.css */
 /* =====================================================
    FONTS
 ===================================================== */

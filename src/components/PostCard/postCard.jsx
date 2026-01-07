@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import PostActions from "./PostActions";
 import PostImages from "./PostImages";
 import PostMenu from "./PostMenu";
+import Image from "next/image";
 
 function PrivacyIcon({ type }) {
   switch (type) {
@@ -34,6 +35,7 @@ export default function PostCard({
   user = {
     name: "John Doe",
     avatar: "https://i.pravatar.cc/150",
+    user: "male",
   },
   content = "",
   images = [],
@@ -75,7 +77,7 @@ export default function PostCard({
     <div className="post-card">
       {/* HEADER */}
       <div className="post-header">
-        <img src={user.avatar} alt="avatar" />
+        <Image src={user.avatar} alt={user.name} width={44} height={44} />
         <div className="post-user">
           <h4 className="post-author">{user.name}</h4>
           <div className="post-meta">

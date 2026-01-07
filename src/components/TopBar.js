@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useKeyboard } from "./postComposer/useKeyboard";
 
 const tabs = [
   { id: 1, tabName: "For You", url: "?type=recommend" },
@@ -25,6 +26,13 @@ const TopBar = ({ setData }) => {
   const tabsRef = useRef([]);
   const indicatorRef = useRef(null);
   const inputRef = useRef(null);
+
+  useKeyboard({
+    enabled: true,
+    onSearch: () => {
+      if (inputRef) inputRef.current.focus();
+    },
+  });
 
   useEffect(() => {
     const type = params.get("type");
