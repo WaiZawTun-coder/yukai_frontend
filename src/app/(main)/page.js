@@ -444,8 +444,9 @@ const Home = () => {
                     <Image
                       className="comment-avatar"
                       src={
-                        `/api/images?url=${comment.creator.profile_image}` ??
-                        `/Images/default-profiles/${user.gender}.jpg`
+                        comment.creator.profile_image
+                          ? `/api/images?url=${comment.creator.profile_image}`
+                          : `/Images/default-profiles/${comment.creator.gender}.jpg`
                       }
                       alt={comment.creator.display_name}
                       width={34}

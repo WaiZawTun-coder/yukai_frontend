@@ -4,6 +4,7 @@ import PostCard from "@/components/PostCard/postCard";
 import { useKeyboard } from "@/components/postComposer/useKeyboard";
 import CommentSkeleton from "@/components/ui/CommentSkeleton";
 import Popup from "@/components/ui/Popup";
+import PostSkeleton from "@/components/ui/PostSkeleton";
 import { useAuth } from "@/context/AuthContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useApi } from "@/utilities/api";
@@ -251,79 +252,97 @@ const SocialPost = () => {
   // -------------------------
   // Render
   // -------------------------
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return (
+      <div style={{ width: "95%" }}>
+        <PostSkeleton />
+        <CommentSkeleton count={4} />
+      </div>
+    );
 
   return (
     <div className="main-wrapper">
-      <PostCard
-        user={{
-          name: post?.creator?.display_name,
-          avatar:
-            post?.creator?.profile_image !== ""
-              ? `/api/images?url=${post?.creator?.profile_image}`
-              : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
-        }}
-        createdAt={post?.created_at}
-        content={post?.content}
-        images={post?.attachments}
-        likes={post?.react_count}
-        comments={post?.comment_count}
-        postId={post?.post_id}
-        userReaction={post?.reaction ?? null}
-        onLike={handleReact}
-        handleDelete={() => {
-          setOpenPopup(true);
-          setTargetPostId(post?.post_id);
-        }}
-      />
+      <div className="post-scrollable">
+        <PostCard
+          user={{
+            name: post?.creator?.display_name,
+            avatar:
+              post?.creator?.profile_image !== ""
+                ? `/api/images?url=${post?.creator?.profile_image}`
+                : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
+          }}
+          createdAt={post?.created_at}
+          content={post?.content}
+          images={post?.attachments}
+          likes={post?.react_count}
+          comments={post?.comment_count}
+          postId={post?.post_id}
+          userReaction={post?.reaction ?? null}
+          onLike={handleReact}
+          handleDelete={() => {
+            setOpenPopup(true);
+            setTargetPostId(post?.post_id);
+          }}
+        />
 
-      {/* COMMENTS */}
-      <div className="comments-list">
-        {comments.length === 0 && !isFetchingComments && (
-          <div className="no-comments">No comments yet</div>
-        )}
+        {/* COMMENTS */}
+        <div className="comments-list">
+          {comments.length === 0 && !isFetchingComments && (
+            <div className="no-comments">No comments yet</div>
+          )}
 
-        {comments.map((c, index) => {
-          const isLast = index === comments.length - 1;
+          {comments.map((c, index) => {
+            const isLast = index === comments.length - 1;
 
-          return (
-            <div
-              key={`${c.comment_id}-${index}`}
-              className="comment-item"
-              ref={isLast ? lastCommentRef : null}
-            >
-              <Image
-                className="comment-avatar"
-                src={
-                  c.creator?.profile_image
-                    ? `/api/images?url=${c.creator.profile_image}`
-                    : `/Images/default-profiles/${c.creator?.gender}.jpg`
-                }
-                alt={c.creator?.display_name}
-                width={34}
-                height={34}
-              />
+            return (
+              <div
+                key={`${c.comment_id}-${index}`}
+                className="comment-item"
+                ref={isLast ? lastCommentRef : null}
+              >
+                <Image
+                  className="comment-avatar"
+                  src={
+                    c.creator?.profile_image
+                      ? `/api/images?url=${c.creator.profile_image}`
+                      : `/Images/default-profiles/${c.creator?.gender}.jpg`
+                  }
+                  alt={c.creator?.display_name}
+                  width={34}
+                  height={34}
+                />
 
-              <div className="comment-body">
-                <div className="comment-header">
-                  <span className="comment-name">
-                    {c.creator?.display_name}
-                  </span>
-                  <span className="comment-time">
-                    {formatDate(c.created_at)}
-                  </span>
+                <div className="comment-body">
+                  <div className="comment-header">
+                    <span className="comment-name">
+                      {c.creator?.display_name}
+                    </span>
+                    <span className="comment-time">
+                      {formatDate(c.created_at)}
+                    </span>
+                  </div>
+                  <p className="comment-text">{c.comment}</p>
                 </div>
-                <p className="comment-text">{c.comment}</p>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
 
-        {isFetchingComments && <CommentSkeleton count={3} />}
+          {isFetchingComments && <CommentSkeleton count={3} />}
+        </div>
       </div>
 
       {/* COMMENT INPUT */}
       <div className="comment-input-wrapper">
+        <Image
+          src={
+            `/api/images?url=${user.profile_image}` ??
+            `/Images/default-profiles/${user.gender}.jpg`
+          }
+          alt="profile"
+          width={34}
+          height={34}
+          style={{ borderRadius: "50%", overflow: "hidden" }}
+        />
         <input
           type="text"
           className="comment-input"

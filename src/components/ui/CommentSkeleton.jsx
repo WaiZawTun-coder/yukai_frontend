@@ -19,7 +19,7 @@ export default function CommentSkeleton({ count = 3 }) {
   return (
     <>
       {skeletons.map((s, i) => (
-        <div key={i} className="comment-item skeleton-comment">
+        <div key={i} className="skeleton-comment-item skeleton-comment">
           <div className="comment-avatar skeleton-box" />
 
           <div className="comment-body">

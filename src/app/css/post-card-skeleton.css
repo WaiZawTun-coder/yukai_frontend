@@ -4,7 +4,12 @@
   max-width: 720px;
   padding: 16px;
   border-radius: 14px;
-  background: #0e2a3d;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.08) 25%,
+    rgba(255, 255, 255, 0.08) 37%,
+    rgba(255, 255, 255, 0.08) 63%
+  );
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 

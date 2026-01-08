@@ -3,6 +3,12 @@
   pointer-events: none;
 }
 
+.skeleton-comment-item {
+  display: flex;
+  gap: 6px;
+  margin: 8px;
+}
+
 .skeleton-box,
 .skeleton-line {
   background: linear-gradient(

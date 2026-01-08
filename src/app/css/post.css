@@ -9,6 +9,11 @@
   max-height: 95vh;
 }
 
+.post-scrollable {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
 /* -------------------------- */
 /*   RESPONSIVE ADJUSTMENTS   */
 /* -------------------------- */
@@ -55,7 +60,6 @@
   }
 
   .comment-item {
-    flex-direction: column;
     gap: 6px;
   }
 
