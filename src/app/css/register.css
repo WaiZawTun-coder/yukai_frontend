@@ -57,12 +57,13 @@
 }
 
 .signup-right input {
-  background: var(--surface-2);
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 12px 14px;
+
   color: var(--text-primary);
   outline: none;
+
+  transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .signup-right input::placeholder {
@@ -70,8 +71,8 @@
 }
 
 .signup-right input:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px var(--focus-ring);
+  /* outline: none; */
+  /* border-color: var(--border-focus); */
 }
 
 .signup-right button {

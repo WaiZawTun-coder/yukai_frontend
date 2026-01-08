@@ -1,9 +1,7 @@
-/* =====================================================
-   IMPORTS
-===================================================== */
 @import url("./demo-page/demo-page.css");
 @import url("./css/register.css");
 @import url("./css/login.css");
+@import url("./css/forget-password.css");
 @import url("./css/topbar.css");
 /* @import url("./css/main_page.css"); */
 @import url("./css/sidebar.css");
@@ -17,8 +15,11 @@
 @import url("./css/post-card-skeleton.css");
 @import url("./css/comment-skeleton.css");
 @import url("./css/popup.css");
+@import url("./css/post.css");
 @import url("./css/profile.css");
+@import url("./css/profile-skeleton.css");
 
+/* update in post.css */
 /* =====================================================
    FONTS
 ===================================================== */

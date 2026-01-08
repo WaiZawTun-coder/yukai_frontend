@@ -1,0 +1,82 @@
+.main-wrapper {
+  width: 100%;
+  max-width: 720px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 95vh;
+  max-height: 95vh;
+}
+
+.post-scrollable {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+/* -------------------------- */
+/*   RESPONSIVE ADJUSTMENTS   */
+/* -------------------------- */
+
+@media (max-width: 1200px) {
+  .main-wrapper {
+    padding-bottom: 36px;
+  }
+
+  .post-container {
+    flex-direction: column;
+    max-height: none;
+  }
+
+  .image-section {
+    flex: unset;
+    padding-bottom: 0;
+  }
+
+  .image-section img {
+    max-height: 450px;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .sidebar-header {
+    padding: 24px 16px 10px 16px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 768px) {
+  .main-wrapper {
+    width: 100%;
+    padding: 12px;
+    padding-bottom: 36px;
+  }
+
+  .post-container {
+    border-radius: 10px;
+  }
+
+  .username-brand {
+    font-size: 1rem;
+  }
+
+  .comment-item {
+    gap: 6px;
+  }
+
+  .stats-bar {
+    font-size: 12px;
+  }
+
+  .comment-input-row {
+    gap: 10px;
+  }
+
+  .input-avatar-outside {
+    width: 38px;
+    height: 38px;
+  }
+
+  .sidebar-header {
+    gap: 10px;
+  }
+}

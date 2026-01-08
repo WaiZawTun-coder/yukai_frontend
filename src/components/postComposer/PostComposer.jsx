@@ -32,6 +32,7 @@ export default function PostComposer({ handleCreate }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [images, setImages] = useState([]);
+  const [files, setFiles] = useState([]);
   const [showEmoji, setShowEmoji] = useState(false);
   const [privacy, setPrivacy] = useState("public");
   const [isDraft, setIsDraft] = useState(false);
@@ -77,17 +78,24 @@ export default function PostComposer({ handleCreate }) {
     formData.append("is_draft", isDraft ? "1" : "0"); // draft state
 
     // Append actual File objects, not just URLs
-    const fileInputs = wrapperRef.current.querySelector('input[type="file"]');
-    if (fileInputs?.files.length > 0) {
-      Array.from(fileInputs.files).forEach((file) => {
-        formData.append("attachments[]", file); // backend expects attachments[]
-      });
-    }
+    // const fileInputs = wrapperRef.current.querySelector('input[type="file"]');
+    // if (fileInputs?.files.length > 0) {
+    //   Array.from(fileInputs.files).forEach((file) => {
+    //     formData.append("attachments[]", file); // backend expects attachments[]
+    //   });
+    // }
+
+    files.forEach((file) => {
+      formData.append("attachments[]", file);
+    });
+
+    console.log(formData);
 
     const data = await apiFetch("/api/create-post", {
       method: "POST",
       body: formData,
     });
+
     if (!data.status)
       showSnackbar("Post creation failed", res.message, "error");
     else {
@@ -110,8 +118,9 @@ export default function PostComposer({ handleCreate }) {
         <div className="profile-icon">
           <Image
             src={
-              `/api/images?url=${user.profile_image}` ??
-              `/Images/default-profiles/${user.gender}.jpg`
+              user.profile_image
+                ? `/api/images?url=${user.profile_image}`
+                : `/Images/default-profiles/${user.gender}.jpg`
             }
             alt="profile"
             width={48}
@@ -132,9 +141,10 @@ export default function PostComposer({ handleCreate }) {
           {images.length > 0 && (
             <ImagePreview
               images={images}
-              onRemove={(i) =>
-                setImages((prev) => prev.filter((_, x) => x !== i))
-              }
+              onRemove={(i) => {
+                setImages((prev) => prev.filter((_, x) => x !== i));
+                setFiles((prev) => prev.filter((_, x) => x !== i));
+              }}
             />
           )}
 
@@ -156,6 +166,10 @@ export default function PostComposer({ handleCreate }) {
                   accept="image/*"
                   onChange={(e) => {
                     const files = Array.from(e.target.files);
+
+                    // store File objects
+                    setFiles((prev) => [...prev, ...files]);
+
                     const urls = files.map((f) => URL.createObjectURL(f));
                     setImages((p) => [...p, ...urls]);
                   }}

@@ -17,6 +17,7 @@
   padding: 18px 16px;
   background: var(--surface-1);
   border-radius: 16px;
+  width: 100%;
 
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
@@ -100,25 +101,63 @@
 ====================================================== */
 .post-images {
   width: fit-content;
-  max-width: 100%;
-  min-width: 50%;
+  width: 100%;
   border-radius: 14px;
   overflow: hidden;
   display: grid;
+  justify-items: center;
   /* gap: 4px; */
-  background-color: var(--secondary-color);
+  /* background-color: var(--secondary-color); */
 }
 
-.post-images.single {
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  aspect-ratio: 1 / 1; /* square images */
+}
+
+/* 1 image */
+.post-images-1 {
   grid-template-columns: 1fr;
 }
 
-.post-images.grid {
+/* 2 images */
+.post-images-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* 3 images */
+.post-images-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* 4 images - 2x2 */
+.post-images-4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* 5 images - 2 on first row, 3 on second */
+.post-images-5 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 120px; /* adjust row height */
+}
+
+.post-images-5 .image-wrapper:nth-child(-n + 2) {
+  grid-column: span 2; /* first 2 images span 2 columns */
+}
+
+.post-images-5 .image-wrapper:nth-child(n + 3) {
+  grid-column: span 1;
+}
+
+/* 6 images - 3x2 */
+.post-images-6 {
   grid-template-columns: repeat(3, 1fr);
 }
 
 .post-images img {
-  width: 100%;
+  width: 220px;
   height: 220px;
   object-fit: contain;
   transition: transform 0.25s ease;
@@ -406,7 +445,8 @@
   gap: 10px;
   padding: 12px 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0);
+  /* background: rgba(0, 0, 0); */
+  background: var(--background-color);
 }
 
 .comment-input {

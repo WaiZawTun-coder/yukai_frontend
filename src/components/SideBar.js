@@ -103,7 +103,7 @@ const Sidebar = () => {
         <span>愉快</span>
       </div>
 
-      <Link href="/profile/me">
+      <Link href={`/${user.username}`}>
         <div className="profile">
           <Image
             src={

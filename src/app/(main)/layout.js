@@ -1,21 +1,21 @@
 "use client";
 
-import AuthLoadingScreen from "@/components/ui/Loading";
 import Sidebar from "@/components/SideBar";
-import TopBar from "@/components/TopBar";
+import AuthLoadingScreen from "@/components/ui/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 export default function MainLayout({ children }) {
   const { accessToken, loading: authLoading, user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (!accessToken && !authLoading) {
+    if (!accessToken && !authLoading && !user) {
       router.replace("/login");
     }
-  }, [accessToken, authLoading, router]);
+  }, [accessToken, authLoading, router, user, pathname]);
 
   if (authLoading || !accessToken) {
     return <AuthLoadingScreen text="Authentication Loading..." />;

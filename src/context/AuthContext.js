@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getBackendUrl } from "@/utilities/url";
 import { useSnackbar } from "./SnackbarContext";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const AuthContext = createContext();
 
@@ -11,6 +11,8 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const pathname = usePathname();
 
   const { showSnackbar } = useSnackbar();
   const router = useRouter();
@@ -75,16 +77,27 @@ export const AuthProvider = ({ children }) => {
         message: data.message || "Refresh failed",
         variant: "error",
       });
-      router.replace("/login");
-      throw new Error(data.message || "Refresh failed");
+      if (
+        pathname != "/login" &&
+        pathname != "/register" &&
+        pathname != "/forget-password"
+      ) {
+        router.replace("/login");
+      }
+      throw new Error(data.message || "Token Refresh failed");
     }
 
     if (!data.status) {
       showSnackbar({
-        message: data.message || "Refresh failed",
+        message: data.message || "Token Refresh failed",
         variant: "error",
       });
-      router.replace("/login");
+      if (
+        pathname != "/login" &&
+        pathname != "/register" &&
+        pathname != "/forget-password"
+      )
+        router.replace("/login");
     }
 
     setAccessToken(data.data.access_token);

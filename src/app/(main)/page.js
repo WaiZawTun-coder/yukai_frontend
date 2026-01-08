@@ -1,18 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
 import PostCard from "@/components/PostCard/postCard";
 import PostComposer from "@/components/postComposer/PostComposer";
-import Modal from "@/components/ui/Modal";
-import { useAuth } from "@/context/AuthContext";
-import { useApi } from "@/utilities/api";
-import { useSearchParams } from "next/navigation";
-import PostSkeleton from "@/components/ui/PostSkeleton";
-import Image from "next/image";
-import Snackbar from "@/components/snackbar/Snackbar";
-import { useSnackbar } from "@/context/SnackbarContext";
 import CommentSkeleton from "@/components/ui/CommentSkeleton";
+import Modal from "@/components/ui/Modal";
 import Popup from "@/components/ui/Popup";
+import PostSkeleton from "@/components/ui/PostSkeleton";
+import { useAuth } from "@/context/AuthContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useApi } from "@/utilities/api";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const { default: TopBar } = require("@/components/TopBar");
 
@@ -122,9 +121,9 @@ const Home = () => {
       const type = params.get("type");
 
       if (type === "recommend" || activeTab === "recommend") {
-        apiUrl = "/api/get-post?page=" + curPage.recommend;
+        apiUrl = "/api/get-posts?page=" + curPage.recommend;
       } else if (type === "friends" || activeTab === "friends") {
-        apiUrl = "/api/get-post?page=" + curPage.friends;
+        apiUrl = "/api/get-friends-posts?page=" + curPage.friends;
       } else if (type === "following" || activeTab === "following") {
         apiUrl = "/api/get-following-post?page=" + curPage.following;
       }
@@ -249,6 +248,7 @@ const Home = () => {
         variant: "success",
       });
       setComments((prev) => [res.comment, ...prev]);
+      setComment("");
     } catch (err) {
     } finally {
       setCommenting(false);
@@ -357,7 +357,7 @@ const Home = () => {
                     name: post?.creator.display_name ?? "",
                     avatar:
                       post?.creator.profile_image !== ""
-                        ? post?.creator.profile_image
+                        ? `/api/images?url=${post?.creator.profile_image}`
                         : `/Images/default-profiles/${post?.creator.gender}.jpg`,
                   }}
                   createdAt={post?.created_at}
@@ -408,10 +408,9 @@ const Home = () => {
             <PostCard
               user={{
                 name: modalPost.creator.display_name,
-                avatar:
-                  modalPost.creator.profile_image !== ""
-                    ? modalPost.creator.profile_image
-                    : `/Images/default-profiles/${modalPost.creator.gender}.jpg`,
+                avatar: modalPost.creator.profile_image
+                  ? `/api/images?url=${modalPost.creator.profile_image}`
+                  : `/Images/default-profiles/${modalPost.creator.gender}.jpg`,
               }}
               createdAt={modalPost.created_at}
               content={modalPost.content}
@@ -425,7 +424,7 @@ const Home = () => {
               userReaction={modalPost.reaction ?? null}
               handleDelete={() => {
                 setOpenPopup(true);
-                setTargetPostId(post?.post_id);
+                setTargetPostId(modalPost?.post_id);
               }}
             />
           </div>
@@ -445,8 +444,9 @@ const Home = () => {
                     <Image
                       className="comment-avatar"
                       src={
-                        `/api/images?url=${comment.creator.profile_image}` ??
-                        `/Images/default-profiles/${user.gender}.jpg`
+                        comment.creator.profile_image
+                          ? `/api/images?url=${comment.creator.profile_image}`
+                          : `/Images/default-profiles/${comment.creator.gender}.jpg`
                       }
                       alt={comment.creator.display_name}
                       width={34}
@@ -479,6 +479,7 @@ const Home = () => {
               className="comment-input"
               placeholder="Write a comment..."
               onChange={(e) => setComment(e.target.value)}
+              value={comment}
             />
             <button
               className="comment-submit"
