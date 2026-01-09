@@ -14,6 +14,7 @@ import Image from "next/image";
 import Select from "../ui/Select";
 import { useApi } from "@/utilities/api";
 import { useSnackbar } from "@/context/SnackbarContext";
+import { useRouter } from "next/navigation";
 
 const PRIVACY_OPTIONS = [
   { label: "Public", value: "public" },
@@ -25,6 +26,7 @@ export default function PostComposer({ handleCreate }) {
   const apiFetch = useApi();
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
+  const router = useRouter();
 
   const wrapperRef = useRef(null);
   const textareaRef = useRef(null);
@@ -125,13 +127,27 @@ export default function PostComposer({ handleCreate }) {
             alt="profile"
             width={48}
             height={48}
+            onClick={() => router.replace(`/${user.username}`)}
+            style={{ cursor: "pointer" }}
           />
           <div className="post-input">
             <textarea
               ref={textareaRef}
               placeholder="What's on your mind?"
               value={text}
-              onFocus={() => setOpen(true)}
+              onFocus={() => {
+                const mainContent = document.getElementById("main-content");
+                console.log({ mainContent });
+                mainContent.style.overflow = "hidden";
+                mainContent.style.maxHeight = "90vh";
+                setOpen(true);
+              }}
+              onBlur={() => {
+                const mainContent = document.getElementById("main-content");
+                mainContent.style.overflow = "auto";
+                mainContent.style.maxHeight = "";
+                setOpen(false);
+              }}
               onChange={(e) => setText(e.target.value)}
             />
           </div>

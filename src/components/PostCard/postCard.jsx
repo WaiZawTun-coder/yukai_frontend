@@ -5,6 +5,8 @@ import PostActions from "./PostActions";
 import PostImages from "./PostImages";
 import PostMenu from "./PostMenu";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 function PrivacyIcon({ type }) {
   switch (type) {
@@ -35,7 +37,8 @@ export default function PostCard({
   user = {
     name: "John Doe",
     avatar: "https://i.pravatar.cc/150",
-    user: "male",
+    gender: "male",
+    username: "",
   },
   content = "",
   images = [],
@@ -50,7 +53,10 @@ export default function PostCard({
   userReaction = null,
   handleDelete,
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [time, setTime] = useState("");
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     function formatPostDate(dateStr) {
@@ -77,15 +83,36 @@ export default function PostCard({
     <div className="post-card">
       {/* HEADER */}
       <div className="post-header">
-        <Image src={user.avatar} alt={user.name} width={44} height={44} />
+        <Image
+          src={user.avatar}
+          alt={user.name}
+          width={44}
+          height={44}
+          onClick={() => {
+            if (pathname != `/${user.username}`)
+              router.replace(`/${user.username}`);
+          }}
+        />
         <div className="post-user">
-          <h4 className="post-author">{user.name}</h4>
+          <h4
+            className="post-author"
+            onClick={() => {
+              if (pathname != `/${user.username}`)
+                router.replace(`/${user.username}`);
+            }}
+          >
+            {user.name}
+          </h4>
           <div className="post-meta">
             <span className="post-time">{time}</span>
             <PrivacyIcon type={privacy} />
           </div>
         </div>
-        <PostMenu isOwner={true} postId={postId} handleDelete={handleDelete} />
+        <PostMenu
+          isOwner={user.username == authUser.username}
+          postId={postId}
+          handleDelete={handleDelete}
+        />
       </div>
       <hr className="post-divider"></hr>
 

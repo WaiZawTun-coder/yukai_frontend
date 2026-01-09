@@ -12,6 +12,7 @@ import { useApi } from "@/utilities/api";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import SocialPost from "./post/page";
 
 const { default: TopBar } = require("@/components/TopBar");
 
@@ -334,6 +335,7 @@ const Home = () => {
   return (
     <div className="main-container">
       <TopBar setData={setActiveTab} />
+      <div style={{ height: "32px" }}></div>
       <PostComposer handleCreate={updatePosts} />
 
       <div className="post-container">
@@ -354,6 +356,7 @@ const Home = () => {
               >
                 <PostCard
                   user={{
+                    username: post?.creator.username,
                     name: post?.creator.display_name ?? "",
                     avatar:
                       post?.creator.profile_image !== ""
@@ -405,90 +408,7 @@ const Home = () => {
           title={modalPost.creator.display_name + "'s Post"}
         >
           <div className="post-modal-main">
-            <PostCard
-              user={{
-                name: modalPost.creator.display_name,
-                avatar: modalPost.creator.profile_image
-                  ? `/api/images?url=${modalPost.creator.profile_image}`
-                  : `/Images/default-profiles/${modalPost.creator.gender}.jpg`,
-              }}
-              createdAt={modalPost.created_at}
-              content={modalPost.content}
-              images={modalPost.attachments}
-              likes={modalPost.react_count}
-              comments={modalPost.comment_count}
-              onLike={handleReact}
-              onComment={() => {}}
-              onShare={() => handleShare(modalPost.post_id)}
-              postId={modalPost.post_id}
-              userReaction={modalPost.reaction ?? null}
-              handleDelete={() => {
-                setOpenPopup(true);
-                setTargetPostId(modalPost?.post_id);
-              }}
-            />
-          </div>
-          <div className="comments-list">
-            {isFetchComments ? (
-              <CommentSkeleton count={4} />
-            ) : comments?.length > 0 ? (
-              comments.map((comment, index) => {
-                const isLast = index === comments.length - 1;
-
-                return (
-                  <div
-                    key={index}
-                    className="comment-item"
-                    ref={isLast ? lastCommentRef : null}
-                  >
-                    <Image
-                      className="comment-avatar"
-                      src={
-                        comment.creator.profile_image
-                          ? `/api/images?url=${comment.creator.profile_image}`
-                          : `/Images/default-profiles/${comment.creator.gender}.jpg`
-                      }
-                      alt={comment.creator.display_name}
-                      width={34}
-                      height={34}
-                    />
-                    <div className="comment-body">
-                      <div className="comment-header">
-                        <span className="comment-name">
-                          {comment.creator.display_name}
-                        </span>
-                        <span className="comment-time">
-                          {formatDate(comment.created_at)}
-                        </span>
-                      </div>
-                      <p className="comment-text">{comment.comment}</p>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="no-comments">No comments yet</div>
-            )}
-            {isFetchComments && <CommentSkeleton count={2} />}
-          </div>
-
-          {/* Comment input */}
-          <div className="comment-input-wrapper">
-            <input
-              type="text"
-              className="comment-input"
-              placeholder="Write a comment..."
-              onChange={(e) => setComment(e.target.value)}
-              value={comment}
-            />
-            <button
-              className="comment-submit"
-              onClick={() => {
-                handleComment(modalPost.post_id);
-              }}
-            >
-              {commenting ? "Posting..." : "Post"}
-            </button>
+            <SocialPost paramPost={modalPost} />
           </div>
         </Modal>
       )}

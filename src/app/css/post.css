@@ -5,7 +5,6 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
-  min-height: 95vh;
   max-height: 95vh;
 }
 
@@ -19,9 +18,9 @@
 /* -------------------------- */
 
 @media (max-width: 1200px) {
-  .main-wrapper {
+  /* .main-wrapper {
     padding-bottom: 36px;
-  }
+  } */
 
   .post-container {
     flex-direction: column;

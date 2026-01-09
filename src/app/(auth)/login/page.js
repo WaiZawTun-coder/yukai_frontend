@@ -2,13 +2,12 @@
 
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
-import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
-import { useApi } from "@/utilities/api";
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import { useSnackbar } from "@/context/SnackbarContext";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 const Login = () => {
   const [formData, setFormData] = useState({}); // handle form data
