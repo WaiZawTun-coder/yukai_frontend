@@ -5,28 +5,31 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import { useApi } from "@/utilities/api";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { act, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import PostComposer from "@/components/postComposer/PostComposer";
+import ProfileImagePost from "@/components/ProfileImagePosts";
+import ProfileTabs from "@/components/ProfileTabs";
+import SavedList from "@/components/SavedList";
+import SavedPost from "@/components/SavedPost";
+import Modal from "@/components/ui/Modal";
+import ProfileSkeleton from "@/components/ui/ProfileSkeleton";
+import TextField from "@/components/ui/TextField";
+import SocialPost from "../post/page";
+import Popup from "@/components/ui/Popup";
 
 import EditIcon from "@mui/icons-material/Edit";
-import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
-import ProfileSkeleton from "@/components/ui/ProfileSkeleton";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import MessageIcon from "@mui/icons-material/Message";
-import ProfileImagePost from "@/components/ProfileImagePosts";
-import PostCard from "@/components/PostCard/postCard";
-import CommentSkeleton from "@/components/ui/CommentSkeleton";
-import Modal from "@/components/ui/Modal";
-import SocialPost from "../post/page";
-import PostComposer from "@/components/postComposer/PostComposer";
-import SavedList from "@/components/SavedList";
-import ProfileTabs from "@/components/ProfileTabs";
-import SavedPost from "@/components/SavedPost";
-import TextField from "@/components/ui/TextField";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import CloseIcon from "@mui/icons-material/Close";
+import DoneIcon from "@mui/icons-material/Done";
 
 const TABS = [
   { id: 1, name: "Posts", url: "posts" },
   { id: 2, name: "Images", url: "images" },
-  { id: 3, name: "Saved", url: "saved" },
+  // { id: 3, name: "Saved", url: "saved" },
   // { id: 4, name: "Tagged", url: "tagged" },
 ];
 
@@ -51,6 +54,12 @@ const Profile = () => {
     tagged: [],
   });
   const [isLoggedInUser, setIsLoggedInUser] = useState(false);
+
+  const [isSentRequest, setIsSentRequest] = useState(false);
+  const [requestDirection, setRequestDirection] = useState("");
+  const [openResponsePopup, setOpenResponsePopup] = useState(false);
+  const [openUpdateFriendPopup, setOpenUpdateFriendPopup] = useState(false);
+  const [isFriends, setIsFriends] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -388,6 +397,30 @@ const Profile = () => {
     });
   };
 
+  const handleSendRequest = async () => {
+    const res = await apiFetch("/api/send-request", {
+      method: "POST",
+      body: { user_id: user.user_id },
+    });
+
+    if (!res.status) {
+      return;
+    }
+
+    setIsSentRequest(true);
+    setRequestDirection("sent");
+    // console.log(res.message);
+  };
+
+  const handleResponseRequest = async (type) => {
+    if (!(type == "accepted" || type == "rejected" || type == "canceled"))
+      return;
+    await apiFetch("/api/response-request", {
+      method: "POST",
+      body: { user_id: user.user_id, status: type },
+    });
+  };
+
   if (isLoading) return <ProfileSkeleton />;
 
   return (
@@ -457,10 +490,53 @@ const Profile = () => {
                     </>
                   ) : (
                     <>
-                      <button className="btn light">
-                        <PersonAddAlt1Icon />
-                        Add friend
-                      </button>
+                      {(user.friend_status == null ||
+                        user.friend_status == "rejected" ||
+                        user.friend_status == "canceled") &&
+                        !isSentRequest && (
+                          <button
+                            className="btn light"
+                            onClick={handleSendRequest}
+                          >
+                            <PersonAddAlt1Icon />
+                            Add friend
+                          </button>
+                        )}
+                      {((isSentRequest && requestDirection === "received") ||
+                        (user.friend_status === "pending" &&
+                          user.request_direction === "received")) && (
+                        <button
+                          className="btn light"
+                          onClick={() => setOpenResponsePopup(true)}
+                        >
+                          <ArrowDropDownIcon />
+                          Response
+                        </button>
+                      )}
+
+                      {((isSentRequest && requestDirection == "sent") ||
+                        (user.friend_status === "pending" &&
+                          user.request_direction === "sent")) && (
+                        <button
+                          className="btn light"
+                          onClick={() => {
+                            handleResponseRequest("canceled");
+                            setIsSentRequest(false);
+                          }}
+                        >
+                          <CloseIcon />
+                          Cancel Request
+                        </button>
+                      )}
+                      {(user.friend_status == "accepted" || isFriends) && (
+                        <button
+                          className="btn light"
+                          onClick={() => setOpenUpdateFriendPopup(true)}
+                        >
+                          <DoneIcon />
+                          Friend
+                        </button>
+                      )}
                       <button className="btn">
                         <MessageIcon />
                         Message
@@ -638,6 +714,57 @@ const Profile = () => {
           </Modal>
         )}
       </div> */}
+
+      {/* Action button modal response */}
+      <Popup
+        isOpen={openResponsePopup}
+        onClose={() => {
+          setOpenResponsePopup(false);
+        }}
+        title="Response Request"
+      >
+        <div className="popup-actions">
+          <button
+            className="popup-btn"
+            onClick={() => {
+              handleResponseRequest("accepted");
+              setIsSentRequest(false);
+              setIsFriends(true);
+              setOpenResponsePopup(false);
+            }}
+          >
+            <DoneIcon />
+            Accept
+          </button>
+          <button
+            className="popup-btn"
+            onClick={() => {
+              handleResponseRequest("rejected");
+              setIsSentRequest(false);
+              setOpenResponsePopup(false);
+            }}
+          >
+            <CloseIcon />
+            Reject
+          </button>
+        </div>
+      </Popup>
+
+      {/* Update friend status popup */}
+      <Popup
+        isOpen={openUpdateFriendPopup}
+        onClose={() => setOpenUpdateFriendPopup(false)}
+        title="Update Friend"
+      >
+        <div className="popup-actions">
+          <button className="popup-btn" onClick={() => {}}>
+            Unfriend
+          </button>
+          <button className="popup-btn" onClick={() => {}}>
+            Unfollow
+          </button>
+        </div>
+      </Popup>
     </div>
   );
 };

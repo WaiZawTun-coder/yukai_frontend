@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useKeyboard } from "../postComposer/useKeyboard";
 
 export default function Modal({ isOpen, onClose, children, title }) {
   const [show, setShow] = useState(false);
   const [animate, setAnimate] = useState(false);
   const contentRef = useRef(null);
+
+  useKeyboard({
+    enabled: true,
+    onCancel: onClose,
+  });
 
   // Lock scroll when modal is open
   useEffect(() => {

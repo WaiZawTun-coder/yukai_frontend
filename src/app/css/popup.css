@@ -112,7 +112,7 @@
 
 /* Base button */
 .popup-btn {
-  width: 100px;
+  min-width: 100px;
   height: 44px;
   border-radius: 10px;
   font-size: 14px;
@@ -120,6 +120,11 @@
   cursor: pointer;
   border: none;
   transition: all 0.2s ease;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 /* Cancel button */
