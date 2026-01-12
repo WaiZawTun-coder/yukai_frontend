@@ -282,7 +282,7 @@ function PeopleCard({ person, type, openMenuId, setOpenMenuId, removeCard }) {
         alt={person.username}
         width={64}
         height={64}
-        style={{ borderRadius: "50%" }}
+        style={{ borderRadius: "50%", objectFit: "cover" }}
       />
 
       {/* INFO */}

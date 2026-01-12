@@ -16,15 +16,37 @@ export default function Modal({ isOpen, onClose, children, title }) {
   // Lock scroll when modal is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden"; // disable scroll
+      const scrollY = window.scrollY;
+
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
     } else {
-      document.body.style.overflow = ""; // restore scroll
+      const top = document.body.style.top;
+
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+
+      if (top) {
+        const scrollY = -parseInt(top, 10);
+        window.scrollTo(0, scrollY);
+      }
     }
 
     return () => {
-      document.body.style.overflow = ""; // cleanup on unmount
+      const top = document.body.style.top;
+
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+
+      if (top) {
+        const scrollY = -parseInt(top, 10);
+        window.scrollTo(0, scrollY);
+      }
     };
-  }, [isOpen]);
+}, [isOpen]);
 
   // Handle animation
   useEffect(() => {
@@ -45,12 +67,21 @@ export default function Modal({ isOpen, onClose, children, title }) {
     }
   };
 
+  const handleClose = () => {
+    const mainContent = document.getElementById("main-content");
+    if (mainContent) {
+      mainContent.style.overflow = "";
+      mainContent.style.maxHeight = "fit-content";
+    } // restore scroll
+    onClose();
+  };
+
   if (!show) return null;
 
   return (
     <div
       className={`modal-overlay ${animate ? "open" : "close"}`}
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div
         className={`modal-content ${animate ? "open" : "close"}`}
@@ -63,7 +94,7 @@ export default function Modal({ isOpen, onClose, children, title }) {
 
           <button
             className="modal-close-button"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Close modal"
           >
             ✕

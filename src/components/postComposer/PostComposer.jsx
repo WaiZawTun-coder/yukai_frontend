@@ -37,82 +37,112 @@ export default function PostComposer({ handleCreate }) {
   const [files, setFiles] = useState([]);
   const [showEmoji, setShowEmoji] = useState(false);
   const [privacy, setPrivacy] = useState("public");
-  const [isDraft, setIsDraft] = useState(false);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // keyboard shortcuts
+  /* -------------------- helpers -------------------- */
+
+  const lockScroll = () => {
+    const mainContent = document.getElementById("main-content");
+    if (mainContent) {
+      mainContent.style.overflow = "hidden";
+      mainContent.style.maxHeight = "90vh";
+    }
+  };
+
+  const unlockScroll = () => {
+    const mainContent = document.getElementById("main-content");
+    if (mainContent) {
+      mainContent.style.overflow = "";
+      mainContent.style.maxHeight = "fit-content";
+    }
+  };
+
+  /* -------------------- keyboard shortcuts -------------------- */
+
   useKeyboard({
     enabled: open,
-    onSubmit: handleSubmit,
+    onSubmit: () => handleSubmit(false),
     onCancel: () => {
+      unlockScroll();
       setOpen(false);
-      const textarea = textareaRef.current;
-
-      if (!textarea) return;
-
-      textarea.blur();
+      if (textareaRef.current) textareaRef.current.blur();
     },
   });
 
-  // drag & drop
-  useDragDrop(wrapperRef, (files) => {
-    const urls = files.map((f) => URL.createObjectURL(f));
+  /* -------------------- drag & drop -------------------- */
+
+  useDragDrop(wrapperRef, (droppedFiles) => {
+    setFiles((prev) => [...prev, ...droppedFiles]);
+
+    const urls = droppedFiles.map((f) => URL.createObjectURL(f));
     setImages((prev) => [...prev, ...urls]);
   });
 
-  // autosize textarea
+  /* -------------------- autosize textarea -------------------- */
+
   useEffect(() => {
     if (!textareaRef.current) return;
     textareaRef.current.style.height = "auto";
     textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
   }, [text]);
 
-  async function handleSubmit() {
-    if (!text && images.length === 0) return; // prevent empty post
+  /* -------------------- revoke object URLs -------------------- */
+
+  useEffect(() => {
+    return () => {
+      images.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [images]);
+
+  /* -------------------- submit -------------------- */
+
+  async function handleSubmit(isDraft = false) {
+    if ((!text || !text.trim()) && images.length === 0) return;
+    if (isSubmitting) return;
 
     setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append("creator_id", user.user_id);
     formData.append("content", text);
-    formData.append("privacy", privacy); // public/friends/private
-    formData.append("is_draft", isDraft ? "1" : "0"); // draft state
-
-    // Append actual File objects, not just URLs
-    // const fileInputs = wrapperRef.current.querySelector('input[type="file"]');
-    // if (fileInputs?.files.length > 0) {
-    //   Array.from(fileInputs.files).forEach((file) => {
-    //     formData.append("attachments[]", file); // backend expects attachments[]
-    //   });
-    // }
+    formData.append("privacy", privacy);
+    formData.append("is_draft", isDraft ? "1" : "0");
 
     files.forEach((file) => {
       formData.append("attachments[]", file);
     });
 
-    console.log(formData);
+    try {
+      const data = await apiFetch("/api/create-post", {
+        method: "POST",
+        body: formData,
+      });
 
-    const data = await apiFetch("/api/create-post", {
-      method: "POST",
-      body: formData,
-    });
+      if (!data.status) {
+        showSnackbar("Post creation failed", data.message, "error");
+        return;
+      }
 
-    if (!data.status)
-      showSnackbar("Post creation failed", res.message, "error");
-    else {
       showSnackbar({
         title: "Post creation successful",
-        message: "",
         variant: "success",
       });
+
       setText("");
       setImages([]);
+      setFiles([]);
       setOpen(false);
+      unlockScroll();
 
       handleCreate(data.data[0]);
+    } catch (err) {
+      showSnackbar("Network error", "Please try again", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   }
+
+  /* -------------------- UI -------------------- */
 
   return (
     <>
@@ -130,23 +160,15 @@ export default function PostComposer({ handleCreate }) {
             onClick={() => router.replace(`/${user.username}`)}
             style={{ cursor: "pointer" }}
           />
+
           <div className="post-input">
             <textarea
               ref={textareaRef}
               placeholder="What's on your mind?"
               value={text}
               onFocus={() => {
-                const mainContent = document.getElementById("main-content");
-                console.log({ mainContent });
-                mainContent.style.overflow = "hidden";
-                mainContent.style.maxHeight = "90vh";
+                lockScroll();
                 setOpen(true);
-              }}
-              onBlur={() => {
-                const mainContent = document.getElementById("main-content");
-                mainContent.style.overflow = "auto";
-                mainContent.style.maxHeight = "";
-                setOpen(false);
               }}
               onChange={(e) => setText(e.target.value)}
             />
@@ -158,6 +180,7 @@ export default function PostComposer({ handleCreate }) {
             <ImagePreview
               images={images}
               onRemove={(i) => {
+                URL.revokeObjectURL(images[i]);
                 setImages((prev) => prev.filter((_, x) => x !== i));
                 setFiles((prev) => prev.filter((_, x) => x !== i));
               }}
@@ -166,8 +189,7 @@ export default function PostComposer({ handleCreate }) {
 
           <div className="post-actions">
             <div className="action-buttons">
-              {/* <button onClick={() => setShowEmoji((v) => !v)}>😀 Emoji</button> */}
-              <button>
+              <button type="button">
                 <LocalOfferOutlinedIcon />
                 Tag Friends
               </button>
@@ -181,13 +203,14 @@ export default function PostComposer({ handleCreate }) {
                   multiple
                   accept="image/*"
                   onChange={(e) => {
-                    const files = Array.from(e.target.files);
+                    const selected = Array.from(e.target.files || []);
 
-                    // store File objects
-                    setFiles((prev) => [...prev, ...files]);
+                    setFiles((prev) => [...prev, ...selected]);
 
-                    const urls = files.map((f) => URL.createObjectURL(f));
+                    const urls = selected.map((f) => URL.createObjectURL(f));
                     setImages((p) => [...p, ...urls]);
+
+                    e.target.value = "";
                   }}
                 />
               </label>
@@ -202,25 +225,32 @@ export default function PostComposer({ handleCreate }) {
 
             {(open || images.length > 0 || text) && (
               <div className="action-buttons">
-                {open && (
-                  <button className="ghost" onClick={() => setOpen(false)}>
-                    Cancel
-                  </button>
-                )}
                 <button
                   className="ghost"
-                  onClick={async () => {
-                    setIsDraft(true);
-                    await handleSubmit();
+                  onClick={() => {
+                    unlockScroll();
+                    setOpen(false);
+                    if (textareaRef.current) textareaRef.current.blur();
                   }}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="ghost"
+                  onClick={() => handleSubmit(true)}
+                  disabled={isSubmitting}
                 >
                   Save Draft
                 </button>
+
                 <button
                   className="primary"
-                  onClick={async () => await handleSubmit()}
+                  onClick={() => handleSubmit(false)}
+                  disabled={isSubmitting}
                 >
-                  Post
+                  {isSubmitting ? "Posting..." : "Post"}
                 </button>
               </div>
             )}
@@ -237,15 +267,13 @@ export default function PostComposer({ handleCreate }) {
         </div>
       </div>
 
+      {/* Backdrop */}
       <div
         className={`composer-backdrop ${open ? "active" : ""}`}
         onClick={() => {
+          unlockScroll();
           setOpen(false);
-          const textarea = textareaRef.current;
-
-          if (!textarea) return;
-
-          textarea.blur();
+          if (textareaRef.current) textareaRef.current.blur();
         }}
       />
     </>

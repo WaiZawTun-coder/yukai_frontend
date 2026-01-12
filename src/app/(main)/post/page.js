@@ -332,7 +332,7 @@ const SocialPost = ({
                       if (pathname != `/${c.creator.username}`)
                         router.replace(`/${c.creator.username}`);
                     }}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer", objectFit: "cover" }}
                   />
 
                   <div className="comment-body">
@@ -372,7 +372,11 @@ const SocialPost = ({
           alt="profile"
           width={34}
           height={34}
-          style={{ borderRadius: "50%", overflow: "hidden" }}
+          style={{
+            borderRadius: "50%",
+            overflow: "hidden",
+            objectFit: "cover",
+          }}
         />
         <input
           type="text"
