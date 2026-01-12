@@ -131,7 +131,7 @@ export default function Friends() {
       </div>
 
       {/* TABS */}
-      <div className="tabs">
+      <div className="friend-tabs">
         {TABS.map((tab) => (
           <button
             key={tab.id}
