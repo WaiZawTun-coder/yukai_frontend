@@ -132,8 +132,8 @@ export default function PeopleGrid({
           textAlign: "center",
           padding: "12px",
           opacity: 0.6,
-          gridColumn: "span 2",
         }}
+        className="people-grid-end"
       >
         {loading
           ? "Loading more..."
