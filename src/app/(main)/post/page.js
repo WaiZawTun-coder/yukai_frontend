@@ -169,7 +169,7 @@ const SocialPost = ({
     try {
       const res = await apiFetch("/api/comment-post", {
         method: "POST",
-        body: { post_id: postId, comment },
+        body: { post_id: post.post_id, comment },
       });
 
       if (!res.status) {
