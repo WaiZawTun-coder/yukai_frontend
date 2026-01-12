@@ -11,7 +11,7 @@ export default function PostImages({ images }) {
             src={`/api/images?url=${img.file_path}`}
             alt={img.post_id}
             fill
-            sizes={`(max-width: 768px) 100vw, (max-width: 1024px) 50vw, ${
+            sizes={`(max-width: 768px) 100vw, (max-width: 1024px) 80vw, ${
               100 / 3
             }vw`}
             loading="eager"

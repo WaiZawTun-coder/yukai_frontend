@@ -92,6 +92,9 @@ export default function PostCard({
             if (pathname != `/${user.username}`)
               router.replace(`/${user.username}`);
           }}
+          style={{
+            objectFit: "cover",
+          }}
         />
         <div className="post-user">
           <h4
