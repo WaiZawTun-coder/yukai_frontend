@@ -24,7 +24,9 @@ export default function MainLayout({ children }) {
   return (
     <div className="main-layout-container">
       <Sidebar />
-      <main className="main-content">{children}</main>
+      <main className="main-content" id="main-content">
+        {children}
+      </main>
     </div>
   );
 }

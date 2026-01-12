@@ -1,0 +1,99 @@
+.saved-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  /* max-width: 400px; */
+  margin: 0 auto;
+}
+
+.create-list {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  max-width: 400px;
+  /* margin-left: auto; */
+  margin-bottom: 16px;
+}
+
+.create-list button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.create-list button:hover {
+  background-color: var(--accent-color);
+}
+
+.saved-lists {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.saved-list-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: var(--primary-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.saved-list-item:hover {
+  background-color: var(--accent-color);
+  border-radius: 16px;
+}
+
+.saved-list-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.saved-list-icon {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  background-color: var(--secondary-color);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  transition: all 300ms ease;
+}
+
+.saved-list-item:hover .saved-list-icon {
+  background-color: var(--primary-color);
+  border-radius: 16px;
+}
+
+.saved-list-item:hover .saved-list-name {
+  color: var(--background-color);
+}
+
+.saved-posts {
+  overflow: hidden;
+  transition: all 300ms ease;
+}
+
+.empty-state {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+}
+
+.saved-post-list {
+  width: 100%;
+}

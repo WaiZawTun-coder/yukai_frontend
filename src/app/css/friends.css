@@ -54,62 +54,163 @@
   color: #fff;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
-.friends-card {
-  background: var(--surface-1);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: var(--shadow-medium);
-  backdrop-filter: blur(8px);
+.friends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 12px;
 }
-.friend-row {
+
+.people-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--divider);
-  transition: background 200ms ease;
-}
-.friend-row:active {
-  background: var(--active-overlay);
-}
-
-.friend-row:last-child {
-  border-bottom: none;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+  position: relative;
 }
 
-.friend-row:hover {
-  background: var(--hover-overlay);
-}
-.user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.people-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.user img {
-  width: 42px;
-  height: 42px;
+.avatar-wrapper {
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;
   background: var(--bg-secondary);
+}
+
+.avatar-wrapper img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
-.user span {
-  font-size: 15px;
-  font-weight: 500;
+.user-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.display-name {
+  font-weight: 600;
+  font-size: 16px;
   color: var(--text-primary);
 }
+
+.username {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.location {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.card-buttons {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  margin-top: auto; /* push buttons to bottom */
+}
+
+.btn {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background 200ms ease, color 200ms ease;
+}
+
+.add-friend {
+  background: var(--primary);
+  color: #fff;
+}
+
+.add-friend:hover {
+  background: #0056b3; /* darker shade */
+}
+
+.follow {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--divider);
+}
+
+.follow:hover {
+  background: var(--hover-overlay);
+}
+
 .menu-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   background: transparent;
   border: none;
   color: var(--text-muted);
+  cursor: pointer;
   padding: 6px;
   border-radius: 8px;
-  cursor: pointer;
   transition: background 200ms ease, color 200ms ease;
 }
 
 .menu-btn:hover {
   background: var(--hover-overlay);
   color: var(--text-primary);
+}
+
+/* MENU */
+.card-menu {
+  position: absolute;
+  top: 42px;
+  right: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+  min-width: 160px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.card-menu button {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.card-menu button:hover {
+  background: var(--hover-overlay);
+}
+
+.card-menu button.danger {
+  color: #e53935;
+}
+
+.card-menu button.danger:hover {
+  background: rgba(229, 57, 53, 0.1);
 }

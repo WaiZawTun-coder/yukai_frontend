@@ -18,6 +18,8 @@
 @import url("./css/post.css");
 @import url("./css/profile.css");
 @import url("./css/profile-skeleton.css");
+@import url("./css/saved-lists.css");
+@import url("./css/saved-posts.css");
 
 /* update in post.css */
 /* =====================================================
@@ -123,6 +125,10 @@
   :root {
     --sidebar-width: 0px;
   }
+
+  .main-content {
+    margin-bottom: 64px;
+  }
 }
 
 /* DARK MODE */
@@ -209,6 +215,7 @@ a:hover {
 @media (max-width: 768px) {
   .main-content {
     margin: 0;
+    margin-bottom: 64px;
   }
   .main-container {
     max-width: 95vw;
@@ -235,4 +242,12 @@ a:hover {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+.block {
+  display: block;
+}
+
+.hidden {
+  display: none;
 }

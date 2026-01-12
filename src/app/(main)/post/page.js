@@ -9,17 +9,22 @@ import { useAuth } from "@/context/AuthContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useApi } from "@/utilities/api";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const SocialPost = () => {
+const SocialPost = ({
+  paramPost = null,
+  isCommentOpen = true,
+  handleCommentClick = null,
+}) => {
   const { user } = useAuth();
   const params = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const apiFetch = useApi();
   const { showSnackbar } = useSnackbar();
 
-  const postId = params.get("post_id");
+  const paramPostId = params.get("post_id");
 
   const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState(null);
@@ -41,13 +46,14 @@ const SocialPost = () => {
   // Fetch Post
   // -------------------------
   useEffect(() => {
-    if (!postId) {
+    if (!paramPostId && !paramPost) {
       router.replace("/");
       return;
     }
 
     const getPost = async () => {
       setIsLoading(true);
+      const postId = paramPostId ? paramPostId : paramPost.post_id;
       try {
         const res = await apiFetch(`/api/get-post?post_id=${postId}`);
         if (!res.status) {
@@ -70,16 +76,24 @@ const SocialPost = () => {
       }
     };
 
-    getPost();
-  }, [postId, apiFetch, router, showSnackbar]);
+    if (!paramPost) {
+      getPost();
+    } else {
+      setPost(paramPost);
+      setIsLoading(false);
+    }
+  }, [apiFetch, router, showSnackbar, paramPost, paramPostId]);
 
   // -------------------------
   // Fetch Comments (by page)
   // -------------------------
   useEffect(() => {
-    if (!postId || !hasMore) return;
+    if ((!paramPostId && !paramPost) || !hasMore) return;
+
+    const postId = paramPostId ? paramPostId : paramPost.post_id;
 
     const getComments = async () => {
+      if (!isCommentOpen) return;
       setIsFetchingComments(true);
       try {
         const res = await apiFetch(`/api/get-comment/${postId}?page=${page}`, {
@@ -106,7 +120,7 @@ const SocialPost = () => {
     };
 
     getComments();
-  }, [page, postId, hasMore, apiFetch, showSnackbar]);
+  }, [page, hasMore, apiFetch, showSnackbar, paramPostId, paramPost]);
 
   // -------------------------------
   // Handle reactions
@@ -265,6 +279,7 @@ const SocialPost = () => {
       <div className="post-scrollable">
         <PostCard
           user={{
+            username: post?.creator.username,
             name: post?.creator?.display_name,
             avatar:
               post?.creator?.profile_image !== ""
@@ -278,6 +293,9 @@ const SocialPost = () => {
           comments={post?.comment_count}
           postId={post?.post_id}
           userReaction={post?.reaction ?? null}
+          onComment={() => {
+            handleCommentClick?.();
+          }}
           onLike={handleReact}
           handleDelete={() => {
             setOpenPopup(true);
@@ -285,50 +303,63 @@ const SocialPost = () => {
           }}
         />
 
-        {/* COMMENTS */}
-        <div className="comments-list">
-          {comments.length === 0 && !isFetchingComments && (
-            <div className="no-comments">No comments yet</div>
-          )}
+        {isCommentOpen && (
+          <div className="comments-list">
+            {comments.length === 0 && !isFetchingComments && (
+              <div className="no-comments">No comments yet</div>
+            )}
 
-          {comments.map((c, index) => {
-            const isLast = index === comments.length - 1;
+            {comments.map((c, index) => {
+              const isLast = index === comments.length - 1;
 
-            return (
-              <div
-                key={`${c.comment_id}-${index}`}
-                className="comment-item"
-                ref={isLast ? lastCommentRef : null}
-              >
-                <Image
-                  className="comment-avatar"
-                  src={
-                    c.creator?.profile_image
-                      ? `/api/images?url=${c.creator.profile_image}`
-                      : `/Images/default-profiles/${c.creator?.gender}.jpg`
-                  }
-                  alt={c.creator?.display_name}
-                  width={34}
-                  height={34}
-                />
+              return (
+                <div
+                  key={`${c.comment_id}-${index}`}
+                  className="comment-item"
+                  ref={isLast ? lastCommentRef : null}
+                >
+                  <Image
+                    className="comment-avatar"
+                    src={
+                      c.creator?.profile_image
+                        ? `/api/images?url=${c.creator.profile_image}`
+                        : `/Images/default-profiles/${c.creator?.gender}.jpg`
+                    }
+                    alt={c.creator?.display_name}
+                    width={34}
+                    height={34}
+                    onClick={() => {
+                      if (pathname != `/${c.creator.username}`)
+                        router.replace(`/${c.creator.username}`);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  />
 
-                <div className="comment-body">
-                  <div className="comment-header">
-                    <span className="comment-name">
-                      {c.creator?.display_name}
-                    </span>
-                    <span className="comment-time">
-                      {formatDate(c.created_at)}
-                    </span>
+                  <div className="comment-body">
+                    <div className="comment-header">
+                      <span
+                        className="comment-name"
+                        onClick={() => {
+                          if (pathname != `/${user.username}`)
+                            router.replace(`/${user.username}`);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {c.creator?.display_name}
+                      </span>
+                      <span className="comment-time">
+                        {formatDate(c.created_at)}
+                      </span>
+                    </div>
+                    <p className="comment-text">{c.comment}</p>
                   </div>
-                  <p className="comment-text">{c.comment}</p>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          {isFetchingComments && <CommentSkeleton count={3} />}
-        </div>
+            {isFetchingComments && <CommentSkeleton count={3} />}
+          </div>
+        )}
       </div>
 
       {/* COMMENT INPUT */}
