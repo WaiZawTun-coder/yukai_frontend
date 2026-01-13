@@ -13,10 +13,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const pathname = usePathname();
-
-  const { showSnackbar } = useSnackbar();
   const router = useRouter();
+  const { showSnackbar } = useSnackbar();
 
+  /* ---------------- INIT AUTH ---------------- */
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
+  /* ---------------- LOGIN ---------------- */
   const login = async (username, password) => {
     const res = await fetch(getBackendUrl() + "/auth/login", {
       method: "POST",
@@ -48,22 +49,28 @@ export const AuthProvider = ({ children }) => {
       throw new Error(data.message);
     }
 
-    setAccessToken(data.data.access_token);
-    setUser(data.data);
+    if (data.status && data.data?.access_token) {
+      setAccessToken(data.data.access_token);
+      setUser(data.data);
+    }
 
-    return data;
+    return data; // frontend decides where to go
   };
 
+  /* ---------------- LOGOUT ---------------- */
   const logout = async () => {
     setAccessToken(null);
     setUser(null);
+
     await fetch(getBackendUrl() + "/auth/logout", {
       method: "POST",
       credentials: "include",
     });
+
     router.replace("/login");
   };
 
+  /* ---------------- REFRESH TOKEN ---------------- */
   const refreshToken = async () => {
     const res = await fetch(getBackendUrl() + "/auth/refresh", {
       method: "POST",
@@ -72,38 +79,22 @@ export const AuthProvider = ({ children }) => {
 
     const data = await res.json();
 
-    if (!res.ok) {
-      showSnackbar({
-        message: data.message || "Refresh failed",
-        variant: "error",
-      });
+    if (!res.ok || !data.status) {
       if (
-        pathname != "/login" &&
-        pathname != "/register" &&
-        pathname != "/forget-password"
+        pathname !== "/login" &&
+        pathname !== "/register" &&
+        pathname !== "/forget-password"
       ) {
         router.replace("/login");
       }
-      throw new Error(data.message || "Token Refresh failed");
-    }
-
-    if (!data.status) {
-      showSnackbar({
-        message: data.message || "Token Refresh failed",
-        variant: "error",
-      });
-      if (
-        pathname != "/login" &&
-        pathname != "/register" &&
-        pathname != "/forget-password"
-      )
-        router.replace("/login");
+      throw new Error(data.message || "Refresh failed");
     }
 
     setAccessToken(data.data.access_token);
     return data.data.access_token;
   };
 
+  /* ---------------- GET USER ---------------- */
   const getUser = async (token) => {
     if (!token) return;
 
@@ -115,18 +106,28 @@ export const AuthProvider = ({ children }) => {
       credentials: "include",
     });
 
+    const data = await res.json();
+
     if (!res.ok) {
-      showSnackbar({ message: data.message, variant: "error" });
-      throw new Error("Failed to load user");
+      throw new Error(data.message || "Failed to load user");
     }
 
-    const data = await res.json();
     setUser(data.data);
   };
 
+  const isLoggedIn = !!accessToken;
+
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, login, logout, refreshToken, loading }}
+      value={{
+        user,
+        accessToken,
+        login,
+        logout,
+        refreshToken,
+        loading,
+        isLoggedIn,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -14,6 +14,14 @@
   margin-bottom: 40px;
 }
 
+.no-more-posts {
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* -------------------------- */
 /*   RESPONSIVE ADJUSTMENTS   */
 /* -------------------------- */

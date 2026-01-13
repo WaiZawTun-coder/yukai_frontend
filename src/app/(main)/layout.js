@@ -7,19 +7,31 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 export default function MainLayout({ children }) {
-  const { accessToken, loading: authLoading, user } = useAuth();
+  const { loading: authLoading, isLoggedIn, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!accessToken && !authLoading && !user) {
-      router.replace("/login");
-    }
-  }, [accessToken, authLoading, router, user, pathname]);
+    if (authLoading) return;
 
-  if (authLoading || !accessToken) {
+    // not logged in → login
+    if (!isLoggedIn) {
+      router.replace("/login");
+      return;
+    }
+
+    // logged in but profile incomplete → register step 2
+    if (user && user.completed_step < 2 && pathname !== "/register") {
+      router.replace("/register?step=2");
+      return;
+    }
+  }, [authLoading, isLoggedIn, user, pathname, router]);
+
+  if (authLoading) {
     return <AuthLoadingScreen text="Authentication Loading..." />;
   }
+
+  if (!isLoggedIn) return null;
 
   return (
     <div className="main-layout-container">

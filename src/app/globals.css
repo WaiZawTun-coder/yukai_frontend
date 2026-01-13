@@ -224,6 +224,7 @@ a:hover {
   padding: 16px;
   flex: 1;
   margin: 0 calc(var(--sidebar-width) + 24px);
+  margin-right: 0;
   padding: 16px 0;
 }
 
@@ -237,6 +238,7 @@ a:hover {
   gap: 16px;
   margin: 0 auto;
   width: 100%;
+  position: relative;
 }
 
 @media (max-width: 768px) {

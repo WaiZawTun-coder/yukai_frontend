@@ -14,16 +14,17 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login, accessToken, loading: authLoading } = useAuth();
+  const { login, accessToken, loading: authLoading, isLoggedIn } = useAuth();
   const router = useRouter();
 
   const { showSnackbar } = useSnackbar();
-
   useEffect(() => {
-    if (accessToken && !authLoading) {
+    if (accessToken && !authLoading && isLoggedIn) {
+      // allow staying on register step 2
+      if (window.location.pathname.startsWith("/register")) return;
       router.replace("/");
     }
-  }, [accessToken, authLoading, router]);
+  }, [accessToken, authLoading, isLoggedIn, router]);
 
   // to handle input changes
   const handleFieldChange = useCallback((name, value) => {
@@ -92,10 +93,11 @@ const Login = () => {
           message: "Redirecting...",
           variant: "success",
         });
-        const timer = setTimeout(() => {
+        if (response.incomplete || response.data?.completed_step < 2) {
+          router.replace("/register?step=2");
+        } else {
           router.replace("/");
-        }, 3000);
-        return () => clearTimeout(timer);
+        }
       } else {
         showSnackbar({
           title: "Login Failed",

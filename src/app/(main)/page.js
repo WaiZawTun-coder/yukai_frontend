@@ -395,6 +395,9 @@ const Home = () => {
           <PostSkeleton />
         </>
       )}
+      {!hasMore[activeTab] && (
+        <div className="no-more-posts">No more posts...</div>
+      )}
 
       {modalPost && (
         <Modal

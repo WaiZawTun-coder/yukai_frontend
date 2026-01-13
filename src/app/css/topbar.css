@@ -2,8 +2,9 @@
 .feed-wrapper {
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  margin: 0 auto;
+  left: calc(var(--sidebar-width) + 50% + 10px);
+  transform: translateX(calc(-50% - calc(var(--sidebar-width) / 2)));
   background: var(--bg-primary);
   max-width: 720px;
   width: 100%;
@@ -19,7 +20,7 @@
 }
 
 .feed-wrapper.topbar--hidden {
-  transform: translate(-50%, -110%);
+  transform: translate(calc(-50% - calc(var(--sidebar-width) / 2)), -110%);
   opacity: 0;
   pointer-events: none;
 }
@@ -90,6 +91,7 @@
   font-weight: 600;
   cursor: pointer;
   min-width: 54px;
+  white-space: nowrap;
 
   color: var(--text-primary);
   transition: opacity 0.25s ease, transform 0.25s ease;
@@ -171,5 +173,6 @@
 @media (max-width: 1200px) {
   .feed-wrapper {
     max-width: 100vw;
+    left: 50%;
   }
 }
