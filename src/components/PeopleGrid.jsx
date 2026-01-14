@@ -249,14 +249,22 @@ function PeopleCard({ person, type, openMenuId, setOpenMenuId, removeCard }) {
   if (!config) return null;
 
   return (
-    <div className="people-card">
+    <div
+      className="people-card"
+      onClick={() => {
+        router.replace(`/${person.username}`);
+      }}
+    >
       {/* MENU */}
       {config.menu.length > 0 && (
         <button
           className="menu-btn"
-          onClick={() =>
-            setOpenMenuId(openMenuId === person.user_id ? null : person.user_id)
-          }
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenMenuId(
+              openMenuId === person.user_id ? null : person.user_id
+            );
+          }}
         >
           <MoreHorizRoundedIcon />
         </button>

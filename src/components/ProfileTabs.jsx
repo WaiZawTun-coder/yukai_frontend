@@ -6,7 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 const TABS = [
   { id: 1, name: "Posts", url: "posts" },
   { id: 2, name: "Images", url: "images" },
-  // { id: 3, name: "Saved", url: "saved" },
+  { id: 3, name: "Saved", url: "saved" },
   //   { id: 4, name: "Tagged", url: "tagged" },
 ];
 

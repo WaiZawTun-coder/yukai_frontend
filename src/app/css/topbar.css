@@ -3,8 +3,10 @@
   position: fixed;
   top: 0;
   margin: 0 auto;
-  left: calc(var(--sidebar-width) + 50% + 10px);
-  transform: translateX(calc(-50% - calc(var(--sidebar-width) / 2)));
+  /* left: calc(var(--sidebar-width) + 50% + 10px); */
+  /* transform: translateX(calc(-50% - calc(var(--sidebar-width) / 2))); */
+  left: 50%;
+  transform: translateX(-50%);
   background: var(--bg-primary);
   max-width: 720px;
   width: 100%;
@@ -20,7 +22,8 @@
 }
 
 .feed-wrapper.topbar--hidden {
-  transform: translate(calc(-50% - calc(var(--sidebar-width) / 2)), -110%);
+  /* transform: translate(calc(-50% - calc(var(--sidebar-width) / 2)), -110%); */
+  transform: translate(-50%, -110%);
   opacity: 0;
   pointer-events: none;
 }

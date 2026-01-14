@@ -13,6 +13,10 @@ import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
 
+// notification icons
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import NotificationsActiveOutlinedIcon from "@mui/icons-material/NotificationsActiveOutlined";
+
 // setting icons
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
@@ -44,10 +48,10 @@ const menuList = [
   },
   {
     id: 3,
-    name: "Saves",
-    icon: BookmarkBorderOutlinedIcon,
-    activeIcon: BookmarkRoundedIcon,
-    link: "/saves",
+    name: "Notifications",
+    icon: NotificationsActiveOutlinedIcon,
+    activeIcon: NotificationsActiveIcon,
+    link: "/notifications",
   },
   {
     id: 4,

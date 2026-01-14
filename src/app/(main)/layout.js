@@ -1,5 +1,6 @@
 "use client";
 
+import RightBar from "@/components/RightBar";
 import Sidebar from "@/components/SideBar";
 import AuthLoadingScreen from "@/components/ui/Loading";
 import { useAuth } from "@/context/AuthContext";
@@ -39,6 +40,7 @@ export default function MainLayout({ children }) {
       <main className="main-content" id="main-content">
         {children}
       </main>
+      <RightBar />
     </div>
   );
 }

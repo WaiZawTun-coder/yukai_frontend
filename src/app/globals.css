@@ -20,6 +20,7 @@
 @import url("./css/profile-skeleton.css");
 @import url("./css/saved-lists.css");
 @import url("./css/saved-posts.css");
+@import url("./css/friend-list.css");
 
 /* update in post.css */
 /* =====================================================
@@ -224,7 +225,8 @@ a:hover {
   padding: 16px;
   flex: 1;
   margin: 0 calc(var(--sidebar-width) + 24px);
-  margin-right: 0;
+  max-width: calc(100vw - var(--sidebar-width) - 24px);
+  /* margin-right: 0; */
   padding: 16px 0;
 }
 
