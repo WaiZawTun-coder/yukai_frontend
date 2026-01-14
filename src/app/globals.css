@@ -9,8 +9,16 @@
 @import url("./css/snackbar.css");
 @import url("./css/post-composer.css");
 @import url("./css/postCard.css");
+
+/* @import url("./css/deleteModal.css"); */
+/* @import url("./css/friend_list.css"); */
+/* @import url("./css/friend_list.css"); */
+/* @import url("./css/post.css"); */
+
 @import url("./css/friends.css");
 @import url("./css/modal.css");
+@import url("./css/chat.css");
+
 @import url("./css/loading.css");
 @import url("./css/post-card-skeleton.css");
 @import url("./css/comment-skeleton.css");

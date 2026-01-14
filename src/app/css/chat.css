@@ -1,0 +1,208 @@
+/* 1. Global Reset & Centering for PC/Tablets */
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100dvh; /* Uses Dynamic Viewport Height for mobile browsers */
+  background-color: #f0f2f5; /* Background color for the area outside the chat */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* 2. Main Container - Responsive for all devices */
+.chat-container {
+  width: 100%;
+  max-width: 100%; 
+  height: 100dvh; 
+  background-color: #b3d1e6;
+  background-image: radial-gradient(#ffffff22 2px, transparent 2px);
+  background-size: 30px 30px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-attachment: fixed;
+}
+
+/* 3. Header Styling */
+.chat-header {
+  background: #fff;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0; /* Ensures header height never squishes */
+}
+
+.back-button {
+  color: #007aff;
+  cursor: pointer;
+  font-size: 18px; 
+  font-weight: 500; 
+  line-height: 1;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; /* Protection */
+}
+
+.profile-pic { 
+  width: 37px; 
+  height: 37px; 
+  border-radius: 50%; 
+  flex-shrink: 0; 
+}
+
+.user-info {
+  flex: 1;
+  text-align: left;
+  display: flex;
+  margin-left: 10px;
+  flex-direction: column;
+  min-width: 0; 
+}
+
+.user-name { 
+  font-weight: bold; 
+  font-size: 16px; 
+  color: black;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; 
+  cursor: pointer; 
+}
+
+.last-seen { 
+  font-size: 13px; 
+  color: #888; 
+  white-space: nowrap;
+}
+
+.header-icon {
+  margin-top: 2px;
+  margin-left: 12px;
+  color: #979898;
+  cursor: pointer;
+  flex-shrink: 0; 
+}
+
+/* 4. Message List */
+.message-list {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.message { display: flex; width: 100%; }
+.outgoing { justify-content: flex-end; }
+.incoming { justify-content: flex-start; }
+
+.bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  position: relative;
+  line-height: 1.4;
+  color: black;
+  cursor: pointer;
+  word-wrap: break-word; 
+}
+
+.outgoing .bubble {
+  background-color: #e2ffc7;
+  border-bottom-right-radius: 2px;
+}
+
+.incoming .bubble {
+  background-color: #fff;
+  border-bottom-left-radius: 2px;
+}
+
+.time {
+  font-size: 10px;
+  color: #88bb88;
+  margin-left: 8px;
+  float: right;
+  margin-top: 5px;
+}
+
+.incoming .time { color: #aaa; }
+
+.reply-bar {
+  border-left: 3px solid #007aff;
+  background: #f0f0f0;
+  padding: 4px 8px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* 5. Footer Input Area */
+.chat-input-area {
+  background: #fff;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 9px 15px;
+  outline: none;
+  font-size: 15px;
+}
+
+.icon-clip { transform: rotate(320deg); } 
+
+.icon-clip, .icon-sticker, .icon-mic {
+  font-size: 20px;
+  color: #979898;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* 6. RESPONSIVE BREAKPOINTS */
+
+
+@media (min-width: 768px) {
+  .chat-container {
+    max-width: 100%; 
+    height: 100vh;
+    border-radius: 15px;
+    border: 1px solid #ccc;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+}
+
+
+@media (min-width: 1024px) {
+  .chat-container {
+    max-width: 100%; 
+    height: 100vh;
+  }
+  
+  .bubble {
+    max-width: 75%;
+  .chat-input-area {
+    padding: 20px 30px; 
+  }
+}
+
+
+@media (min-width: 1440px) {
+  .chat-container {
+    max-width: 850px;
+  }
+}
+}
