@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-export default function PostMenu({ isOwner, postId }) {
+export default function PostMenu({ isOwner, postId, handleDelete }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -32,7 +32,9 @@ export default function PostMenu({ isOwner, postId }) {
             <>
               <button>Edit post</button>
               <button>Change privacy</button>
-              <button className="danger">Delete post</button>
+              <button className="danger" onClick={handleDelete}>
+                Delete post
+              </button>
             </>
           ) : (
             <>

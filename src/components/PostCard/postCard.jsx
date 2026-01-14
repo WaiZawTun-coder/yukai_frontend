@@ -46,6 +46,7 @@ export default function PostCard({
   onShare,
   postId,
   userReaction = null,
+  handleDelete,
 }) {
   const [time, setTime] = useState("");
 
@@ -82,7 +83,7 @@ export default function PostCard({
             <PrivacyIcon type={privacy} />
           </div>
         </div>
-        <PostMenu isOwner={true} postId={postId} />
+        <PostMenu isOwner={true} postId={postId} handleDelete={handleDelete} />
       </div>
       <hr className="post-divider"></hr>
 

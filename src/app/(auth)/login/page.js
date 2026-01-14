@@ -100,14 +100,14 @@ const Login = () => {
       } else {
         showSnackbar({
           title: "Login Failed",
-          message: response.message,
+          message: response.message ?? "",
           variant: "error",
         });
       }
     } catch (err) {
       showSnackbar({
         title: "Login Failed",
-        message: err,
+        message: err.message ?? "",
         variant: "error",
       });
     } finally {
@@ -156,9 +156,9 @@ const Login = () => {
             helperText={errors.password?.message ?? ""}
           />
 
-          <a href="#" className="forgot">
+          <Link href="/forget-password" className="forgot">
             forgot password?
-          </a>
+          </Link>
           <Button type="submit" onClick={handleLogin} disabled={isLoading}>
             {isLoading ? "LOGGING IN..." : "LOGIN"}
           </Button>

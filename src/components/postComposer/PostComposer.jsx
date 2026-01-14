@@ -21,7 +21,7 @@ const PRIVACY_OPTIONS = [
   { label: "Only Me", value: "private" },
 ];
 
-export default function PostComposer() {
+export default function PostComposer({ handleCreate }) {
   const apiFetch = useApi();
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
@@ -65,10 +65,6 @@ export default function PostComposer() {
     textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
   }, [text]);
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
   async function handleSubmit() {
     if (!text && images.length === 0) return; // prevent empty post
 
@@ -95,10 +91,16 @@ export default function PostComposer() {
     if (!data.status)
       showSnackbar("Post creation failed", res.message, "error");
     else {
-      showSnackbar("Post creation successful", "", "success");
+      showSnackbar({
+        title: "Post creation successful",
+        message: "",
+        variant: "success",
+      });
       setText("");
       setImages([]);
       setOpen(false);
+
+      handleCreate(data.data[0]);
     }
   }
 
@@ -168,29 +170,30 @@ export default function PostComposer() {
               />
             </div>
 
-            {open ||
-              (images.length > 0 && (
-                <div className="action-buttons">
+            {(open || images.length > 0 || text) && (
+              <div className="action-buttons">
+                {open && (
                   <button className="ghost" onClick={() => setOpen(false)}>
                     Cancel
                   </button>
-                  <button
-                    className="ghost"
-                    onClick={async () => {
-                      setIsDraft(true);
-                      await handleSubmit();
-                    }}
-                  >
-                    Save Draft
-                  </button>
-                  <button
-                    className="primary"
-                    onClick={async () => await handleSubmit()}
-                  >
-                    Post
-                  </button>
-                </div>
-              ))}
+                )}
+                <button
+                  className="ghost"
+                  onClick={async () => {
+                    setIsDraft(true);
+                    await handleSubmit();
+                  }}
+                >
+                  Save Draft
+                </button>
+                <button
+                  className="primary"
+                  onClick={async () => await handleSubmit()}
+                >
+                  Post
+                </button>
+              </div>
+            )}
           </div>
 
           {showEmoji && (

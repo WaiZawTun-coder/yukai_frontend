@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const tabs = [
-  { id: 1, tabName: "For You" },
-  { id: 2, tabName: "Friends" },
-  { id: 3, tabName: "Following" },
+  { id: 1, tabName: "For You", url: "?type=recommend" },
+  { id: 2, tabName: "Friends", url: "?type=friends" },
+  { id: 3, tabName: "Following", url: "?type=following" },
 ];
 
 const TopBar = ({ setData }) => {
@@ -16,11 +17,25 @@ const TopBar = ({ setData }) => {
   const [searchActive, setSearchActive] = useState(false);
 
   const [hidden, setHidden] = useState(false);
+  const params = useSearchParams();
+  const router = useRouter();
+
   const lastScrollY = useRef(0);
 
   const tabsRef = useRef([]);
   const indicatorRef = useRef(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const type = params.get("type");
+    tabs.forEach((tab, index) => {
+      if (tab.url.split("=")[1] == type) {
+        setActiveIndex(index);
+        setData(type);
+        return;
+      }
+    });
+  }, [params, setData]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,9 +61,9 @@ const TopBar = ({ setData }) => {
   // 🔹 Tab indicator logic
   useEffect(() => {
     // fetch data and update
-    setData(
-      activeIndex == 0 ? "foryou" : activeIndex == 1 ? "friends" : "following"
-    );
+    // setData(
+    //   activeIndex == 0 ? "foryou" : activeIndex == 1 ? "friends" : "following"
+    // );
     const indicator = indicatorRef.current;
     const el = tabsRef.current[activeIndex];
     const container = el?.parentElement;
@@ -74,6 +89,12 @@ const TopBar = ({ setData }) => {
       indicator.style.transform = `translateX(${left}px)`;
     });
   }, [activeIndex, searchActive, setData]);
+
+  useEffect(() => {
+    if (activeIndex != null) {
+      router.push(tabs[activeIndex].url);
+    }
+  }, [activeIndex, router]);
 
   useEffect(() => {
     const handleResize = () => {

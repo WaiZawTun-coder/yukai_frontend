@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 
-export default function Modal({ isOpen, onClose, children }) {
+export default function Modal({ isOpen, onClose, children, title }) {
   const [show, setShow] = useState(false);
   const [animate, setAnimate] = useState(false);
   const contentRef = useRef(null);
@@ -52,7 +52,18 @@ export default function Modal({ isOpen, onClose, children }) {
         onClick={(e) => e.stopPropagation()}
         onTransitionEnd={handleTransitionEnd}
       >
-        {children}
+        <div className="modal-header">
+          <h2 className="modal-title">{title}</h2>
+
+          <button
+            className="modal-close-button"
+            onClick={onClose}
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="modal-main">{children}</div>
       </div>
     </div>
   );
