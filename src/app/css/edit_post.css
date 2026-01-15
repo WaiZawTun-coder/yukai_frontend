@@ -50,14 +50,14 @@ body {
   align-items: center;
   gap: 10px;
   padding: 12px;
-  margin-top: 10px;
+  margin-top:12px;
 }
 
 .avatar {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  flex-shrink: 0;
+ 
 }
 
 .username {
@@ -66,6 +66,15 @@ body {
   display: flex;
   align-items: center;
   line-height: 1.2;
+  
+}.username {
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  line-height: 1.2;
+  position: relative;
+  top: -17px; 
 }
 
 .options {
