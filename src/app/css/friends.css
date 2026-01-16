@@ -27,6 +27,8 @@
   padding: 12px;
   color: var(--text-primary);
   overflow: visible;
+  max-height: 100vh;
+  overflow-y: auto;
 }
 
 /* ================= TABS ================= */
@@ -69,15 +71,17 @@
 
 .friends-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  /* grid-template-columns: repeat(3, minmax(200px, 1fr)); */
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   padding: 12px 0;
   align-items: center;
+  max-width: 720px;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1200px) {
   .friends-grid {
-    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -251,17 +255,14 @@
 }
 
 .people-grid-end {
-  grid-column: span 4;
+  grid-column: 1 / -1;
 }
 
 /* ================= MOBILE TWEAKS ================= */
 
 @media (max-width: 768px) {
   .friends-grid {
-    grid-template-columns: repeat(2, minmax(200px, 1fr));
-  }
-  .people-grid-end {
-    grid-column: span 3;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -271,8 +272,8 @@
   }
 
   .friends-grid {
+    grid-template-columns: repeat(1, 1fr);
     gap: 12px;
-    grid-template-columns: repeat(1, minmax(200px, 1fr));
   }
 
   .people-card {
@@ -284,7 +285,50 @@
     padding: 7px 10px;
   }
 
-  .people-grid-end {
-    grid-column: span 1;
+  .people-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
+  .avatar-wrapper {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+  }
+
+  .user-text {
+    flex: 1;
+    align-items: flex-start;
+    text-align: left;
+    gap: 0;
+  }
+
+  .display-name {
+    font-size: 14px;
+  }
+
+  .username,
+  .location {
+    font-size: 11px;
+  }
+
+  .card-buttons {
+    width: auto;
+    margin-top: 0;
+  }
+
+  .btn {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .menu-btn {
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    display: none;
   }
 }

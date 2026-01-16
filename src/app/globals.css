@@ -29,6 +29,7 @@
 @import url("./css/saved-lists.css");
 @import url("./css/saved-posts.css");
 @import url("./css/friend-list.css");
+@import url("./css/chat-list.css");
 
 /* update in post.css */
 /* =====================================================
@@ -52,6 +53,7 @@
   --primary-color: #628ecb;
   --secondary-color: #8aaeed;
   --accent-color: #b1c9ef;
+  --danger-color: #ffeded;
 
   /* BACKGROUNDS */
   --background-color: #d5deef;
@@ -166,6 +168,55 @@
   max-width: 100vw;
   scrollbar-width: thin; /* auto | thin | none */
   scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+@media (max-width: 450px) {
+  /* Headings */
+  h1 {
+    font-size: 18px;
+  }
+  h2 {
+    font-size: 16px;
+  }
+  h3 {
+    font-size: 14px;
+  }
+
+  /* Primary text */
+  .display-name {
+    font-size: 13px;
+  }
+  .username,
+  .location,
+  .last-seen {
+    font-size: 11px;
+  }
+
+  /* Buttons */
+  .btn {
+    font-size: 11px;
+  }
+
+  /* Inputs */
+  input,
+  textarea {
+    font-size: 13px;
+  }
+
+  /* Tabs */
+  .friend-tabs button,
+  .chat-tabs button {
+    font-size: 12px;
+  }
+
+  /* Message bubbles */
+  .bubble {
+    font-size: 12px;
+  }
+
+  .time {
+    font-size: 9px;
+  }
 }
 
 /* width */

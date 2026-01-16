@@ -186,7 +186,6 @@ const Register = () => {
       setLoading(true);
 
       const fd = new FormData();
-      console.log({ formData });
       fd.append("userId", formData.userId);
       fd.append("email", formData.email);
       fd.append("username", username);

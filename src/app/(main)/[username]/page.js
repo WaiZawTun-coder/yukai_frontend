@@ -168,7 +168,7 @@ const Profile = () => {
 
         await fetchUserPosts(1);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       } finally {
         setIsFetchPosts(false);
         setIsLoading(false);
@@ -409,7 +409,6 @@ const Profile = () => {
 
     setIsSentRequest(true);
     setRequestDirection("sent");
-    // console.log(res.message);
   };
 
   const handleResponseRequest = async (type) => {
@@ -419,6 +418,10 @@ const Profile = () => {
       method: "POST",
       body: { user_id: user.user_id, status: type },
     });
+  };
+
+  const goToMessage = () => {
+    router.replace(`/chat/${username}`);
   };
 
   if (isLoading) return <ProfileSkeleton />;
@@ -537,7 +540,7 @@ const Profile = () => {
                           Friend
                         </button>
                       )}
-                      <button className="btn">
+                      <button className="btn" onClick={goToMessage}>
                         <MessageIcon />
                         Message
                       </button>

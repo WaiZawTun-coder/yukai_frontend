@@ -88,11 +88,6 @@ const Login = () => {
       setIsLoading(true);
       const response = await login(username, password);
       if (response.status) {
-        showSnackbar({
-          title: "Login Success",
-          message: "Redirecting...",
-          variant: "success",
-        });
         if (response.incomplete || response.data?.completed_step < 2) {
           router.replace("/register?step=2");
         } else {

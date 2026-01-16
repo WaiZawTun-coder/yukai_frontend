@@ -159,7 +159,6 @@ const RightBar = () => {
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log("clicked menu");
                     }}
                   >
                     <MoreHorizOutlinedIcon />

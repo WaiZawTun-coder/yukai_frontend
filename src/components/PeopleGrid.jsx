@@ -281,17 +281,19 @@ function PeopleCard({ person, type, openMenuId, setOpenMenuId, removeCard }) {
       )}
 
       {/* AVATAR */}
-      <Image
-        src={
-          person.profile_image
-            ? `/api/images?url=${person.profile_image}`
-            : `/Images/default-profiles/${person.gender}.jpg`
-        }
-        alt={person.username}
-        width={64}
-        height={64}
-        style={{ borderRadius: "50%", objectFit: "cover" }}
-      />
+      <div className="avatar-wrapper">
+        <Image
+          src={
+            person.profile_image
+              ? `/api/images?url=${person.profile_image}`
+              : `/Images/default-profiles/${person.gender}.jpg`
+          }
+          alt={person.username}
+          width={64}
+          height={64}
+          style={{ borderRadius: "50%", objectFit: "cover" }}
+        />
+      </div>
 
       {/* INFO */}
       <div className="user-text">

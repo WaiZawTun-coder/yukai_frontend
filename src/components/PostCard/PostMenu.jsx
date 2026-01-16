@@ -23,8 +23,6 @@ export default function PostMenu({ isOwner, postId, handleDelete }) {
       method: "POST",
       body: { post_id: postId, saved_list_id: 1 },
     });
-
-    console.log(res);
   };
 
   return (
