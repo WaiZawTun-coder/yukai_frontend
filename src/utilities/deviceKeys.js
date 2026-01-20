@@ -43,6 +43,9 @@ export async function generateDeviceKeys(userId) {
     signedPrekeyPub
   );
 
+  const signedPrekeyId = crypto.getRandomValues(new Uint32Array(1))[0];
+  const registrationId = crypto.getRandomValues(new Uint16Array(1))[0];
+
   // Persist keys per user
   await saveUserKey(userId, "identity_private", identityKeyPair.privateKey);
   await saveUserKey(userId, "identity_public", identityKeyPair.publicKey);
@@ -57,8 +60,8 @@ export async function generateDeviceKeys(userId) {
     identity_key_pub: toBase64(identityPub),
     signed_prekey_pub: toBase64(signedPrekeyPub),
     signed_prekey_sig: toBase64(signedPrekeySig),
-    signed_prekey_id: crypto.getRandomValues(new Uint32Array(1))[0],
-    registration_id: crypto.getRandomValues(new Uint16Array(1))[0],
+    signed_prekey_id: signedPrekeyId,
+    registration_id: registrationId,
   };
 }
 
@@ -93,7 +96,11 @@ export async function loadDeviceKeys(userId) {
     signedPrekeyPubBase64 = toBase64(raw);
   }
 
-  return { identityPrivate, signedPrekeyPrivate, signedPrekeyPubBase64 };
+  return {
+    identityPrivate,
+    signedPrekeyPrivate,
+    signedPrekeyPubBase64,
+  };
 }
 
 /* ---------------- Storage Wrappers ---------------- */

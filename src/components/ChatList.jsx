@@ -40,12 +40,14 @@ const CHATS = [
 ];
 
 const ChatList = ({ onSelectChat }) => {
-  const { getDeviceId } = useAuth();
+  const { getDeviceId, decryptPayload, hasKeys } = useAuth();
   const router = useRouter();
   const apiFetch = useApi();
 
   const [activeTab, setActiveTab] = useState("all");
   const [chatsList, setChatsList] = useState([]);
+  const [decryptedMessages, setDecryptedMessages] = useState({});
+  const [filteredChats, setFilteredChats] = useState([]);
 
   useEffect(() => {
     const getData = async () => {
@@ -57,13 +59,77 @@ const ChatList = ({ onSelectChat }) => {
     getData();
   }, [apiFetch, getDeviceId]);
 
+  const getLastMessagePlainText = async ({
+    cipher_text,
+    iv,
+    sender_signed_prekey_pub,
+  }) => {
+    const plainText = await decryptPayload({
+      ciphertext: cipher_text,
+      iv: iv,
+      sender_signed_prekey_pub: sender_signed_prekey_pub,
+    });
+    return plainText;
+  };
+
+  useEffect(() => {
+    if (!hasKeys || !chatsList.length) return;
+
+    const decryptAllMessages = async () => {
+      const newDecrypted = {};
+      for (const chat of chatsList) {
+        if (newDecrypted[chat.chat_id]) continue;
+
+        try {
+          if (chat.last_message_cipher_text != null) {
+            newDecrypted[chat.chat_id] = await getLastMessagePlainText({
+              cipher_text: chat.last_message_cipher_text,
+              iv: chat.last_message_iv,
+              sender_signed_prekey_pub:
+                chat.last_message_sender_signed_prekey_pub,
+            });
+          }
+        } catch (err) {
+          console.error(err.message);
+          newDecrypted[chat.chat_id] = "Encrypted message";
+        }
+      }
+      setDecryptedMessages(newDecrypted);
+    };
+
+    decryptAllMessages();
+  }, [chatsList, hasKeys]);
+
+  useEffect(() => {
+    const updateFilteredChat = () => {
+      const filterd = chatsList.filter((chat) => {
+        if (activeTab === "unread") return chat.unread_count > 0;
+        if (activeTab === "group") return chat.type === "group";
+        return true;
+      });
+
+      setFilteredChats(filterd);
+    };
+
+    updateFilteredChat();
+  }, [activeTab, chatsList]);
+
   const handleOpenChat = (chat) => {
+    const username = chat.participants[0]?.username;
+    if (!username) return;
     if (window.innerWidth < 768) {
-      // redirect to recipient username
-      router.replace(`/chat/${chat.chat_id}`);
+      router.replace(`/chat/${username}`);
     } else {
-      onSelectChat(chat.chat_id);
+      onSelectChat(username);
     }
+  };
+
+  const formatTime = (time) => {
+    if (!time) return "";
+    return new Date(time).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -132,7 +198,7 @@ const ChatList = ({ onSelectChat }) => {
       </div>
 
       <div className="chats">
-        {chatsList.map((chat) => (
+        {filteredChats.map((chat, i) => (
           <div
             className="chat-row"
             key={chat.chat_id}
@@ -161,13 +227,17 @@ const ChatList = ({ onSelectChat }) => {
                 <span className="chat-name">
                   {chat.participants[0].display_name}
                 </span>
-                <span className="chat-time">{chat.last_message_time}</span>
+                <span className="chat-time">
+                  {formatTime(chat.last_message_time)}
+                </span>
               </div>
 
               <div className="chat-bottom">
-                <span className="chat-message">{chat.last_message}</span>
+                <span className="chat-message">
+                  {decryptedMessages[chat.chat_id] ?? "Loading..."}
+                </span>
 
-                {chat.unread > 0 && (
+                {chat.unread_count > 0 && (
                   <span className="chat-badge">{chat.unread_count}</span>
                 )}
               </div>

@@ -150,7 +150,7 @@ const RightBar = () => {
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.replace(`/${user.username}/chat`);
+                      router.replace(`/chat/${user.username}`);
                     }}
                   >
                     <MessageIcon />

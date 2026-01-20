@@ -328,13 +328,22 @@ const Home = () => {
     }
   };
 
+  const handleSearch = async (keyword) => {
+    const res = await apiFetch(`/api/search`, {
+      method: "POST",
+      body: { keyword: keyword },
+    });
+
+    console.log(res);
+  };
+
   // -------------------------------
   // Render
   // -------------------------------
 
   return (
     <div className="main-container">
-      <TopBar setData={setActiveTab} />
+      <TopBar setData={setActiveTab} handleSearch={handleSearch} />
       <div style={{ height: "32px" }}></div>
       <PostComposer handleCreate={updatePosts} />
 

@@ -12,28 +12,45 @@ const tabs = [
   { id: 3, tabName: "Following", url: "?type=following" },
 ];
 
-const TopBar = ({ setData }) => {
+const TopBar = ({ setData, handleSearch }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [searchText, setSearchText] = useState("");
   const [searchActive, setSearchActive] = useState(false);
-
   const [hidden, setHidden] = useState(false);
+
   const params = useSearchParams();
   const router = useRouter();
 
   const lastScrollY = useRef(0);
-
   const tabsRef = useRef([]);
   const indicatorRef = useRef(null);
   const inputRef = useRef(null);
+  const debounceTimer = useRef(null);
 
   useKeyboard({
     enabled: true,
     onSearch: () => {
-      if (inputRef) inputRef.current.focus();
+      inputRef.current?.focus();
     },
   });
 
+  /* -------------------- Debounced Search -------------------- */
+  const triggerSearch = (text) => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    handleSearch(text);
+  };
+
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    debounceTimer.current = setTimeout(() => {
+      handleSearch(searchText);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(debounceTimer.current);
+  }, [searchText, handleSearch]);
+
+  /* -------------------- Active tab based on URL -------------------- */
   useEffect(() => {
     const type = params.get("type");
     tabs.forEach((tab, index) => {
@@ -45,20 +62,13 @@ const TopBar = ({ setData }) => {
     });
   }, [params, setData]);
 
+  /* -------------------- Hide/show on scroll -------------------- */
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
-
       if (Math.abs(currentY - lastScrollY.current) < 10) return;
 
-      if (currentY > lastScrollY.current && currentY > 80) {
-        // scrolling down
-        setHidden(true);
-      } else {
-        // scrolling up
-        setHidden(false);
-      }
-
+      setHidden(currentY > lastScrollY.current && currentY > 80);
       lastScrollY.current = currentY;
     };
 
@@ -66,16 +76,11 @@ const TopBar = ({ setData }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 🔹 Tab indicator logic
+  /* -------------------- Tab indicator -------------------- */
   useEffect(() => {
-    // fetch data and update
-    // setData(
-    //   activeIndex == 0 ? "foryou" : activeIndex == 1 ? "friends" : "following"
-    // );
     const indicator = indicatorRef.current;
     const el = tabsRef.current[activeIndex];
     const container = el?.parentElement;
-
     if (!indicator || !el || !container) return;
 
     if (searchActive) {
@@ -87,46 +92,50 @@ const TopBar = ({ setData }) => {
     requestAnimationFrame(() => {
       const tabRect = el.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
-
       const left = tabRect.left - containerRect.left + container.scrollLeft;
 
-      // container.style.justifyContent = "center";
-      // container.style.padding = "0 20px";
       indicator.style.opacity = "1";
       indicator.style.width = `${tabRect.width}px`;
       indicator.style.transform = `translateX(${left}px)`;
     });
-  }, [activeIndex, searchActive, setData]);
+  }, [activeIndex, searchActive]);
 
+  /* -------------------- Push URL on tab change -------------------- */
   useEffect(() => {
-    if (activeIndex != null) {
-      router.push(tabs[activeIndex].url);
-    }
+    if (activeIndex != null) router.push(tabs[activeIndex].url);
   }, [activeIndex, router]);
 
   useEffect(() => {
-    const handleResize = () => {
-      setActiveIndex((i) => i);
-    };
-
+    const handleResize = () => setActiveIndex((i) => i);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  /* -------------------- Handlers -------------------- */
   const handleBack = () => {
     inputRef.current?.blur();
-
     setTimeout(() => {
       setSearchText("");
       setSearchActive(false);
     }, 50);
   };
 
+  const handleInputChange = (e) => setSearchText(e.target.value);
+
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter") triggerSearch(searchText); // 🔹 immediate search on Enter
+  };
+
+  const handleInputBlur = () => {
+    if (searchText !== "") triggerSearch(searchText); // 🔹 search on blur
+    else setSearchActive(false);
+  };
+
   return (
     <div className={`feed-wrapper ${hidden ? "topbar--hidden" : ""}`}>
       <div className="navbar">
-        {/* BACK BUTTON */}
         <div style={{ display: "inline-flex" }}>
+          {/* BACK BUTTON */}
           <button
             className={`back-btn ${searchActive ? "show" : ""}`}
             onClick={handleBack}
@@ -156,9 +165,7 @@ const TopBar = ({ setData }) => {
         {/* SEARCH */}
         <div
           className={`search-box ${searchActive ? "active" : ""}`}
-          onClick={() => {
-            setSearchActive(true);
-          }}
+          onClick={() => setSearchActive(true)}
         >
           <SearchIcon className="icon" />
           <input
@@ -167,10 +174,9 @@ const TopBar = ({ setData }) => {
             placeholder="Search..."
             value={searchText}
             onFocus={() => setSearchActive(true)}
-            onBlur={() => {
-              if (searchText == "") setSearchActive(false);
-            }}
-            onChange={(e) => setSearchText(e.target.value)}
+            onBlur={handleInputBlur}
+            onChange={handleInputChange}
+            onKeyDown={handleInputKeyDown}
           />
         </div>
       </div>

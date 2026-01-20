@@ -41,10 +41,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [hasKeys, setHasKeys] = useState(false);
 
-  // 🔐 Private + Public Key Refs
+  // Private + Public Key Refs
   const identityPrivRef = useRef(null);
   const signedPrekeyPrivRef = useRef(null);
   const signedPrekeyPubRef = useRef(null); // ✅ needed for payload
+  const signedPrekeyId = useRef(null);
+  const registrationId = useRef(null);
 
   const router = useRouter();
 
@@ -95,10 +97,14 @@ export const AuthProvider = ({ children }) => {
         identityPrivRef.current = reloaded.identityPrivate;
         signedPrekeyPrivRef.current = reloaded.signedPrekeyPrivate;
         signedPrekeyPubRef.current = reloaded.signedPrekeyPubBase64;
+        signedPrekeyId.current = reloaded.signedPrekeyId;
+        registrationId.current = reloaded.registrationId;
       } else {
         identityPrivRef.current = loaded.identityPrivate;
         signedPrekeyPrivRef.current = loaded.signedPrekeyPrivate;
         signedPrekeyPubRef.current = loaded.signedPrekeyPubBase64;
+        signedPrekeyId.current = loaded.signedPrekeyId;
+        registrationId.current = loaded.registrationId;
       }
 
       setHasKeys(true);
@@ -190,7 +196,7 @@ export const AuthProvider = ({ children }) => {
 
       if (!valid) continue;
 
-      // 🔐 Diffie-Hellman
+      // Diffie-Hellman
       const sharedSecret = await deriveSharedSecret(device.signed_prekey_pub);
 
       const aesKey = await deriveAESKey(sharedSecret);
@@ -202,7 +208,7 @@ export const AuthProvider = ({ children }) => {
         iv: encrypted.iv,
         ciphertext: encrypted.ciphertext,
 
-        // ✅ critical fix
+        // critical fix
         sender_signed_prekey_pub: signedPrekeyPubRef.current,
       });
     }
@@ -223,7 +229,7 @@ export const AuthProvider = ({ children }) => {
 
     const senderPub = await importX25519PublicKey(sender_signed_prekey_pub);
 
-    // 🔐 DH: receiverPrivate × senderPublic
+    // DH: receiverPrivate × senderPublic
     const sharedSecret = await crypto.subtle.deriveBits(
       { name: "X25519", public: senderPub },
       signedPrekeyPrivRef.current,

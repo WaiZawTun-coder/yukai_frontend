@@ -9,12 +9,13 @@ import { useState } from "react";
 export default function ChatPage() {
   const params = useSearchParams();
   const router = useRouter();
-  const chat_id = params.get("chat_id");
-  const [activeChat, setActiveChat] = useState(chat_id ?? 0);
+  const username = params.get("username");
+  const [activeChat, setActiveChat] = useState(username ?? "");
 
-  const changeChat = (chat_id) => {
-    setActiveChat(chat_id);
-    router.push(`?chat_id=${chat_id}`);
+  const changeChat = (username) => {
+    console.log(username);
+    setActiveChat(username);
+    router.push(`?username=${username}`);
   };
 
   return (
@@ -25,7 +26,7 @@ export default function ChatPage() {
 
       <div className="chat-view-pane">
         {activeChat ? (
-          <ChatView id={activeChat} />
+          <ChatView username={username} />
         ) : (
           <div className="empty-chat">Select a chat</div>
         )}

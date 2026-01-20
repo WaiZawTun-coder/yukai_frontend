@@ -9,6 +9,7 @@ const Chat = () => {
   const router = useRouter();
 
   useEffect(() => {
+    console.log({ id });
     if (typeof window === "undefined") return;
 
     let timeoutId;
@@ -19,7 +20,7 @@ const Chat = () => {
         const isMobile = window.innerWidth < 768;
 
         if (!isMobile) {
-          router.replace(`/chat?chat_id=${id}`);
+          router.replace(`/chat?username=${id}`);
         }
       }, 150);
     };
@@ -36,13 +37,13 @@ const Chat = () => {
     const isMobile = window.innerWidth < 768;
 
     if (!isMobile) {
-      router.replace(`/chat?chat_id=${id}`);
+      router.replace(`/chat?username=${id}`);
     }
   }, [router, id]);
 
   return (
     <div className="mobile-chat-page">
-      <ChatView id={id} />
+      <ChatView username={id} />
     </div>
   );
 };
