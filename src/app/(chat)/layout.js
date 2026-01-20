@@ -36,11 +36,9 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="main-layout-container">
-      <Sidebar />
-      <main className="main-content" id="main-content">
+      <main className="main-content-chat" id="main-content">
         {children}
       </main>
-      <RightBar />
     </div>
   );
 }

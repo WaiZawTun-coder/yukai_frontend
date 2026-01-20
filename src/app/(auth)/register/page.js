@@ -7,26 +7,19 @@ import { useApi } from "@/utilities/api";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-// icons
 import AutorenewOutlinedIcon from "@mui/icons-material/AutorenewOutlined";
 import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import { useSnackbar } from "@/context/SnackbarContext";
 
 const Register = () => {
   const apiFetch = useApi();
-
-  const { accessToken, loading: authLoading } = useAuth();
+  const { accessToken, user, loading: authLoading } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (accessToken && !authLoading) {
-      router.replace("/");
-    }
-  }, [accessToken, authLoading, router]);
+  const searchParams = useSearchParams();
 
   /* ---------------- STATES ---------------- */
   const [step, setStep] = useState(1);
@@ -45,10 +38,33 @@ const Register = () => {
 
   const { showSnackbar } = useSnackbar();
 
-  /* ---------------- STEP CONTROL ---------------- */
-  const goToStep = (nextStep) => {
-    setStep(nextStep);
-  };
+  /* ---------------- CONTINUE STEP FROM LOGIN ---------------- */
+  useEffect(() => {
+    const stepParam = searchParams.get("step");
+
+    if (stepParam === "2") {
+      setStep(2);
+
+      // if user already logged in, preload data
+      if (user) {
+        setFormData({
+          userId: user.user_id,
+          email: user.email,
+          username: user.username,
+        });
+      }
+    }
+  }, [searchParams, user]);
+
+  /* ---------------- BLOCK ACCESS ---------------- */
+  useEffect(() => {
+    const stepParam = searchParams.get("step");
+
+    if (accessToken && !authLoading) {
+      if (stepParam === "2") return; // allow profile completion
+      router.replace("/");
+    }
+  }, [accessToken, authLoading, router, searchParams]);
 
   /* ---------------- HANDLERS ---------------- */
   const handleFieldChange = useCallback((name, value) => {
@@ -80,24 +96,11 @@ const Register = () => {
     const confirmPassword = (formData.confirmPassword ?? "").trim();
 
     const nextErrors = {};
-    if (!fullName)
-      nextErrors.fullName = { status: true, message: "Fullname is required" };
-    if (!email)
-      nextErrors.email = { status: true, message: "Email is required" };
-    if (!password)
-      nextErrors.password = { status: true, message: "Password is required" };
-    if (password !== confirmPassword) {
-      nextErrors.confirmPassword = {
-        status: true,
-        message: "Passwords do not match",
-      };
-    }
-    if (!confirmPassword) {
-      nextErrors.confirmPassword = {
-        status: true,
-        message: "Confirm password is required",
-      };
-    }
+    if (!fullName) nextErrors.fullName = { status: true, message: "Required" };
+    if (!email) nextErrors.email = { status: true, message: "Required" };
+    if (!password) nextErrors.password = { status: true, message: "Required" };
+    if (password !== confirmPassword)
+      nextErrors.confirmPassword = { status: true, message: "Not match" };
 
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
@@ -109,17 +112,11 @@ const Register = () => {
 
       const res = await apiFetch("/auth/register", {
         method: "POST",
-        body: {
-          username: fullName,
-          email,
-          password,
-        },
+        body: { username: fullName, email, password },
       });
 
       if (res.status && res.step === 2) {
         setIsTransitioning(true);
-        setDirection("forward");
-
         setTimeout(() => {
           setAuth(res.data);
           setFormData({
@@ -128,67 +125,65 @@ const Register = () => {
             username: res.data.generated_username,
           });
           setGeneratedUsername(res.data.generated_username);
-          goToStep(2);
+          setStep(2);
           setIsTransitioning(false);
         }, 300);
       } else {
-        console.log(res.message);
         showSnackbar({
-          title: "Registration Failed",
+          title: "Failed",
           message: res.message,
           variant: "error",
         });
       }
-    } catch (err) {
-      showSnackbar({
-        title: "Registration failed",
-        message: err.message,
-        variant: "error",
-      });
     } finally {
       setLoading(false);
     }
-  };
-
-  /* ---------------- IMAGE UPLOAD ---------------- */
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setFormData((p) => ({ ...p, profileImage: file }));
-    setImagePreview(URL.createObjectURL(file));
   };
 
   /* ---------------- STEP 2 SUBMIT ---------------- */
   const handleStep2 = async (e) => {
     e.preventDefault();
 
+    const nextErrors = {};
+
+    const username = formData.username?.trim() ?? "";
+    const dateOfBirth = formData.dateOfBirth;
+    const gender = formData.gender;
+
+    if (!username)
+      nextErrors.username = {
+        status: true,
+        message: "Username cannot be empty",
+      };
+    if (!dateOfBirth)
+      nextErrors.dateOfBirth = {
+        status: true,
+        message: "Date of birth cannot be empty",
+      };
+
+    const today = new Date();
+    const minDate = new Date(
+      today.getFullYear() - 13,
+      today.getMonth(),
+      today.getDate()
+    );
+
+    if (new Date(dateOfBirth) > minDate) {
+      nextErrors.dateOfBirth = {
+        status: true,
+        message: "Must be 13 years old or older",
+      };
+    }
+
+    if (!gender) nextErrors.gender = { status: true, message: "Required" };
+
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors);
+      return;
+    }
+
     try {
       setLoading(true);
-
-      const nextErrors = {};
-
-      const username = formData.username?.trim() ?? "";
-      const dateOfBirth = formData.dateOfBirth ?? null;
-      const gender = formData.gender?.trim() ?? "";
-
-      if (!username) {
-        nextErrors.username = { status: true, message: "Username is required" };
-      }
-      if (!dateOfBirth) {
-        nextErrors.dateOfBirth = {
-          status: true,
-          message: "Date of birth is required",
-        };
-      }
-      if (!gender) {
-        nextErrors.gender = { status: true, message: "Gender is required" };
-      }
-
-      if (Object.keys(nextErrors).length) {
-        setErrors(nextErrors);
-        return;
-      }
 
       const fd = new FormData();
       fd.append("userId", formData.userId);
@@ -197,32 +192,23 @@ const Register = () => {
       fd.append("dateOfBirth", dateOfBirth);
       fd.append("gender", gender);
 
-      if (formData.phoneNumber) {
-        fd.append("phoneNumber", formData.phoneNumber);
-      }
-
       if (formData.profileImage) {
         fd.append("profileImage", formData.profileImage);
       }
 
-      await apiFetch(`/auth/register/${generatedUsername}`, {
+      await apiFetch(`/auth/register/${generatedUsername || username}`, {
         method: "POST",
         body: fd,
-        headers: {
-          Authorization: `Bearer ${auth.access_token}`,
-        },
+        headers: auth
+          ? { Authorization: `Bearer ${auth.access_token}` }
+          : undefined,
       });
 
-      // move to final step
       setIsTransitioning(true);
-      setDirection("forward");
-
       setTimeout(() => {
-        goToStep(3);
+        setStep(3);
         setIsTransitioning(false);
       }, 300);
-    } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -234,7 +220,6 @@ const Register = () => {
       const timer = setTimeout(() => {
         router.replace("/login");
       }, 3000);
-
       return () => clearTimeout(timer);
     }
   }, [step, router]);
@@ -242,11 +227,8 @@ const Register = () => {
   /* ---------------- UI ---------------- */
   return (
     <div className="signup-container">
-      <div className="signup-left"></div>
-
       <div className="signup-right">
-        <h2 className="heading">
-          Yukai -{" "}
+        <h2>
           {step === 1
             ? "Create Account"
             : step === 2
@@ -254,32 +236,18 @@ const Register = () => {
             : "Success"}
         </h2>
 
-        {/* -------- STEP INDICATOR -------- */}
-        {/* <div className="step-indicator">
-          {[1, 2, 3].map((s) => (
-            <div key={s} className={`step-dot ${step >= s ? "active" : ""}`}>
-              {s}
-            </div>
-          ))}
-        </div> */}
         <AppStepper
           steps={[{ label: "" }, { label: "" }, { label: "" }]}
           activeStep={step - 1}
         />
 
-        <hr className="signup-line" />
-
         <div
-          className={`step-wrapper ${
-            isTransitioning ? "fade-out" : "fade-in"
-          } ${direction}`}
+          className={`step-wrapper ${isTransitioning ? "fade-out" : "fade-in"}`}
         >
-          {/* -------- STEP 1 -------- */}
           {step === 1 && (
             <form onSubmit={handleStep1}>
               <TextField
                 label="Full Name"
-                color="accent"
                 onChange={getHandler("fullName")}
                 error={errors.fullName?.status ?? false}
                 helperText={errors.fullName?.message ?? ""}
@@ -304,42 +272,12 @@ const Register = () => {
                 error={errors.confirmPassword?.status ?? false}
                 helperText={errors.confirmPassword?.message ?? ""}
               />
-
-              <Button type="submit" disabled={loading}>
-                {loading ? "CREATING..." : "SIGN UP"}
-              </Button>
+              <Button type="submit">SIGN UP</Button>
             </form>
           )}
 
-          {/* -------- STEP 2 -------- */}
           {step === 2 && (
             <form onSubmit={handleStep2}>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                hidden
-                id="profileImage"
-              />
-
-              <div className="profile-image-container">
-                <label htmlFor="profileImage" className="image-preview">
-                  <Image
-                    src={
-                      imagePreview ??
-                      `/images/default-profiles/${defaultPreviewImage}.jpg`
-                    }
-                    alt="preview"
-                    width={75}
-                    height={75}
-                    className="profile-preview"
-                  />
-                  <div className="profile-image-change-icon">
-                    <AutorenewOutlinedIcon />
-                  </div>
-                </label>
-              </div>
-
               <TextField
                 label="Username"
                 value={formData.username ?? ""}
@@ -368,10 +306,9 @@ const Register = () => {
                   { label: "Other", value: "other" },
                 ]}
                 row
-                error={errors.dateOfBirth?.status ?? false}
-                helperText={errors.dateOfBirth?.message ?? ""}
+                error={errors.gender?.status ?? false}
+                helperText={errors.gender?.message ?? ""}
               />
-
               <TextField
                 label="Phone (optional)"
                 onChange={getHandler("phoneNumber")}
@@ -383,23 +320,18 @@ const Register = () => {
             </form>
           )}
 
-          {/* -------- STEP 3 -------- */}
           {step === 3 && (
             <div className="success-step">
-              <CheckCircleOutlineOutlinedIcon fontSize="large" />
-              <h3>Registration Complete 🎉</h3>
-              <p>You will be redirected to login shortly.</p>
+              <CheckCircleOutlineOutlinedIcon fontSize="large" />{" "}
+              <h3>Registration Complete 🎉</h3>{" "}
+              <p>You will be redirected to login shortly.</p>{" "}
             </div>
           )}
         </div>
 
         {step === 1 && (
-          <Link href="/login" className="signin">
-            Already have an account? <span>Login</span>
-          </Link>
+          <Link href="/login">Already have an account? Login</Link>
         )}
-
-        <p className="brand">愉快</p>
       </div>
     </div>
   );

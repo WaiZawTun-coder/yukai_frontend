@@ -29,7 +29,7 @@ import DoneIcon from "@mui/icons-material/Done";
 const TABS = [
   { id: 1, name: "Posts", url: "posts" },
   { id: 2, name: "Images", url: "images" },
-  // { id: 3, name: "Saved", url: "saved" },
+  { id: 3, name: "Saved", url: "saved" },
   // { id: 4, name: "Tagged", url: "tagged" },
 ];
 
@@ -168,7 +168,7 @@ const Profile = () => {
 
         await fetchUserPosts(1);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       } finally {
         setIsFetchPosts(false);
         setIsLoading(false);
@@ -409,7 +409,6 @@ const Profile = () => {
 
     setIsSentRequest(true);
     setRequestDirection("sent");
-    // console.log(res.message);
   };
 
   const handleResponseRequest = async (type) => {
@@ -419,6 +418,10 @@ const Profile = () => {
       method: "POST",
       body: { user_id: user.user_id, status: type },
     });
+  };
+
+  const goToMessage = () => {
+    router.replace(`/chat/${username}`);
   };
 
   if (isLoading) return <ProfileSkeleton />;
@@ -537,7 +540,7 @@ const Profile = () => {
                           Friend
                         </button>
                       )}
-                      <button className="btn">
+                      <button className="btn" onClick={goToMessage}>
                         <MessageIcon />
                         Message
                       </button>

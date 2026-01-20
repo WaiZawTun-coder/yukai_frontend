@@ -249,14 +249,22 @@ function PeopleCard({ person, type, openMenuId, setOpenMenuId, removeCard }) {
   if (!config) return null;
 
   return (
-    <div className="people-card">
+    <div
+      className="people-card"
+      onClick={() => {
+        router.replace(`/${person.username}`);
+      }}
+    >
       {/* MENU */}
       {config.menu.length > 0 && (
         <button
           className="menu-btn"
-          onClick={() =>
-            setOpenMenuId(openMenuId === person.user_id ? null : person.user_id)
-          }
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenMenuId(
+              openMenuId === person.user_id ? null : person.user_id
+            );
+          }}
         >
           <MoreHorizRoundedIcon />
         </button>
@@ -273,17 +281,19 @@ function PeopleCard({ person, type, openMenuId, setOpenMenuId, removeCard }) {
       )}
 
       {/* AVATAR */}
-      <Image
-        src={
-          person.profile_image
-            ? `/api/images?url=${person.profile_image}`
-            : `/Images/default-profiles/${person.gender}.jpg`
-        }
-        alt={person.username}
-        width={64}
-        height={64}
-        style={{ borderRadius: "50%", objectFit: "cover" }}
-      />
+      <div className="avatar-wrapper">
+        <Image
+          src={
+            person.profile_image
+              ? `/api/images?url=${person.profile_image}`
+              : `/Images/default-profiles/${person.gender}.jpg`
+          }
+          alt={person.username}
+          width={64}
+          height={64}
+          style={{ borderRadius: "50%", objectFit: "cover" }}
+        />
+      </div>
 
       {/* INFO */}
       <div className="user-text">

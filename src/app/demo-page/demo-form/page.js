@@ -147,7 +147,6 @@ const DemoForm = () => {
   };
 
   const handleDynamicFormSubmit = (formData) => {
-    console.log("Form submitted with data:", formData);
     alert("Form submitted! Check console for form data.");
   };
 
