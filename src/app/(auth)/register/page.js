@@ -227,6 +227,9 @@ const Register = () => {
   /* ---------------- UI ---------------- */
   return (
     <div className="signup-container">
+      <div className="signup-left">
+        {/* <Image src="" alt="" width={100} height={100} /> */}
+      </div>
       <div className="signup-right">
         <h2>
           {step === 1

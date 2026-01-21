@@ -72,6 +72,7 @@ export default function PeopleGrid({
   onLoadMore,
   hasMore,
   loading,
+  showEnd = true,
 }) {
   const [list, setList] = useState(people);
   const observerRef = useRef(null);
@@ -135,11 +136,12 @@ export default function PeopleGrid({
         }}
         className="people-grid-end"
       >
-        {loading
-          ? "Loading more..."
-          : hasMore
-          ? "Scroll to load more"
-          : `End of ${type.split("-").join(" ")}`}
+        {showEnd &&
+          (loading
+            ? "Loading more..."
+            : hasMore
+            ? "Scroll to load more"
+            : `End of ${type.split("-").join(" ")}`)}
       </div>
     </div>
   );
@@ -147,7 +149,13 @@ export default function PeopleGrid({
 
 /* ---------------- CARD ---------------- */
 
-function PeopleCard({ person, type, openMenuId, setOpenMenuId, removeCard }) {
+export function PeopleCard({
+  person,
+  type,
+  openMenuId,
+  setOpenMenuId,
+  removeCard,
+}) {
   const apiFetch = useApi();
   const router = useRouter();
   const menuRef = useRef(null);

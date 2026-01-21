@@ -5,6 +5,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useKeyboard } from "./postComposer/useKeyboard";
+import SearchResults from "./SearchResult"; // Import your search results component
 
 const tabs = [
   { id: 1, tabName: "For You", url: "?type=recommend" },
@@ -12,7 +13,7 @@ const tabs = [
   { id: 3, tabName: "Following", url: "?type=following" },
 ];
 
-const TopBar = ({ setData, handleSearch }) => {
+const TopBar = ({ setData }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [searchText, setSearchText] = useState("");
   const [searchActive, setSearchActive] = useState(false);
@@ -29,26 +30,21 @@ const TopBar = ({ setData, handleSearch }) => {
 
   useKeyboard({
     enabled: true,
-    onSearch: () => {
-      inputRef.current?.focus();
-    },
+    onSearch: () => inputRef.current?.focus(),
   });
 
   /* -------------------- Debounced Search -------------------- */
-  const triggerSearch = (text) => {
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    handleSearch(text);
-  };
-
   useEffect(() => {
+    if (!searchActive && searchText == "") return;
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
     debounceTimer.current = setTimeout(() => {
-      handleSearch(searchText);
-    }, 300); // 300ms debounce
+      router.replace(`/search?q=${searchText}`);
+      // Nothing else needed here; searchText is passed to SearchResults
+    }, 300);
 
     return () => clearTimeout(debounceTimer.current);
-  }, [searchText, handleSearch]);
+  }, [searchText]);
 
   /* -------------------- Active tab based on URL -------------------- */
   useEffect(() => {
@@ -57,7 +53,6 @@ const TopBar = ({ setData, handleSearch }) => {
       if (tab.url.split("=")[1] == type) {
         setActiveIndex(index);
         setData(type);
-        return;
       }
     });
   }, [params, setData]);
@@ -67,7 +62,6 @@ const TopBar = ({ setData, handleSearch }) => {
     const handleScroll = () => {
       const currentY = window.scrollY;
       if (Math.abs(currentY - lastScrollY.current) < 10) return;
-
       setHidden(currentY > lastScrollY.current && currentY > 80);
       lastScrollY.current = currentY;
     };
@@ -123,12 +117,13 @@ const TopBar = ({ setData, handleSearch }) => {
   const handleInputChange = (e) => setSearchText(e.target.value);
 
   const handleInputKeyDown = (e) => {
-    if (e.key === "Enter") triggerSearch(searchText); // 🔹 immediate search on Enter
+    if (e.key === "Enter") {
+      // Optional: trigger immediate search
+    }
   };
 
   const handleInputBlur = () => {
-    if (searchText !== "") triggerSearch(searchText); // 🔹 search on blur
-    else setSearchActive(false);
+    if (!searchText) setSearchActive(false);
   };
 
   return (
@@ -180,6 +175,13 @@ const TopBar = ({ setData, handleSearch }) => {
           />
         </div>
       </div>
+
+      {/* -------------------- Render search results under top bar -------------------- */}
+      {searchText && searchActive && (
+        <div className="search-results-container">
+          <SearchResults keyword={searchText} />
+        </div>
+      )}
     </div>
   );
 };
