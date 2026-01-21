@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
+import SearchIcon from "@mui/icons-material/Search";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useKeyboard } from "./postComposer/useKeyboard";
-import SearchResults from "./SearchResult"; // Import your search results component
 
 const tabs = [
   { id: 1, tabName: "For You", url: "?type=recommend" },
@@ -175,13 +174,6 @@ const TopBar = ({ setData }) => {
           />
         </div>
       </div>
-
-      {/* -------------------- Render search results under top bar -------------------- */}
-      {searchText && searchActive && (
-        <div className="search-results-container">
-          <SearchResults keyword={searchText} />
-        </div>
-      )}
     </div>
   );
 };

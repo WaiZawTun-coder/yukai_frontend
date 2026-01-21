@@ -7,27 +7,30 @@ import PostMenu from "./PostMenu";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import PublicIcon from "@mui/icons-material/Public";
+import PeopleIcon from "@mui/icons-material/People";
+import LockIcon from "@mui/icons-material/Lock";
 
 function PrivacyIcon({ type }) {
   switch (type) {
     case "friends":
       return (
         <span className="privacy-icon" title="Friends">
-          👥
+          <PeopleIcon fontSize="small" />
         </span>
       );
 
     case "private":
       return (
         <span className="privacy-icon" title="Only me">
-          🔒
+          <LockIcon fontSize="small" />
         </span>
       );
 
     default:
       return (
         <span className="privacy-icon" title="Public">
-          🌍
+          <PublicIcon fontSize="small" />
         </span>
       );
   }
@@ -58,25 +61,45 @@ export default function PostCard({
   const [time, setTime] = useState("");
   const { user: authUser } = useAuth();
 
+  function parseLocalDateTime(dateStr) {
+    // "2026-01-21 13:45:10" → [2026,01,21,13,45,10]
+    const [datePart, timePart = "00:00:00"] = dateStr.split(" ");
+    const [y, m, d] = datePart.split("-").map(Number);
+    const [hh, mm, ss] = timePart.split(":").map(Number);
+
+    // Month is 0-based in JS
+    return new Date(y, m - 1, d, hh, mm, ss);
+  }
+
   useEffect(() => {
     function formatPostDate(dateStr) {
-      const d = new Date(dateStr.replace(" ", "T"));
-      const diff = (Date.now() - d) / 1000;
+      const d = parseLocalDateTime(dateStr); // ✅ local time
+      const diffSeconds = (Date.now() - d.getTime()) / 1000;
 
-      if (diff < 86400) {
-        return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
-          -Math.floor(diff / 3600),
-          "hour"
-        );
+      if (diffSeconds < 60) return "Just now";
+
+      if (diffSeconds < 3600) {
+        const mins = Math.floor(diffSeconds / 60);
+        return `${mins}m ago`;
       }
 
-      return d.toLocaleDateString("en-US", {
+      if (diffSeconds < 86400) {
+        const hours = Math.floor(diffSeconds / 3600);
+        return `${hours}h ago`;
+      }
+
+      return d.toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
       });
     }
+
     const update = () => setTime(formatPostDate(createdAt));
     update();
+
+    // Optional: auto refresh every minute
+    const timer = setInterval(update, 60000);
+    return () => clearInterval(timer);
   }, [createdAt]);
 
   return (

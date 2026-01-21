@@ -23,12 +23,12 @@ const SearchResults = () => {
   const apiFetch = useApi();
   const { showSnackbar } = useSnackbar();
 
-  const typeParam = searchParams.get("type");
+  const typeParam = searchParams.get("type") || "all";
   const queryParam = searchParams.get("q") || "";
 
   const [keyword, setKeyword] = useState(queryParam);
-  const [debouncedKeyword, setDebouncedKeyword] = useState(keyword);
-  const [activeTab, setActiveTab] = useState(typeParam || "all");
+  const [debouncedKeyword, setDebouncedKeyword] = useState(queryParam);
+  const [activeTab, setActiveTab] = useState(typeParam);
 
   const [users, setUsers] = useState({ page: 1, total_pages: 1, data: [] });
   const [posts, setPosts] = useState({ page: 1, total_pages: 1, data: [] });
@@ -47,7 +47,7 @@ const SearchResults = () => {
   const wrapperRef = useRef(null);
   const postObserverRef = useRef(null);
 
-  // -------------------- Debounce input --------------------
+  /* -------------------- Debounce input -------------------- */
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedKeyword(keyword.trim());
@@ -55,53 +55,73 @@ const SearchResults = () => {
     return () => clearTimeout(handler);
   }, [keyword]);
 
-  // --------------------- check if scrolled ------------------
+  /* --------------------- Scroll state --------------------- */
   useEffect(() => {
     const el = wrapperRef.current;
     if (!el) return;
 
-    const handleScroll = () => {
-      setIsScrolled(el.scrollTop > 10); // threshold as you like
-    };
-
+    const handleScroll = () => setIsScrolled(el.scrollTop > 10);
     el.addEventListener("scroll", handleScroll);
-    handleScroll(); // initial check
+    handleScroll();
 
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // -------------------- Sync URL type --------------------
+  /* -------------------- Sync URL type -------------------- */
   useEffect(() => {
-    if (typeParam && typeParam !== activeTab) setActiveTab(typeParam);
+    if (typeParam !== activeTab) {
+      setActiveTab(typeParam);
+    }
   }, [typeParam]);
 
-  // -------------------- Fetch search results --------------------
+  /* -------------------- Build URL -------------------- */
+  const buildSearchUrl = (page) => {
+    const params = new URLSearchParams();
+    params.set("keyword", debouncedKeyword);
+    params.set("page", page);
+    if (activeTab !== "all") {
+      params.set("type", activeTab);
+    }
+    return `/api/search?${params.toString()}`;
+  };
+
+  /* -------------------- Fetch search results -------------------- */
   const fetchResults = useCallback(
     async (page = 1) => {
       if (!debouncedKeyword) return;
-      setLoadingUsers(true);
-      setLoadingPosts(true);
+
+      if (activeTab === "all" || activeTab === "users") {
+        setLoadingUsers(true);
+      }
+      if (activeTab === "all" || activeTab === "posts") {
+        setLoadingPosts(true);
+      }
 
       try {
-        const res = await apiFetch(
-          `/api/search?keyword=${encodeURIComponent(
-            debouncedKeyword
-          )}&page=${page}`
-        );
+        const res = await apiFetch(buildSearchUrl(page));
+
         if (res.status) {
           const { users: usersRes, posts: postsRes } = res.data;
 
-          setUsers((prev) => ({
-            page: usersRes.page,
-            total_pages: usersRes.total_pages,
-            data: page === 1 ? usersRes.data : [...prev.data, ...usersRes.data],
-          }));
+          // USERS
+          if (activeTab === "all" || activeTab === "users") {
+            setUsers((prev) => ({
+              page: usersRes.page,
+              total_pages: usersRes.total_pages,
+              data:
+                page === 1 ? usersRes.data : [...prev.data, ...usersRes.data],
+            }));
+          }
 
-          setPosts((prev) => ({
-            page: postsRes.page,
-            total_pages: postsRes.total_pages,
-            data: page === 1 ? postsRes.data : [...prev.data, ...postsRes.data],
-          }));
+          // POSTS
+          if (activeTab === "all" || activeTab === "posts") {
+            setPosts((prev) => ({
+              page: postsRes.page,
+              total_pages: postsRes.total_pages,
+              data:
+                page === 1 ? postsRes.data : [...prev.data, ...postsRes.data],
+            }));
+          }
         }
       } catch (err) {
         console.error("Search failed", err);
@@ -110,61 +130,69 @@ const SearchResults = () => {
         setLoadingPosts(false);
       }
     },
-    [debouncedKeyword, apiFetch]
+    [debouncedKeyword, activeTab, apiFetch]
   );
 
-  // -------------------- Fetch on keyword change --------------------
+  /* -------------------- Refetch on keyword or tab change -------------------- */
   useEffect(() => {
     if (!debouncedKeyword) {
       setUsers({ page: 1, total_pages: 1, data: [] });
       setPosts({ page: 1, total_pages: 1, data: [] });
       return;
     }
+
+    // reset before fetch
+    setUsers({ page: 1, total_pages: 1, data: [] });
+    setPosts({ page: 1, total_pages: 1, data: [] });
+
     fetchResults(1);
-    router.push(
+
+    router.replace(
       `?q=${encodeURIComponent(debouncedKeyword)}&type=${activeTab}`,
       { scroll: false }
     );
-  }, [debouncedKeyword, fetchResults, activeTab]);
+  }, [debouncedKeyword, activeTab, fetchResults]);
 
-  // -------------------- Infinite scroll --------------------
+  /* -------------------- Infinite scroll -------------------- */
   const loadMoreUsers = () => {
-    if (!loadingUsers && users.page < users.total_pages)
+    if (!loadingUsers && users.page < users.total_pages) {
       fetchResults(users.page + 1);
+    }
   };
 
   const loadMorePosts = useCallback(() => {
-    if (!loadingPosts && posts.page < posts.total_pages)
+    if (!loadingPosts && posts.page < posts.total_pages) {
       fetchResults(posts.page + 1);
+    }
   }, [loadingPosts, posts.page, posts.total_pages, fetchResults]);
 
   useEffect(() => {
+    if (activeTab === "users") return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) loadMorePosts();
       },
       { root: null, rootMargin: "200px", threshold: 0 }
     );
+
     if (postObserverRef.current) observer.observe(postObserverRef.current);
     return () => observer.disconnect();
-  }, [loadMorePosts]);
+  }, [loadMorePosts, activeTab]);
 
-  // -------------------- Tab change --------------------
+  /* -------------------- Tab change -------------------- */
   const handleTabChange = (tab) => {
     setActiveTab(tab.value);
-    router.push(
-      `?q=${encodeURIComponent(debouncedKeyword)}&type=${tab.value}`,
-      { scroll: false }
-    );
   };
 
-  // -------------------- PostCard handlers --------------------
+  /* -------------------- Post handlers -------------------- */
   const handleReact = async (postId, reactType = "like") => {
     try {
       await apiFetch("/api/react-post", {
         method: "POST",
         body: { reaction: reactType, post_id: postId },
       });
+
       setPosts((prev) => ({
         ...prev,
         data: prev.data.map((p) =>
@@ -191,6 +219,7 @@ const SearchResults = () => {
         method: "POST",
         body: { post_id: postId, comment: commentText },
       });
+
       if (!res.status) {
         showSnackbar({
           title: "Comment failed",
@@ -214,8 +243,10 @@ const SearchResults = () => {
         message: "",
         variant: "success",
       });
-      if (modalPost?.post_id === postId)
+
+      if (modalPost?.post_id === postId) {
         setComments((prev) => [res.comment, ...prev]);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -223,16 +254,19 @@ const SearchResults = () => {
 
   const handleShare = (postId) => {
     const postUrl = `${window.location.origin}/post/${postId}`;
-    navigator.clipboard
-      .writeText(postUrl)
-      .then(() =>
-        showSnackbar({ title: "Link copied!", message: "", variant: "success" })
-      );
+    navigator.clipboard.writeText(postUrl).then(() =>
+      showSnackbar({
+        title: "Link copied!",
+        message: "",
+        variant: "success",
+      })
+    );
   };
 
-  // -------------------- Modal handling --------------------
+  /* -------------------- Modal handling -------------------- */
   const fetchComments = async (page = 1) => {
     if (!modalPost || !hasMoreComments) return;
+
     setIsFetchingComments(true);
     try {
       const res = await apiFetch(
@@ -251,12 +285,11 @@ const SearchResults = () => {
   const lastCommentRef = useCallback(
     (node) => {
       if (isFetchingComments || !hasMoreComments) return;
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) fetchComments(curCommentPage);
-        },
-        { root: null, rootMargin: "100px", threshold: 0 }
-      );
+
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) fetchComments(curCommentPage);
+      });
+
       if (node) observer.observe(node);
       return () => observer.disconnect();
     },
@@ -272,25 +305,21 @@ const SearchResults = () => {
     fetchComments(1);
   };
 
-  // -------------------- Render --------------------
+  /* -------------------- Render -------------------- */
   return (
     <div className="search-wrapper" ref={wrapperRef}>
       <h2>Search</h2>
+
       <div className={`search-header ${isScrolled ? "scrolled" : ""}`}>
         <div
           className={`search-input-container ${
             isScrolled ? "search-input-container--scrolled" : ""
           }`}
         >
-          {/* BACK BUTTON */}
-          <button
-            className={`back-btn show`}
-            onClick={() => {
-              router.replace("/");
-            }}
-          >
+          <button className="back-btn show" onClick={() => router.replace("/")}>
             <ArrowBackIosNewRoundedIcon />
           </button>
+
           <input
             type="text"
             value={keyword}
@@ -298,6 +327,7 @@ const SearchResults = () => {
             onChange={(e) => setKeyword(e.target.value)}
             className="search-input"
           />
+
           <button
             onClick={() => setDebouncedKeyword(keyword.trim())}
             className="search-btn"
@@ -306,7 +336,7 @@ const SearchResults = () => {
           </button>
         </div>
 
-        <div className="tabs">
+        <div className="search-tabs">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -322,9 +352,10 @@ const SearchResults = () => {
       {["all", "users"].includes(activeTab) && (
         <section className="users-section">
           <h3>Users</h3>
-          {users.data.length == 0 && loadingUsers ? (
+
+          {users.data.length === 0 && loadingUsers ? (
             <p>Loading users...</p>
-          ) : users.data.length == 0 ? (
+          ) : users.data.length === 0 ? (
             <p>No users found</p>
           ) : (
             <PeopleGrid
@@ -342,6 +373,7 @@ const SearchResults = () => {
       {["all", "posts"].includes(activeTab) && (
         <section className="posts-section">
           <h3>Posts</h3>
+
           {posts.data.length === 0 && loadingPosts ? (
             <p>Loading posts...</p>
           ) : posts.data.length === 0 ? (
@@ -350,6 +382,7 @@ const SearchResults = () => {
             <div className="post-list">
               {posts.data.map((post, index) => {
                 const isLast = index === posts.data.length - 1;
+
                 return (
                   <div
                     key={post.post_id ?? index}
@@ -364,12 +397,17 @@ const SearchResults = () => {
                           : "/Images/default-profiles/default.jpg",
                       }}
                       createdAt={post?.created_at}
+                      privacy={post.privacy}
                       content={post?.content}
                       images={post?.attachments}
                       likes={post?.react_count}
                       comments={post?.comment_count}
                       onLike={() => handleReact(post.post_id)}
-                      onComment={(c) => handleComment(post.post_id, c)}
+                      // onComment={(c) => handleComment(post.post_id, c)}
+                      onComment={() => {
+                        setModalPost(post);
+                        setIsModalOpen(true);
+                      }}
                       onShare={() => handleShare(post.post_id)}
                       postId={post?.post_id}
                       userReaction={post?.reaction ?? null}
@@ -380,6 +418,7 @@ const SearchResults = () => {
               })}
             </div>
           )}
+
           {loadingPosts && <p>Loading more posts...</p>}
         </section>
       )}

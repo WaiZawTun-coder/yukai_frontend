@@ -318,6 +318,8 @@
   .card-buttons {
     width: auto;
     margin-top: 0;
+    min-width: 210px;
+    justify-content: flex-end;
   }
 
   .btn {

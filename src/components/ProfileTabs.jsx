@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const TABS = [
@@ -10,10 +10,11 @@ const TABS = [
   //   { id: 4, name: "Tagged", url: "tagged" },
 ];
 
-const ProfileTabs = ({ activeTab, setActiveTab }) => {
+const ProfileTabs = ({ activeTab, setActiveTab, isLoggedInUser }) => {
   const tabsRef = useRef([]);
   const indicatorRef = useRef(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   //   const [activeTab, setActiveTab] = useState(null);
   const [tabsReady, setTabsReady] = useState(false);
@@ -22,7 +23,11 @@ const ProfileTabs = ({ activeTab, setActiveTab }) => {
 
   useEffect(() => {
     const update = () => {
-      const tabFromUrl = searchParams.get("tab");
+      let tabFromUrl = searchParams.get("tab");
+      if (!isLoggedInUser && tabFromUrl == "saved") {
+        tabFromUrl = "posts";
+        router.replace("?tab=" + tabFromUrl);
+      }
       const index = TABS.findIndex((t) => t.url === tabFromUrl);
       setActiveTab(index === -1 ? 0 : index);
     };
@@ -64,16 +69,20 @@ const ProfileTabs = ({ activeTab, setActiveTab }) => {
 
   return (
     <div className="tabs profile-tabs">
-      {TABS.map((tab, i) => (
-        <span
-          key={tab.id}
-          ref={(el) => (tabsRef.current[i] = el)}
-          className={`tab`}
-          onClick={() => setActiveTab(i)}
-        >
-          {tab.name}
-        </span>
-      ))}
+      {TABS.map((tab, i) => {
+        console.log({ isLoggedInUser });
+        if (isLoggedInUser || tab.url != "saved")
+          return (
+            <span
+              key={tab.id}
+              ref={(el) => (tabsRef.current[i] = el)}
+              className={`tab`}
+              onClick={() => setActiveTab(i)}
+            >
+              {tab.name}
+            </span>
+          );
+      })}
 
       <div ref={indicatorRef} className="tab-indicator" />
     </div>
