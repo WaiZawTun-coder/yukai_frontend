@@ -75,7 +75,7 @@
   background-color: #0d6efd;
 }
 
-.tabs {
+.search-tabs {
   display: flex;
   gap: 6px;
   background: var(--surface-2);

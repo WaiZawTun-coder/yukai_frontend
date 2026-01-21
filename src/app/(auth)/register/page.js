@@ -228,7 +228,12 @@ const Register = () => {
   return (
     <div className="signup-container">
       <div className="signup-left">
-        {/* <Image src="" alt="" width={100} height={100} /> */}
+        <Image
+          src="/Images/register_photo.png"
+          alt=""
+          width={450}
+          height={520}
+        />
       </div>
       <div className="signup-right">
         <h2>
@@ -275,7 +280,9 @@ const Register = () => {
                 error={errors.confirmPassword?.status ?? false}
                 helperText={errors.confirmPassword?.message ?? ""}
               />
-              <Button type="submit">SIGN UP</Button>
+              <Button type="submit" disabled={loading}>
+                SIGN UP
+              </Button>
             </form>
           )}
 

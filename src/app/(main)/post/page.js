@@ -287,6 +287,7 @@ const SocialPost = ({
                 : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
           }}
           createdAt={post?.created_at}
+          privacy={post.privacy}
           content={post?.content}
           images={post?.attachments}
           likes={post?.react_count}

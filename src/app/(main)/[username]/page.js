@@ -424,6 +424,29 @@ const Profile = () => {
     router.replace(`/chat/${username}`);
   };
 
+  const handleFollow = async () => {
+    await apiFetch("/api/follow", {
+      method: "POST",
+      body: { following_id: user.user_id },
+    });
+  };
+
+  const handleUnfollow = async () => {
+    await apiFetch("/api/unfollow", {
+      method: "POST",
+      body: { following_id: user.user_id },
+    });
+  };
+
+  const handleUnfriend = async () => {
+    await apiFetch("/api/unfriend", {
+      method: "POST",
+      body: {
+        target_id: user.user_id,
+      },
+    });
+  };
+
   if (isLoading) return <ProfileSkeleton />;
 
   return (
@@ -561,7 +584,11 @@ const Profile = () => {
         </div>
       </div>
 
-      <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ProfileTabs
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isLoggedInUser={isLoggedInUser}
+      />
       {/* POSTS TAB */}
       <div
         style={{
@@ -617,60 +644,64 @@ const Profile = () => {
       >
         <ProfileImagePost posts={posts.posts} />
       </div>
-
       {/* SAVED TAB */}
-      <div
-        className={activeTab == 2 ? "block" : "hidden"}
-        style={{ width: "100%" }}
-      >
-        {/* CREATE NEW LIST */}
-        <div className="create-list">
-          <TextField
-            label="Saved List Name"
-            name="saved-list-name"
-            type="text"
-            value={newListName}
-            onChange={(e) => setNewListName(e.target.value)}
-            color="accent"
-          />
-          <button onClick={createList} disabled={creating}>
-            {creating ? "Creating..." : "Create"}
-          </button>
-        </div>
 
+      {isLoggedInUser && (
         <div
-          className="saved-tab-container"
-          style={{ gap: selectedSavedList && windowWidth > 992 ? "24px" : "0" }}
+          className={activeTab == 2 ? "block" : "hidden"}
+          style={{ width: "100%" }}
         >
-          <div
-            style={{
-              overflow: "hidden",
-              maxWidth: selectedSavedList ? "84px" : "100%",
-              transition: "all 300ms ease",
-              flex: 1,
-            }}
-            className="saved-list-container"
-          >
-            <SavedList
-              setSelectedSavedList={setSelectedSavedList}
-              savedLists={savedLists}
+          {/* CREATE NEW LIST */}
+          <div className="create-list">
+            <TextField
+              label="Saved List Name"
+              name="saved-list-name"
+              type="text"
+              value={newListName}
+              onChange={(e) => setNewListName(e.target.value)}
+              color="accent"
             />
+            <button onClick={createList} disabled={creating}>
+              {creating ? "Creating..." : "Create"}
+            </button>
           </div>
+
           <div
-            className={`saved-posts `}
+            className="saved-tab-container"
             style={{
-              width: selectedSavedList ? "100%" : "0px",
+              gap: selectedSavedList && windowWidth > 992 ? "24px" : "0",
             }}
           >
-            <SavedPost
-              goBack={() => {
-                setSelectedSavedList(0);
+            <div
+              style={{
+                overflow: "hidden",
+                maxWidth: selectedSavedList ? "84px" : "100%",
+                transition: "all 300ms ease",
+                flex: 1,
               }}
-              savePostList={selectedSavedList}
-            />
+              className="saved-list-container"
+            >
+              <SavedList
+                setSelectedSavedList={setSelectedSavedList}
+                savedLists={savedLists}
+              />
+            </div>
+            <div
+              className={`saved-posts `}
+              style={{
+                width: selectedSavedList ? "100%" : "0px",
+              }}
+            >
+              <SavedPost
+                goBack={() => {
+                  setSelectedSavedList(0);
+                }}
+                savePostList={selectedSavedList}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* TAGGED TAB */}
       {/* <div
@@ -760,11 +791,26 @@ const Profile = () => {
         title="Update Friend"
       >
         <div className="popup-actions">
-          <button className="popup-btn" onClick={() => {}}>
+          <button
+            className="popup-btn"
+            onClick={() => {
+              handleUnfriend();
+              setOpenUpdateFriendPopup(false);
+            }}
+          >
             Unfriend
           </button>
-          <button className="popup-btn" onClick={() => {}}>
-            Unfollow
+          <button
+            className="popup-btn"
+            onClick={() => {
+              if (user.is_following) {
+                handleUnfollow();
+              } else handleFollow();
+              setOpenUpdateFriendPopup(false);
+            }}
+          >
+            {user.is_following ? "Unfollow" : "Follow"}
+            {/* Unfollow */}
           </button>
         </div>
       </Popup>
