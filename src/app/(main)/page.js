@@ -328,22 +328,13 @@ const Home = () => {
     }
   };
 
-  const handleSearch = async (keyword) => {
-    const res = await apiFetch(`/api/search`, {
-      method: "POST",
-      body: { keyword: keyword },
-    });
-
-    console.log(res);
-  };
-
   // -------------------------------
   // Render
   // -------------------------------
 
   return (
     <div className="main-container">
-      <TopBar setData={setActiveTab} handleSearch={handleSearch} />
+      <TopBar setData={setActiveTab} />
       <div style={{ height: "32px" }}></div>
       <PostComposer handleCreate={updatePosts} />
 
@@ -365,12 +356,12 @@ const Home = () => {
               >
                 <PostCard
                   user={{
-                    username: post?.creator.username,
-                    name: post?.creator.display_name ?? "",
+                    username: post?.creator?.username,
+                    name: post?.creator?.display_name ?? "",
                     avatar:
-                      post?.creator.profile_image !== ""
-                        ? `/api/images?url=${post?.creator.profile_image}`
-                        : `/Images/default-profiles/${post?.creator.gender}.jpg`,
+                      post?.creator?.profile_image !== ""
+                        ? `/api/images?url=${post?.creator?.profile_image}`
+                        : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
                   }}
                   createdAt={post?.created_at}
                   content={post?.content}
