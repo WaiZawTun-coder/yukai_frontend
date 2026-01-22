@@ -15,38 +15,22 @@ export default function Modal({ isOpen, onClose, children, title }) {
 
   // Lock scroll when modal is open
   useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
+    if (!isOpen) return;
 
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-    } else {
-      const top = document.body.style.top;
+    const html = document.documentElement;
+    const body = document.body;
 
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
 
-      if (top) {
-        const scrollY = -parseInt(top, 10);
-        window.scrollTo(0, scrollY);
-      }
-    }
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
 
     return () => {
-      const top = document.body.style.top;
-
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
-
-      if (top) {
-        const scrollY = -parseInt(top, 10);
-        window.scrollTo(0, scrollY);
-      }
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
     };
-}, [isOpen]);
+  }, [isOpen]);
 
   // Handle animation
   useEffect(() => {

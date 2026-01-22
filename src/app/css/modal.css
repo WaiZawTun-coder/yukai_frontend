@@ -1,13 +1,16 @@
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
+
   display: flex;
   justify-content: center;
+  align-items: center;
+
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+
   opacity: 0;
   transition: opacity 0.25s ease;
   z-index: 1000;
@@ -15,20 +18,23 @@
 
 .modal-content {
   border-radius: 10px;
-  max-width: 750px;
+  max-width: 720px;
   min-width: 50%;
-  /* max-height: 90vh; */
-  height: fit-content;
+  width: 100%;
+
+  /* 🔥 CRITICAL FIX */
+  /* max-height: 90dvh; */
   overflow-y: auto;
-  transform: translateY(-50px) scale(0.8); /* start above */
+  -webkit-overflow-scrolling: touch;
+
+  transform: translateY(-50px) scale(0.8);
   opacity: 0;
-  transition: transform 0.1s ease, opacity 0.2s ease;
-  /* margin: 24px 0; */
-  /* background-color: var(--accent-color); */
+  transition: transform 0.15s ease, opacity 0.2s ease;
 }
 
+/* Prevent children from breaking scroll */
 .modal-content > * {
-  max-height: 90%;
+  max-height: unset;
 }
 
 .modal-overlay.open {
@@ -39,18 +45,21 @@
 }
 
 .modal-content.open {
-  transform: translateY(0) scale(1); /* slide to position */
+  transform: translateY(0) scale(1);
   opacity: 1;
 }
 .modal-content.close {
-  transform: translateY(-50px) scale(0.8); /* slide up on close */
+  transform: translateY(-50px) scale(0.8);
   opacity: 0;
 }
+
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+
+  padding: max(16px, env(safe-area-inset-top)) 20px 16px;
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   background: linear-gradient(
     180deg,
@@ -66,7 +75,6 @@
   letter-spacing: 0.3px;
 }
 
-/* Close button */
 .modal-close-button {
   width: 32px;
   height: 32px;
@@ -86,4 +94,11 @@
 
 .modal-close-button:active {
   transform: scale(0.96);
+}
+
+/* ✅ Fallback for older Safari */
+@supports not (height: 100dvh) {
+  .modal-content {
+    max-height: 90vh;
+  }
 }
