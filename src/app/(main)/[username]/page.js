@@ -26,6 +26,8 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+
 const TABS = [
   { id: 1, name: "Posts", url: "posts" },
   { id: 2, name: "Images", url: "images" },
@@ -245,25 +247,28 @@ const Profile = () => {
     setIsLoggedInUser(authUser && username === authUser.username);
   }, [username, authUser]);
 
+  /* --------------------- Scroll state --------------------- */
   useEffect(() => {
-    const indicator = indicatorRef.current;
-    const el = tabsRef.current[activeTab];
-    const container = el?.parentElement;
+    const el = wrapperRef.current;
+    if (!el) return;
 
-    if (!indicator || !el || !container) return;
+    let ticking = false;
 
-    requestAnimationFrame(() => {
-      const tabRect = el.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(el.scrollTop > 10);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
 
-      const left =
-        tabRect.left - (containerRect.left + container.scrollLeft) - 16;
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
 
-      indicator.style.opacity = "1";
-      indicator.style.width = `${tabRect.width}px`;
-      indicator.style.transform = `translateX(${left}px)`;
-    });
-  }, [activeTab]);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleReact = async (postId, reactType = "like") => {
     try {
@@ -451,6 +456,17 @@ const Profile = () => {
 
   return (
     <div className="profile-page">
+      <div className="page-header">
+        <button
+          className="back-button"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          <ArrowBackIosIcon />
+        </button>
+        <span className="page-name">Page Name</span>
+      </div>
       <div className="profile-card">
         <div className="cover-img">
           <Image

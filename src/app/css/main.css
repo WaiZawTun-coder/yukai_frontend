@@ -50,6 +50,41 @@
   max-width: 100%;
 }
 
+.page-header {
+  width: 100%;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.page-header--scrolled {
+  background-color: var(--accent-color);
+}
+
+.page-header .back-button {
+  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  padding: 0;
+}
+
+.page-header .back-button:active {
+  background-color: transparent;
+}
+
+.page-header .page-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
 /* ======================================================
    SMALL ANIMATION
 ====================================================== */
