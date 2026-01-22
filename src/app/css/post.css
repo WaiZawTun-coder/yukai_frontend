@@ -5,13 +5,12 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
-  max-height: 95vh;
+  max-height: 90vh;
 }
 
 .post-scrollable {
   flex: 1 1 auto;
   overflow-y: auto;
-  margin-bottom: 40px;
 }
 
 .no-more-posts {
@@ -55,8 +54,8 @@
 @media (max-width: 768px) {
   .main-wrapper {
     width: 100%;
-    padding: 12px;
-    padding-bottom: 36px;
+    padding: 0 12px;
+    /* padding-bottom: 36px; */
   }
 
   .post-container {

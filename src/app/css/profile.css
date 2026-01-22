@@ -195,7 +195,7 @@
   border-radius: 24px;
 }
 
-.profile-post .main-wrapper {
+.profile-post .main-profile-wrapper {
   padding: 0;
   border: 1px solid var(--soft-border);
 }
