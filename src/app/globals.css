@@ -139,7 +139,7 @@
   }
 
   .main-content {
-    margin-bottom: 64px;
+    /* margin-bottom: 64px; */
   }
 }
 
@@ -306,7 +306,7 @@ a:hover {
 @media (max-width: 768px) {
   .main-content {
     margin: 0;
-    margin-bottom: 64px;
+    /* margin-bottom: 64px; */
   }
   .main-container {
     max-width: 95vw;
