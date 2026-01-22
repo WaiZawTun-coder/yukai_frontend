@@ -6,7 +6,7 @@
 
   display: flex;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
 
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -23,7 +23,7 @@
   width: 100%;
 
   /* 🔥 CRITICAL FIX */
-  /* max-height: 90dvh; */
+  max-height: 90dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
@@ -33,7 +33,7 @@
 }
 
 /* Prevent children from breaking scroll */
-.modal-content > * {
+.modal-content .main-wrapper {
   max-height: unset;
 }
 
