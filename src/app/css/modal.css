@@ -24,6 +24,7 @@
 
   /* 🔥 CRITICAL FIX */
   max-height: 95dvh;
+  min-height: 95dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
@@ -94,6 +95,11 @@
 
 .modal-close-button:active {
   transform: scale(0.96);
+}
+
+.modal-main {
+  min-height: 90%;
+  position: relative;
 }
 
 /* ✅ Fallback for older Safari */

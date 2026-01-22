@@ -142,6 +142,15 @@ export default function PostComposer({ handleCreate }) {
     }
   }
 
+  /* -------------------- UPDATE DEFAULT AUDIENCE -------------------- */
+  useEffect(() => {
+    const update = () => {
+      setPrivacy(user.default_audience);
+    };
+
+    update();
+  }, [user]);
+
   /* -------------------- UI -------------------- */
 
   return (

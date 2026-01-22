@@ -365,10 +365,10 @@
 
 .post-modal-main {
   display: flex;
-  align-items: center;
   justify-content: center;
   position: sticky;
   top: 0;
+  height: 100%;
 }
 
 .modal-comments {

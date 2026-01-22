@@ -367,8 +367,9 @@ const SocialPost = ({
       <div className="comment-input-wrapper">
         <Image
           src={
-            `/api/images?url=${user.profile_image}` ??
-            `/Images/default-profiles/${user.gender}.jpg`
+            user.profile_image
+              ? `/api/images?url=${user.profile_image}`
+              : `/Images/default-profiles/${user.gender}.jpg`
           }
           alt="profile"
           width={34}
