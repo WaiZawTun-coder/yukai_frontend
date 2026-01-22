@@ -23,7 +23,7 @@
   width: 100%;
 
   /* 🔥 CRITICAL FIX */
-  max-height: 90dvh;
+  max-height: 95dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
