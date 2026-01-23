@@ -17,7 +17,7 @@
   height: 100vh;
   padding: 20px;
 
-  background: var(--gradient-sidebar);
+  background: var(--secondary-color);
   color: var(--text-primary);
 
   border-right: 1px solid var(--border-soft);
@@ -46,7 +46,7 @@
    PROFILE CARD
 ====================================================== */
 .profile {
-  background: var(--surface-1);
+  background: var(--secondary-color);
   /* background: rgba(177, 201, 239, 0.18); */
   color: var(--text-primary);
   border-radius: 16px;

@@ -229,6 +229,7 @@ export default function PostComposer({ handleCreate }) {
                 value={privacy}
                 onChange={(e) => setPrivacy(e.target.value)}
                 size="small"
+                color="secondary"
               />
             </div>
 

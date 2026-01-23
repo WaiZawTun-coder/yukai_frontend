@@ -10,6 +10,7 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import SocialPost from "../post/page";
 
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
+import TextField from "@/components/ui/TextField";
 
 const TABS = [
   { id: 1, name: "All", value: "all" },
@@ -308,44 +309,47 @@ const SearchResults = () => {
   /* -------------------- Render -------------------- */
   return (
     <div className="search-wrapper" ref={wrapperRef}>
-      <h2>Search</h2>
-
       <div className={`search-header ${isScrolled ? "scrolled" : ""}`}>
-        <div
-          className={`search-input-container ${
-            isScrolled ? "search-input-container--scrolled" : ""
-          }`}
-        >
-          <button className="back-btn show" onClick={() => router.replace("/")}>
+        <div>
+          <button className="back-button" onClick={() => router.back()}>
             <ArrowBackIosNewRoundedIcon />
           </button>
-
-          <input
-            type="text"
-            value={keyword}
-            placeholder="Search users or posts..."
-            onChange={(e) => setKeyword(e.target.value)}
-            className="search-input"
-          />
-
-          <button
-            onClick={() => setDebouncedKeyword(keyword.trim())}
-            className="search-btn"
-          >
-            Search
-          </button>
+          <span className="page-name">Search</span>
         </div>
+        <div>
+          <div
+            className={`search-input-container ${
+              isScrolled ? "search-input-container--scrolled" : ""
+            }`}
+          >
+            <TextField
+              size="small"
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="Search users or posts..."
+              className="search-input"
+            />
 
-        <div className="search-tabs">
-          {TABS.map((tab) => (
             <button
-              key={tab.id}
-              className={`tab-btn ${activeTab === tab.value ? "active" : ""}`}
-              onClick={() => handleTabChange(tab)}
+              onClick={() => setDebouncedKeyword(keyword.trim())}
+              className="search-btn"
             >
-              {tab.name}
+              Search
             </button>
-          ))}
+          </div>
+
+          <div className="search-tabs">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                className={`tab-btn ${activeTab === tab.value ? "active" : ""}`}
+                onClick={() => handleTabChange(tab)}
+              >
+                {tab.name}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -398,6 +402,7 @@ const SearchResults = () => {
                       }}
                       createdAt={post?.created_at}
                       privacy={post.privacy}
+                      taggedUsers={[]}
                       content={post?.content}
                       images={post?.attachments}
                       likes={post?.react_count}

@@ -15,7 +15,7 @@
 ====================================================== */
 .post-card {
   padding: 18px 16px;
-  background: var(--surface-1);
+  background: var(--secondary-color);
   border-radius: 16px;
   width: 100%;
 
@@ -32,7 +32,7 @@
 }
 
 /* .post-card:hover {
-  background: var(--surface-2);
+  background: var(--secondary-color);
   box-shadow: var(--shadow-medium);
 } */
 
@@ -85,6 +85,38 @@
 .post-divider {
   height: 1px;
   background: var(--divider);
+}
+
+.user-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ================= TAG FRIENDS ================= */
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.with-text {
+  color: var(--text-muted);
+}
+
+.tag-user {
+  color: var(--primary-color);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tag-user:hover {
+  text-decoration: underline;
 }
 
 /* ======================================================
@@ -189,7 +221,7 @@
   outline: none;
   border: 1px solid var(--border-soft);
   color: var(--text-secondary);
-  background: var(--surface-2);
+  background: var(--secondary-color);
   align-items: center;
   justify-content: center;
 
@@ -232,16 +264,16 @@
   border-radius: 8px;
   border: 1px solid var(--border-soft);
   color: var(--text-secondary);
-  background: var(--surface-2);
+  background: var(--secondary-color);
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .reaction-button.active {
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--primary-color);
   color: var(--text-secondary);
-  background: var(--surface-2);
+  /* background: var(--primary-color); */
 }
 
 .reaction-picker {
@@ -285,11 +317,6 @@
   background: var(--hover-overlay);
 }
 
-.reaction-button.active {
-  background: var(--surface-2);
-  border-color: var(--border-focus);
-}
-
 .reaction-button svg {
   color: var(--text-secondary);
 }
@@ -305,7 +332,7 @@
   border-radius: 8px;
   border: 1px solid var(--border-soft);
   color: var(--text-secondary);
-  background: var(--surface-2);
+  background: var(--secondary-color);
   cursor: pointer;
   font-weight: 500;
 }

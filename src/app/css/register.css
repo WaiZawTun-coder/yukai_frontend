@@ -9,7 +9,7 @@
   border-radius: 20px;
   overflow: hidden;
   box-shadow: var(--shadow-medium);
-  background-color: var(--bg-primary);
+  background-color: var(--secondary-color);
 }
 
 .signup-line {
@@ -30,7 +30,6 @@
 
 .signup-right {
   width: 50%;
-  background: var(--bg-primary);
   color: var(--text-primary);
   padding: 30px 40px;
   position: relative;

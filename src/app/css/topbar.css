@@ -7,7 +7,7 @@
   /* transform: translateX(calc(-50% - calc(var(--sidebar-width) / 2))); */
   left: 50%;
   transform: translateX(-50%);
-  background: var(--bg-primary);
+  background: var(--secondary-color);
   max-width: 720px;
   width: 100%;
   min-width: unset;
@@ -38,7 +38,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: var(--bg-primary);
+  background: var(--secondary-color);
   overflow: hidden;
   justify-content: space-between;
   box-shadow: var(--shadow-soft);

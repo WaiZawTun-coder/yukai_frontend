@@ -16,7 +16,7 @@
   width: 100%;
   max-width: 720px;
   /* margin: 0px auto; */
-  background: var(--primary-color);
+  background: var(--secondary-color);
   border-radius: 25px;
   overflow: hidden;
   position: relative;
@@ -191,7 +191,9 @@
 }
 
 .profile-post {
-  background-color: var(--primary-color);
+  /* background-color: var(--accent-color); */
+  border: 1px solid var(--secondary-color);
+  padding: 12px 0;
   border-radius: 24px;
 }
 

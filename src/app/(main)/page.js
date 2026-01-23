@@ -365,6 +365,7 @@ const Home = () => {
                   }}
                   createdAt={post?.created_at}
                   privacy={post.privacy}
+                  // taggedUsers={[]}
                   content={post?.content}
                   images={post?.attachments}
                   likes={post?.react_count}

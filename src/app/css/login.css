@@ -50,7 +50,7 @@
 ====================================================== */
 .login-right {
   width: 50%;
-  background: var(--primary-color);
+  background: var(--secondary-color);
   color: var(--text-primary);
   padding: 50px 42px;
   position: relative;

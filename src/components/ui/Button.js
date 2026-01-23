@@ -4,7 +4,7 @@ import { Button as MuiButton, CircularProgress } from "@mui/material";
 
 const Button = ({
   variant = "contained", // contained, outlined, text
-  color = "secondary", // primary, secondary, accent
+  color = "primary", // primary, secondary, accent
   size = "medium", // small, medium, large
   loading = false, // boolean
   disabled = false, // boolean

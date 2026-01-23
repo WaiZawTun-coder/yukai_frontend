@@ -45,6 +45,18 @@ export default function PostCard({
   },
   content = "",
   images = [],
+  taggedUsers = [
+    {
+      user_id: 1,
+      username: "john",
+      display_name: "John Doe",
+    },
+    {
+      user_id: 2,
+      username: "alice",
+      display_name: "Alice",
+    },
+  ],
   createdAt = "Just now",
   privacy = "public",
   likes = 0,
@@ -120,15 +132,36 @@ export default function PostCard({
           }}
         />
         <div className="post-user">
-          <h4
-            className="post-author"
-            onClick={() => {
-              if (pathname != `/${user.username}`)
-                router.replace(`/${user.username}`);
-            }}
-          >
-            {user.name}
-          </h4>
+          <div className="user-meta">
+            <h4
+              className="post-author"
+              onClick={() => {
+                if (pathname != `/${user.username}`)
+                  router.replace(`/${user.username}`);
+              }}
+            >
+              {user.name}
+            </h4>
+
+            {/* TAG FRIENDS */}
+            {taggedUsers?.length > 0 && (
+              <div className="post-tags">
+                <span className="with-text">with</span>
+
+                {taggedUsers.map((u, index) => (
+                  <span
+                    key={u.user_id}
+                    className="tag-user"
+                    onClick={() => router.push(`/${u.username}`)}
+                  >
+                    {u.display_name}
+                    {index < taggedUsers.length - 1 && ","}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="post-meta">
             <span className="post-time">{time}</span>
             <PrivacyIcon type={privacy} />
