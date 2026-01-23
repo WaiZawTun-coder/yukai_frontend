@@ -1,5 +1,6 @@
 "use client";
 
+import NotFound from "@/app/not-found";
 import PostCard from "@/components/PostCard/postCard";
 import { useKeyboard } from "@/components/postComposer/useKeyboard";
 import CommentSkeleton from "@/components/ui/CommentSkeleton";
@@ -28,6 +29,7 @@ const SocialPost = ({
 
   const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState(null);
+  const [isValid, setIsValid] = useState(true);
 
   const [comments, setComments] = useState([]);
   const [page, setPage] = useState(1);
@@ -63,6 +65,8 @@ const SocialPost = ({
             variant: "error",
           });
           return;
+        } else {
+          setIsValid(false);
         }
         setPost(res.data[0]);
       } catch (err) {
@@ -71,6 +75,7 @@ const SocialPost = ({
           message: err?.message || "Unable to fetch post",
           variant: "error",
         });
+        setIsValid(false);
       } finally {
         setIsLoading(false);
       }
@@ -274,6 +279,15 @@ const SocialPost = ({
       </div>
     );
 
+  if (!isValid) {
+    return (
+      <NotFound
+        title="Access Denied"
+        message="You don't have access to this post."
+      />
+    );
+  }
+
   return (
     <div className="main-wrapper">
       <div className="post-scrollable">
@@ -287,7 +301,8 @@ const SocialPost = ({
                 : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
           }}
           createdAt={post?.created_at}
-          privacy={post.privacy}
+          privacy={post?.privacy}
+          taggedUsers={[]}
           content={post?.content}
           images={post?.attachments}
           likes={post?.react_count}

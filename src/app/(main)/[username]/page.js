@@ -93,6 +93,7 @@ const Profile = () => {
   const indicatorRef = useRef(null);
 
   const observerRef = useRef(null);
+  const wrapperRef = useRef(null);
 
   const lastPostRef = useCallback(
     (node) => {
@@ -455,7 +456,7 @@ const Profile = () => {
   if (isLoading) return <ProfileSkeleton />;
 
   return (
-    <div className="profile-page">
+    <div className="profile-page" ref={wrapperRef}>
       <div className="page-header">
         <button
           className="back-button"

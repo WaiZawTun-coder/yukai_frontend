@@ -6,7 +6,7 @@
   width: 100%;
   min-width: 400px;
 
-  background: var(--surface-1);
+  background: var(--secondary-color);
   padding: 8px;
   border-radius: 22px;
 
@@ -134,7 +134,7 @@
 /* Shared button style */
 .action-buttons button,
 .action-buttons label {
-  background: var(--surface-2);
+  background: var(--btn-primary);
   border-radius: 12px;
   padding: 8px 14px;
 
@@ -146,13 +146,14 @@
   gap: 6px;
 
   color: var(--text-secondary);
+  white-space: nowrap;
 
   transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .action-buttons button:hover,
 .action-buttons label:hover {
-  background: var(--surface-3);
+  background: var(--btn-primary-hover);
   color: var(--text-primary);
   box-shadow: var(--shadow-soft);
 }

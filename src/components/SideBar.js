@@ -60,13 +60,13 @@ const menuList = [
     activeIcon: SettingsRoundedIcon,
     link: "/settings",
   },
-  {
-    id: 5,
-    name: "Premium",
-    icon: WorkspacePremiumOutlinedIcon,
-    activeIcon: WorkspacePremiumRoundedIcon,
-    link: "/premium",
-  },
+  // {
+  //   id: 5,
+  //   name: "Premium",
+  //   icon: WorkspacePremiumOutlinedIcon,
+  //   activeIcon: WorkspacePremiumRoundedIcon,
+  //   link: "/premium",
+  // },
 ];
 
 const Sidebar = () => {
