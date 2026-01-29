@@ -1,10 +1,14 @@
 "use client";
 
-import RightBar from "@/components/RightBar";
-import Sidebar from "@/components/SideBar";
+import FloatingCall from "@/components/FloatingCall";
+import { MessageNotifications } from "@/components/MessageNotification";
 import AuthLoadingScreen from "@/components/ui/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter, usePathname } from "next/navigation";
+import { BusyProvider } from "@/context/BusyContext";
+import { CallProvider } from "@/context/CallContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+import SocketInitializer from "@/utilities/SocketInitializer";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function MainLayout({ children }) {
@@ -36,11 +40,18 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="main-layout-container">
-      <Sidebar />
-      <main className="main-content" id="main-content">
+      <main className="main-content-chat" id="main-content">
+        {/* <NotificationProvider>
+          <BusyProvider>
+            <CallProvider>
+              <SocketInitializer /> */}
         {children}
+        {/* <FloatingCall />
+              <MessageNotifications />
+            </CallProvider>
+          </BusyProvider>
+        </NotificationProvider> */}
       </main>
-      <RightBar />
     </div>
   );
 }

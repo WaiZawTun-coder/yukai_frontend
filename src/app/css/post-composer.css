@@ -44,6 +44,7 @@
 .profile-icon {
   display: flex;
   gap: 10px;
+  max-width: 95vw;
 }
 
 .profile-icon img {
@@ -263,4 +264,10 @@ button.ghost:hover {
 
 .preview-item button:hover {
   background: rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 1200px) {
+  .post-box {
+    max-width: 95vw;
+  }
 }

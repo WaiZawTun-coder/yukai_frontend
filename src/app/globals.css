@@ -32,9 +32,14 @@
 @import url("./css/chat-list.css");
 @import url("./css/search.css");
 
+@import url("./css/tag-friends.css");
 @import url("./not-found.css");
+@import url("./css/call.css");
+@import url("./css/call-page.css");
+@import url("./css/floating-call.css");
 
-/* update in post.css */
+@import url("./css/notification.css");
+
 /* =====================================================
    FONTS
 ===================================================== */

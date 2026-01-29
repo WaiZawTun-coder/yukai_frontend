@@ -148,6 +148,10 @@
   align-items: center;
   gap: 15px;
 }
+
+.friend-info img {
+  border-radius: 50%;
+}
 .friend-header {
   display: flex;
   justify-content: space-between;

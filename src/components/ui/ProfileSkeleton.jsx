@@ -1,6 +1,23 @@
+"use client";
+
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { useRouter } from "next/navigation";
+
 export default function ProfileSkeleton() {
+  const router = useRouter();
+
   return (
     <div className="profile-skeleton-wrapper">
+      <div className="page-header">
+        <button
+          className="back-button"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          <ArrowBackIosIcon />
+        </button>
+      </div>
       <div className="profile-card skeleton">
         {/* Cover */}
         <div className="sk-cover shimmer" />

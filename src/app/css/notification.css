@@ -1,0 +1,81 @@
+.message-notification {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.message-body {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.message-username {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.message-text {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.snackbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.snackbar-actions button {
+  padding: 4px 12px;
+  border-radius: 999px; /* pill style */
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: var(--accent-color);
+  color: var(--text-color);
+}
+
+.snackbar-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+}
+
+.snackbar-actions button:active {
+  transform: scale(0.95);
+}
+
+.snackbar-actions .btn-accept {
+  background: #22c55e;
+  color: white;
+}
+
+.snackbar-actions .btn-accept:hover {
+  background: #16a34a;
+}
+
+.snackbar-actions .btn-reject {
+  background: #ef4444;
+  color: white;
+}
+
+.snackbar-actions .btn-reject:hover {
+  background: #dc2626;
+}
+
+@media (max-width: 640px) {
+  .snackbar-actions button {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+}

@@ -4,7 +4,7 @@ import Image from "next/image";
 import CollectionsIcon from "@mui/icons-material/Collections";
 import { useState } from "react";
 import Modal from "./ui/Modal";
-import SocialPost from "@/app/(main)/post/page";
+import SocialPost from "@/app/(warpper)/(main)/post/page";
 
 const ProfileImagePost = ({ posts }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

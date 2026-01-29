@@ -17,6 +17,13 @@ import {
   verifySignedPrekey,
 } from "@/helpers/Base64";
 
+import {
+  socket,
+  connectSocket,
+  disconnectSocket,
+  setSocketAuth,
+} from "@/utilities/socket";
+
 /* ------------------------------------------------------------------ */
 
 const AuthContext = createContext(null);
@@ -25,6 +32,8 @@ export const useAuth = () => useContext(AuthContext);
 /* ------------------------------------------------------------------ */
 
 function getDeviceId() {
+  if (typeof window === "undefined") return null;
+
   let id = localStorage.getItem("device_id");
   if (!id) {
     id = crypto.randomUUID();
@@ -36,34 +45,44 @@ function getDeviceId() {
 /* ------------------------------------------------------------------ */
 
 export const AuthProvider = ({ children }) => {
+  const router = useRouter();
+
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hasKeys, setHasKeys] = useState(false);
 
-  // Private + Public Key Refs
+  // Crypto refs
   const identityPrivRef = useRef(null);
   const signedPrekeyPrivRef = useRef(null);
-  const signedPrekeyPubRef = useRef(null); // ✅ needed for payload
-  const signedPrekeyId = useRef(null);
-  const registrationId = useRef(null);
+  const signedPrekeyPubRef = useRef(null);
+  const signedPrekeyIdRef = useRef(null);
+  const registrationIdRef = useRef(null);
 
-  const router = useRouter();
+  const socketConnectedRef = useRef(false);
 
   /* ===================== INIT AUTH ===================== */
 
   useEffect(() => {
+    let alive = true;
+
     (async () => {
       try {
         const token = await refreshToken();
-        if (token) await getUser(token);
+        if (!alive || !token) return;
+        await getUser(token);
       } catch {
+        if (!alive) return;
         setAccessToken(null);
         setUser(null);
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     })();
+
+    return () => {
+      alive = false;
+    };
   }, []);
 
   /* ===================== INIT DEVICE KEYS ===================== */
@@ -71,45 +90,91 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!accessToken || !user) return;
 
+    let alive = true;
+
     (async () => {
-      const deviceId = getDeviceId();
+      try {
+        const deviceId = getDeviceId();
+        if (!deviceId) return;
 
-      const loaded = await loadDeviceKeys(user.user_id);
+        const loaded = await loadDeviceKeys(user.user_id);
 
-      if (!loaded.identityPrivate || !loaded.signedPrekeyPrivate) {
-        const publicBundle = await generateDeviceKeys(user.user_id);
+        if (!loaded.identityPrivate || !loaded.signedPrekeyPrivate) {
+          const publicBundle = await generateDeviceKeys(user.user_id);
 
-        await fetch(getBackendUrl() + "/api/register-device", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...publicBundle,
-            device_id: deviceId,
-            platform: "web",
-          }),
-        });
+          await fetch(getBackendUrl() + "/api/register-device", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...publicBundle,
+              device_id: deviceId,
+              platform: "web",
+            }),
+          });
 
-        const reloaded = await loadDeviceKeys(user.user_id);
+          const reloaded = await loadDeviceKeys(user.user_id);
 
-        identityPrivRef.current = reloaded.identityPrivate;
-        signedPrekeyPrivRef.current = reloaded.signedPrekeyPrivate;
-        signedPrekeyPubRef.current = reloaded.signedPrekeyPubBase64;
-        signedPrekeyId.current = reloaded.signedPrekeyId;
-        registrationId.current = reloaded.registrationId;
-      } else {
-        identityPrivRef.current = loaded.identityPrivate;
-        signedPrekeyPrivRef.current = loaded.signedPrekeyPrivate;
-        signedPrekeyPubRef.current = loaded.signedPrekeyPubBase64;
-        signedPrekeyId.current = loaded.signedPrekeyId;
-        registrationId.current = loaded.registrationId;
+          identityPrivRef.current = reloaded.identityPrivate;
+          signedPrekeyPrivRef.current = reloaded.signedPrekeyPrivate;
+          signedPrekeyPubRef.current = reloaded.signedPrekeyPubBase64;
+          signedPrekeyIdRef.current = reloaded.signedPrekeyId;
+          registrationIdRef.current = reloaded.registrationId;
+        } else {
+          identityPrivRef.current = loaded.identityPrivate;
+          signedPrekeyPrivRef.current = loaded.signedPrekeyPrivate;
+          signedPrekeyPubRef.current = loaded.signedPrekeyPubBase64;
+          signedPrekeyIdRef.current = loaded.signedPrekeyId;
+          registrationIdRef.current = loaded.registrationId;
+        }
+
+        if (alive) setHasKeys(true);
+      } catch (err) {
+        console.error("❌ Device key init failed:", err);
       }
-
-      setHasKeys(true);
     })();
+
+    return () => {
+      alive = false;
+    };
   }, [accessToken, user]);
+
+  /* ===================== AUTO SOCKET CONNECT ===================== */
+
+  useEffect(() => {
+    if (!accessToken || !user || !hasKeys) return;
+
+    const deviceId = getDeviceId();
+    if (!deviceId) return;
+
+    setSocketAuth({
+      token: accessToken,
+      deviceId,
+      username: user.username,
+    });
+
+    connectSocket();
+
+    const onConnect = () => {
+      console.log("🟢 AuthProvider socket connected");
+      socketConnectedRef.current = true;
+    };
+
+    const onDisconnect = () => {
+      console.log("🔴 AuthProvider socket disconnected");
+      socketConnectedRef.current = false;
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, [accessToken, user, hasKeys]);
 
   /* ===================== CRYPTO HELPERS ===================== */
 
@@ -165,18 +230,21 @@ export const AuthProvider = ({ children }) => {
     const iv = fromBase64(ivB64);
     const cipher = fromBase64(cipherB64);
 
-    if (iv.length !== 12) {
-      throw new Error("Invalid IV length: " + iv.length);
+    if (!(iv instanceof Uint8Array)) {
+      throw new Error("IV not Uint8Array");
+    }
+    if (!(cipher instanceof Uint8Array)) {
+      throw new Error("Cipher not Uint8Array");
     }
 
-    if (cipher.length < 16) {
-      throw new Error("Ciphertext too short (probably truncated)");
+    if (iv.byteLength !== 12) {
+      throw new Error("Invalid IV length: " + iv.byteLength);
     }
 
     const plainBuffer = await crypto.subtle.decrypt(
       { name: "AES-GCM", iv },
       aesKey,
-      cipher.buffer // ✅ always pass ArrayBuffer
+      cipher // ✅ correct
     );
 
     return new TextDecoder().decode(plainBuffer);
@@ -196,9 +264,7 @@ export const AuthProvider = ({ children }) => {
 
       if (!valid) continue;
 
-      // Diffie-Hellman
       const sharedSecret = await deriveSharedSecret(device.signed_prekey_pub);
-
       const aesKey = await deriveAESKey(sharedSecret);
       const encrypted = await encryptMessage(aesKey, plainText);
 
@@ -207,8 +273,6 @@ export const AuthProvider = ({ children }) => {
         signed_prekey_id: device.signed_prekey_id,
         iv: encrypted.iv,
         ciphertext: encrypted.ciphertext,
-
-        // critical fix
         sender_signed_prekey_pub: signedPrekeyPubRef.current,
       });
     }
@@ -229,7 +293,6 @@ export const AuthProvider = ({ children }) => {
 
     const senderPub = await importX25519PublicKey(sender_signed_prekey_pub);
 
-    // DH: receiverPrivate × senderPublic
     const sharedSecret = await crypto.subtle.deriveBits(
       { name: "X25519", public: senderPub },
       signedPrekeyPrivRef.current,
@@ -237,7 +300,6 @@ export const AuthProvider = ({ children }) => {
     );
 
     const aesKey = await deriveAESKey(sharedSecret);
-
     return decryptMessage(aesKey, iv, ciphertext);
   };
 
@@ -259,6 +321,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    disconnectSocket();
+    socketConnectedRef.current = false;
+
     identityPrivRef.current = null;
     signedPrekeyPrivRef.current = null;
     signedPrekeyPubRef.current = null;
@@ -312,6 +377,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         hasKeys,
         isLoggedIn: !!accessToken,
+
+        socket,
 
         login,
         logout,

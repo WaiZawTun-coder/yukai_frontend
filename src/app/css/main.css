@@ -72,6 +72,7 @@
 
 .page-header .back-button {
   background-color: transparent;
+  color: var(--text-primary);
   cursor: pointer;
   outline: none;
   border: none;

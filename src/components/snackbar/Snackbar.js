@@ -8,10 +8,7 @@ const Snackbar = ({ snacks, onRemove }) => {
       {snacks.map((snack) => (
         <SnackbarItem
           key={snack.id}
-          title={snack.title}
-          message={snack.message}
-          variant={snack.variant}
-          duration={snack.duration}
+          {...snack}
           onClose={() => onRemove(snack.id)}
         />
       ))}

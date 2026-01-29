@@ -54,6 +54,13 @@
   gap: 10px;
 }
 
+.chat-list-header .back-button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+}
+
 .chat-header .back-button {
   /* padding: 0; */
   display: none;
@@ -183,7 +190,7 @@
   right: 2px;
   width: 10px;
   height: 10px;
-  background: #4caf50;
+  background: #22c55e;
   border-radius: 50%;
   border: 2px solid #fff;
 }

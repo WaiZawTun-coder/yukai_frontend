@@ -1,38 +1,50 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 // Icons
-import WestRoundedIcon from "@mui/icons-material/WestRounded";
 import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
-import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatisfiedAltRounded";
 import CallRoundedIcon from "@mui/icons-material/CallRounded";
-import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
-import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
+import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatisfiedAltRounded";
+import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
+import WestRoundedIcon from "@mui/icons-material/WestRounded";
 
-import Button from "./ui/Button";
 import { useAuth } from "@/context/AuthContext";
+import { useCall } from "@/context/CallContext";
 import { useApi } from "@/utilities/api";
 import {
-  connectSocket,
-  disconnectSocket,
+  checkUserOnline,
+  emitUpdateReceipt,
   joinRoom,
   leaveRoom,
-  onReceiveMessage,
-  offReceiveMessage,
-  sendMessage,
-  emitUpdateReceipt,
-  onReceiptUpdate,
+  makeCall,
   offReceiptUpdate,
+  offReceiveMessage,
+  onCheckUserOnline,
+  onReceiptUpdate,
+  onReceiveMessage,
+  sendMessage,
+  socket,
 } from "@/utilities/socket";
+import Button from "./ui/Button";
+import { useBusy } from "@/context/BusyContext";
 
 /* ----------------------- Child Components ------------------------- */
 
-const ChatHeader = ({ chatData, onBack, onToggleInfo }) => (
+const ChatHeader = ({
+  chatData,
+  onBack,
+  onToggleInfo,
+  handleCall,
+  isOnline,
+  lastSeen,
+  isUserBusy,
+}) => (
   <div className="chat-header">
     <div className="back-button" onClick={onBack}>
       <WestRoundedIcon style={{ verticalAlign: "middle", fontSize: 20 }} />
@@ -52,17 +64,27 @@ const ChatHeader = ({ chatData, onBack, onToggleInfo }) => (
 
     <div className="chat-user-info">
       <span className="user-name">{chatData?.other_display_name}</span>
-      <span className="last-seen">last seen recently</span>
+      <span className="last-seen">{isOnline ? "online" : lastSeen}</span>
     </div>
 
     <div className="action-icon-container">
-      <CallRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
-      <VideocamRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
-      <MoreVertRoundedIcon
-        style={{ fontSize: 30 }}
-        className="header-icon"
-        onClick={onToggleInfo}
-      />
+      <button
+        className="chat-header-button"
+        onClick={handleCall.handleAudioCall}
+        disabled={isUserBusy}
+      >
+        <CallRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
+      </button>
+      <button
+        className="chat-header-button"
+        onClick={handleCall.handleVideoCall}
+        disabled={isUserBusy}
+      >
+        <VideocamRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
+      </button>
+      <button className="chat-header-button" onClick={onToggleInfo}>
+        <MoreVertRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
+      </button>
     </div>
   </div>
 );
@@ -207,6 +229,9 @@ const ChatInfoPanel = ({ showInfo, isMobile, chatData, onClose, router }) => (
 const ChatView = ({ username }) => {
   const router = useRouter();
   const apiFetch = useApi();
+  const { startCall } = useCall();
+  const { isUserBusy } = useBusy();
+
   const { user, getDeviceId, encryptForDevices, decryptPayload } = useAuth();
 
   const [chatData, setChatData] = useState({});
@@ -215,6 +240,10 @@ const ChatView = ({ username }) => {
   const [inputText, setInputText] = useState("");
   const [showInfo, setShowInfo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [onlineStatus, setOnlineStatus] = useState({
+    online: false,
+    lastSeen: null,
+  });
 
   const messageEndRef = useRef(null);
 
@@ -249,18 +278,35 @@ const ChatView = ({ username }) => {
     if (chatId) emitUpdateReceipt(messageId, chatId, "seen");
   };
 
+  function timeAgo(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp; // difference in ms
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (seconds < 10) return "just now";
+    if (seconds < 60) return `${seconds} seconds ago`;
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    if (days < 30) return `${days} day${days > 1 ? "s" : ""} ago`;
+    if (months < 12) return `${months} month${months > 1 ? "s" : ""} ago`;
+    return `${years} year${years > 1 ? "s" : ""} ago`;
+  }
+
   const loadChatData = async () => {
     if (!username) return;
     try {
       const resChat = await apiFetch(
         `/api/chat?username=${username}&device_id=${getDeviceId()}`
       );
-      console.log(resChat);
       const chat = resChat.data;
-      console.log({
-        chat,
-        url: `/api/chat?username=${username}&device_id=${getDeviceId()}`,
-      });
+      checkUserOnline(String(chat.other_user_id));
+
       setChatData(chat);
 
       if (!chat?.chat_id) return;
@@ -306,42 +352,84 @@ const ChatView = ({ username }) => {
     }
   };
 
-  const setupSocket = () => {
+  useEffect(() => {
+    const handleOnline = ({ userId }) => {
+      if (String(userId) === String(chatData.other_user_id)) {
+        setOnlineStatus({ online: true, lastSeen: null });
+      }
+    };
+
+    const handleOffline = ({ userId, lastSeen }) => {
+      if (String(userId) === String(chatData.other_user_id)) {
+        setOnlineStatus({
+          online: false,
+          lastSeen: timeAgo(lastSeen),
+        });
+      }
+    };
+
+    socket.on("user-online", handleOnline);
+    socket.on("user-offline", handleOffline);
+
+    return () => {
+      socket.off("user-online", handleOnline);
+      socket.off("user-offline", handleOffline);
+    };
+  }, [chatData?.other_user_id]);
+
+  useEffect(() => {
+    const handleStatus = ({ online, lastSeen }) => {
+      setOnlineStatus({
+        online,
+        lastSeen: lastSeen ? timeAgo(lastSeen) : null,
+      });
+    };
+
+    onCheckUserOnline(handleStatus);
+
+    return () => {
+      socket.off("user-status", handleStatus);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!chatId) return;
 
-    connectSocket();
-    joinRoom(username);
+    joinRoom(chatId);
 
-    onReceiveMessage(async (msg) => {
+    const handleReceiveMessage = async (msg) => {
       if (msg.recipient_device_id !== getDeviceId()) return;
 
-      try {
-        const plainText = await decryptPayload({
-          ciphertext: msg.cipher_text,
-          iv: msg.iv,
-          sender_signed_prekey_pub: msg.sender_signed_prekey_pub,
-        });
+      const plainText = await decryptPayload({
+        ciphertext: msg.cipher_text,
+        iv: msg.iv,
+        sender_signed_prekey_pub: msg.sender_signed_prekey_pub,
+      });
 
-        setMessages((prev) => [...prev, { ...msg, plain_text: plainText }]);
-        markMessageDelivered(msg.message_id);
-      } catch (err) {
-        console.error("Decrypt failed", err);
-      }
-    });
+      setMessages((prev) => [...prev, { ...msg, plain_text: plainText }]);
+      markMessageDelivered(msg.message_id);
+    };
 
-    onReceiptUpdate(({ message_id, status }) => {
+    const handleReceiptUpdate = ({ message_id, status }) => {
       setMessages((prev) =>
         prev.map((m) => (m.message_id === message_id ? { ...m, status } : m))
       );
-    });
+    };
+
+    onReceiveMessage(handleReceiveMessage);
+    onReceiptUpdate(handleReceiptUpdate);
 
     return () => {
-      offReceiveMessage();
-      offReceiptUpdate();
-      if (chatId) leaveRoom(chatId);
-      disconnectSocket();
+      offReceiveMessage(handleReceiveMessage);
+      offReceiptUpdate(handleReceiptUpdate);
+      leaveRoom(chatId);
     };
-  };
+  }, [chatId]);
+
+  useEffect(() => {
+    window.__ACTIVE_CHAT_ID__ = chatId;
+    return () => (window.__ACTIVE_CHAT_ID__ = null);
+  }, [chatId]);
 
   const handleSend = async () => {
     if (!inputText.trim() || !chatParticipants.length) return;
@@ -391,11 +479,21 @@ const ChatView = ({ username }) => {
       },
     });
 
+    // const res = { status: true, message_id: 1 };
+
+    const targetParticipants = chatParticipants
+      .map((participant) => {
+        if (participant.user_id != user.user_id) return participant.user_id;
+      })
+      .filter((d) => d);
+
     if (res.status) {
       outgoingMessages.forEach((message) => {
+        console.log({ message });
         sendMessage({
           ...message,
           message_id: res.message_id,
+          participants: targetParticipants,
         });
       });
     }
@@ -431,7 +529,71 @@ const ChatView = ({ username }) => {
     loadChatData();
   }, [username]);
 
-  useEffect(() => setupSocket(), [chatId]);
+  /* -------------------- Call Helpers -------------------- */
+  const createRoomId = (userA, userB, chatId) => {
+    return `room_${userA.username}${userB.user_id}_${userB.username}${userA.user_id}_${chatId}`;
+  };
+
+  const handleVideoCall = async () => {
+    console.log("video call");
+    const roomId = createRoomId(
+      { username: user.username, user_id: user.user_id },
+      {
+        username: chatData.other_username,
+        user_id: chatData.other_user_id,
+      },
+      chatData.chat_id
+    );
+
+    await startCall(roomId, "video");
+
+    makeCall({
+      toUserId: chatData.other_user_id,
+      fromUserId: user.user_id,
+      callType: "video",
+      caller: {
+        user_id: user.user_id,
+        username: user.username,
+        profile_image: user.profile_image,
+        gender: user.gender,
+        display_name: user.display_name,
+      },
+      roomId,
+    });
+
+    router.push("/chat/call");
+  };
+
+  const handleAudioCall = async () => {
+    const roomId = createRoomId(
+      { username: user.username, user_id: user.user_id },
+      {
+        username: chatData.other_username,
+        user_id: chatData.other_user_id,
+      },
+      chatData.chat_id
+    );
+
+    await startCall(roomId, "audio");
+
+    makeCall({
+      toUserId: chatData.other_user_id,
+      fromUserId: user.user_id,
+      callType: "audio",
+      caller: {
+        user_id: user.user_id,
+        username: user.username,
+        profile_image: user.profile_image,
+        gender: user.gender,
+        display_name: user.display_name,
+      },
+      roomId,
+    });
+
+    router.push("/chat/call");
+  };
+
+  console.log(chatData);
 
   /* -------------------- Render -------------------- */
 
@@ -443,7 +605,17 @@ const ChatView = ({ username }) => {
             chatData={chatData}
             onBack={() => router.replace("/chat")}
             onToggleInfo={() => setShowInfo((v) => !v)}
+            handleCall={{ handleVideoCall, handleAudioCall }}
+            isOnline={onlineStatus.online}
+            lastSeen={onlineStatus.lastSeen}
+            isUserBusy={
+              !(
+                chatData.type === "private" &&
+                !isUserBusy(chatData.other_user_id)
+              )
+            }
           />
+
           <MessageList
             messages={messages}
             currentUserId={user.user_id}

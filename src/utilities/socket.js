@@ -1,87 +1,115 @@
 import { io } from "socket.io-client";
 
-const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SOCKET_URL +
-    ":" +
-    process.env.NEXT_PUBLIC_SOCKET_PORT || "http://localhost:8080";
+/* ============================================================
+   Config
+============================================================ */
+const SOCKET_URL = "http://localhost:8080";
 
-console.log({ SOCKET_URL });
-
-let connected = false;
-
-// Create socket instance only once
+/* ============================================================
+   Socket Instance (SINGLETON)
+============================================================ */
 export const socket = io(SOCKET_URL, {
-  autoConnect: false,
+  autoConnect: false, // connect manually after auth
   transports: ["websocket"],
+  withCredentials: true,
+  auth: {
+    token: null,
+    deviceId: null,
+    username: null,
+  },
 });
 
-/* ---------------------- Connection ---------------------- */
+/* ============================================================
+   Debug & Lifecycle Logs
+============================================================ */
+socket.on("connect", () => {
+  console.log("🟢 Socket connected:", socket.id);
+});
 
-/**
- * Connect socket
- */
+socket.on("disconnect", (reason) => {
+  console.log("🔴 Socket disconnected:", reason);
+});
+
+socket.on("connect_error", (err) => {
+  console.error("❌ Socket connection error:", err.message);
+});
+
+/* ============================================================
+   Auth Setup
+============================================================ */
+export const setSocketAuth = ({ token, deviceId, username }) => {
+  socket.auth = {
+    token,
+    deviceId,
+    username,
+  };
+
+  console.log("🔐 Socket auth updated:", socket.auth);
+};
+
+/* ============================================================
+   Connection Control
+============================================================ */
 export const connectSocket = () => {
   if (!socket.connected) {
+    console.log("🟡 Connecting socket...");
     socket.connect();
-    console.log("🟢 Socket connecting...");
   }
 };
 
-/**
- * Disconnect socket
- */
 export const disconnectSocket = () => {
   if (socket.connected) {
     socket.disconnect();
-    console.log("🔴 Socket disconnected");
   }
 };
 
-/* ---------------------- Room Management ---------------------- */
-
-/**
- * Join chat room
- */
+/* ============================================================
+   Room Management
+============================================================ */
 export const joinRoom = (roomId) => {
   if (!roomId) return;
-  socket.emit("join-room", roomId);
+  socket.emit("join-room", String(roomId));
 };
 
-/**
- * Leave chat room
- */
 export const leaveRoom = (roomId) => {
   if (!roomId) return;
-  socket.emit("leave-room", roomId);
+  socket.emit("leave-room", String(roomId));
 };
 
-/* ---------------------- Messaging ---------------------- */
-
-/**
- * Send message
- */
+/* ============================================================
+   Messaging
+============================================================ */
 export const sendMessage = (message) => {
   if (!message) return;
   socket.emit("send-message", message);
 };
 
-/**
- * Listen for incoming messages
- */
-export const onReceiveMessage = (callback) => {
-  socket.on("receive-message", callback);
+/* ============================================================
+   Messaging – listeners
+============================================================ */
+
+export const onReceiveMessage = (cb) => {
+  socket.on("receive-message", cb);
 };
 
-/**
- * Remove listener for incoming messages
- */
-export const offReceiveMessage = () => {
-  socket.off("receive-message");
+export const offReceiveMessage = (cb) => {
+  socket.off("receive-message", cb);
 };
 
-/* ---------------------- Receipts ---------------------- */
+export const onNewMessage = (cb) => {
+  socket.on("new-message", cb);
+};
+
+export const offNewMessage = (cb) => {
+  socket.off("new-message", cb);
+};
+
+/* ============================================================
+   Receipts
+============================================================ */
 export const emitUpdateReceipt = (messageId, chatId, status = "delivered") => {
   if (!messageId || !chatId) return;
+
   socket.emit("update-receipt", {
     message_id: messageId,
     chat_id: chatId,
@@ -89,16 +117,113 @@ export const emitUpdateReceipt = (messageId, chatId, status = "delivered") => {
   });
 };
 
-/**
- * Listen for receipt updates from server
- */
-export const onReceiptUpdate = (callback) => {
-  socket.on("receipt-update", callback);
+/* ============================================================
+   Receipts – listeners
+============================================================ */
+
+export const onReceiptUpdate = (cb) => {
+  socket.on("receipt-update", cb);
 };
 
-/**
- * Remove listener for receipt updates
- */
-export const offReceiptUpdate = () => {
-  socket.off("update-receipt");
+export const offReceiptUpdate = (cb) => {
+  socket.off("receipt-update", cb);
 };
+
+/* ============================================================
+   Call Signaling
+============================================================ */
+
+export const makeCall = ({
+  toUserId,
+  fromUserId,
+  callType = "video",
+  caller,
+  roomId,
+}) => {
+  if (!toUserId || !fromUserId || !caller || !roomId) return;
+
+  socket.emit("call-user", {
+    toUserId: String(toUserId),
+    fromUserId: String(fromUserId),
+    callType,
+    caller,
+    roomId,
+  });
+
+  console.log(`📞 Calling ${toUserId} (${callType})`);
+};
+
+export const onIncomingCall = (cb) => {
+  socket.on("incoming-call", cb);
+};
+
+export const offIncomingCall = (cb) => {
+  socket.off("incoming-call", cb);
+};
+
+export const answerCall = (toUserId) => {
+  if (!toUserId) return;
+  socket.emit("answer-call", { toUserId: String(toUserId) });
+};
+
+export const rejectCall = (toUserId) => {
+  if (!toUserId) return;
+  socket.emit("reject-call", { toUserId: String(toUserId) });
+};
+
+export const endCall = (toUserId) => {
+  if (!toUserId) return;
+  socket.emit("end-call", { toUserId: String(toUserId) });
+};
+
+/* ============================================================
+   Presence
+============================================================ */
+
+export const checkUserOnline = (userId) => {
+  socket.emit("check-user-online", String(userId));
+};
+
+/* ============================================================
+   Presence – listeners
+============================================================ */
+
+export const requestOnlineUsers = () => {
+  socket.emit("request-online-users");
+};
+
+export const onOnlineUsers = (cb) => {
+  socket.on("online-users", cb);
+};
+
+export const onUserOnline = (cb) => {
+  socket.on("user-online", cb);
+};
+
+export const onUserOffline = (cb) => {
+  socket.on("user-offline", cb);
+};
+
+export const offPresenceListeners = () => {
+  socket.off("online-users");
+  socket.off("user-online");
+  socket.off("user-offline");
+};
+
+/* ============================================================
+   Presence – check user online
+============================================================ */
+
+export const onCheckUserOnline = (cb) => {
+  socket.on("user-status", cb);
+};
+
+export const offCheckUserOnline = (cb) => {
+  socket.off("user-status", cb);
+};
+
+/* ============================================================
+   Utils
+============================================================ */
+
+export const isSocketConnected = () => socket.connected;

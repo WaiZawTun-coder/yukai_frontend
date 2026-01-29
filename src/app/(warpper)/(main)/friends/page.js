@@ -53,8 +53,6 @@ export default function Friends() {
         return `/api/get-friends?page=${page}`;
       case "following":
         return `/api/get-following?page=${page}`;
-      // TODO : update get following page
-      // return `/api/get-friends?page=${page}`;
       case "requests":
         return `/api/get-received-requests?page=${page}`;
       case "add-more":
