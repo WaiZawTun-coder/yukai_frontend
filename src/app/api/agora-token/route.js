@@ -1,7 +1,6 @@
 import { RtcTokenBuilder, RtcRole } from "agora-access-token";
 
 export async function GET(request) {
-  console.log({ request });
   const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID;
   const APP_CERT = process.env.NEXT_PUBLIC_AGORA_PRIMARY_CERTIFICATE;
 

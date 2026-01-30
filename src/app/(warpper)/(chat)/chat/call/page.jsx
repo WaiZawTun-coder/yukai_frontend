@@ -1,136 +1,240 @@
 "use client";
 
 import { useCall } from "@/context/CallContext";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import IconButton from "@mui/material/IconButton";
+import Avatar from "@mui/material/Avatar";
+
+import MicIcon from "@mui/icons-material/Mic";
+import MicOffIcon from "@mui/icons-material/MicOff";
+import VideocamIcon from "@mui/icons-material/Videocam";
+import VideocamOffIcon from "@mui/icons-material/VideocamOff";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+import CallEndIcon from "@mui/icons-material/CallEnd";
+
+const playSound = (src) => {
+  const audio = new Audio(src);
+  audio.volume = 0.6;
+  audio.play().catch(() => {});
+};
+
 export default function CallPage() {
-  const { inCall, callType, playLocalVideo, stopCall, clientRef } = useCall();
+  const {
+    localTracks,
+    inCall,
+    callType,
+    stopCall,
+    clientRef,
+    toggleMic,
+    toggleCamera,
+    toggleSpeaker,
+    micMuted,
+    cameraOff,
+    speakerMuted,
+    remoteUserInfo,
+  } = useCall();
+
+  const router = useRouter();
   const localVideoRef = useRef(null);
-  const [remoteUsers, setRemoteUsers] = useState([]);
-  const [tick, setTick] = useState(0); // 🔥 force re-render trigger
+  const remoteVideoRef = useRef(null);
+  const [remoteUid, setRemoteUid] = useState(null);
+  const [remoteVideoTrack, setRemoteVideoTrack] = useState(null); // New: Store the remote track
+  const [mounted, setMounted] = useState(false);
 
-  // Play local video
   useEffect(() => {
-    if (inCall && callType === "video" && localVideoRef.current) {
-      playLocalVideo(localVideoRef.current);
+    setMounted(true);
+  }, []);
+
+  /* -------------------- Local video -------------------- */
+  useEffect(() => {
+    if (!inCall || callType !== "video" || cameraOff || !mounted) return;
+    const el = localVideoRef.current;
+    const track = localTracks.current?.video;
+    console.log("Local video: Attempting to play", { el, track });
+    if (!el || !track) {
+      console.error("Local video: Missing element or track", { el, track });
+      return;
     }
-  }, [inCall, callType, playLocalVideo]);
 
-  // Handle remote users
+    setTimeout(async () => {
+      if (el && track) {
+        try {
+          await track.play(el, { fit: "cover" });
+          console.log("Local video: Play succeeded");
+        } catch (err) {
+          console.error("Local video play failed:", err);
+        }
+      }
+    }, 100);
+
+    return () => {
+      if (track) track.stop();
+      if (el) el.innerHTML = "";
+    };
+  }, [inCall, cameraOff, callType, localTracks.current?.video, mounted]);
+
+  /* -------------------- Remote subscription -------------------- */
   useEffect(() => {
-    if (!inCall) return;
+    if (!inCall || !clientRef.current || !mounted) return;
     const client = clientRef.current;
-    if (!client) return;
 
     const subscribeUser = async (user, mediaType) => {
-      console.log("🔔 Subscribing:", user.uid, mediaType);
-
-      await client.subscribe(user, mediaType);
-
-      console.log("✅ Subscribed:", user.uid, mediaType, {
-        audio: !!user.audioTrack,
-        video: !!user.videoTrack,
+      console.log("Subscribing to user:", user.uid, mediaType, {
+        hasVideo: user.hasVideo,
+        hasAudio: user.hasAudio,
       });
+      try {
+        await client.subscribe(user, mediaType);
 
-      if (mediaType === "audio") {
-        user.audioTrack?.play();
+        if (mediaType === "video") {
+          setRemoteUid(user.uid);
+          setRemoteVideoTrack(user.videoTrack); // New: Store the track for later playback
+          console.log("Remote video track stored:", user.videoTrack);
+        }
+
+        if (mediaType === "audio") {
+          if (user.audioTrack) user.audioTrack.play();
+        }
+      } catch (err) {
+        console.error("Subscribe failed, retrying after 1s:", err);
+        setTimeout(() => {
+          subscribeUser(user, mediaType);
+        }, 1000);
       }
-
-      // Keep original Agora user object (DO NOT spread)
-      setRemoteUsers((prev) => {
-        const map = new Map(prev.map((u) => [u.uid, u]));
-        map.set(user.uid, user);
-        return Array.from(map.values());
-      });
-
-      // 🔥 Force React refresh so videoTrack becomes visible to UI
-      setTick((t) => t + 1);
     };
 
-    // Existing users (callee case)
-    Object.values(client.remoteUsers).forEach(async (user) => {
-      if (user.hasAudio) await subscribeUser(user, "audio");
-      if (user.hasVideo) await subscribeUser(user, "video");
+    console.log("Existing remote users:", client.remoteUsers);
+    Object.values(client.remoteUsers || {}).forEach((user) => {
+      if (user.hasAudio) subscribeUser(user, "audio");
+      if (user.hasVideo) subscribeUser(user, "video");
     });
 
-    // New users
-    const handleUserPublished = async (user, mediaType) => {
-      console.log("📡 user-published:", user.uid, mediaType);
-      await subscribeUser(user, mediaType);
-    };
-
+    const handleUserPublished = (user, mediaType) =>
+      subscribeUser(user, mediaType);
     const handleUserLeft = (user) => {
-      setRemoteUsers((prev) => prev.filter((u) => u.uid !== user.uid));
+      console.log("User left:", user.uid);
+      if (remoteVideoRef.current) remoteVideoRef.current.innerHTML = "";
+      setRemoteUid(null);
+      setRemoteVideoTrack(null); // New: Clear the track
     };
 
     client.on("user-published", handleUserPublished);
-    client.on("user-unpublished", handleUserLeft);
     client.on("user-left", handleUserLeft);
 
     return () => {
       client.off("user-published", handleUserPublished);
-      client.off("user-unpublished", handleUserLeft);
       client.off("user-left", handleUserLeft);
     };
-  }, [inCall, clientRef]);
+  }, [inCall, mounted]);
 
-  if (!inCall) {
-    return (
-      <div className="call-page-center">
-        <h2>Not in a call</h2>
-      </div>
-    );
-  }
+  /* -------------------- Remote video playback -------------------- */
+  // New: Separate effect to play remote video after remoteUid is set and DOM is ready
+  useEffect(() => {
+    if (!remoteUid || !remoteVideoTrack || !mounted) return;
+    const el = remoteVideoRef.current;
+    console.log("Remote video: Attempting to play after UID set", {
+      el,
+      remoteVideoTrack,
+    });
+    if (!el) {
+      console.error("Remote video: Element still null after UID set", { el });
+      return;
+    }
+
+    setTimeout(async () => {
+      if (el && remoteVideoTrack) {
+        try {
+          await remoteVideoTrack.play(el, { fit: "cover" });
+          console.log("Remote video: Play succeeded");
+        } catch (err) {
+          console.error("Remote video play failed:", err);
+        }
+      }
+    }, 200); // Slightly longer delay to ensure DOM update
+
+    return () => {
+      if (remoteVideoTrack) remoteVideoTrack.stop();
+      if (el) el.innerHTML = "";
+    };
+  }, [remoteUid, remoteVideoTrack, mounted]); // Depends on remoteUid and track
+
+  /* -------------------- Call sounds -------------------- */
+  useEffect(() => {
+    if (inCall) playSound("/sounds/call-join.mp3");
+    return () => playSound("/sounds/call-end.mp3");
+  }, [inCall]);
+
+  /* -------------------- Controls -------------------- */
+  const handleEnd = () => {
+    stopCall();
+    router.back();
+  };
+
+  const handleMute = () => {
+    toggleMic();
+    playSound(micMuted ? "/sounds/unmute.mp3" : "/sounds/mute.mp3");
+  };
+
+  const handleCamera = () => toggleCamera();
+  const handleSpeaker = () => toggleSpeaker();
+
+  if (!inCall) return null;
+
+  const showAvatar =
+    callType === "audio" || (callType === "video" && !remoteUid);
 
   return (
-    <div className="call-page">
-      <h2>{callType === "video" ? "Video Call" : "Audio Call"}</h2>
-
-      <div className="video-container">
-        {/* Local video */}
-        {callType === "video" && (
-          <div className="video-box">
-            <div ref={localVideoRef} className="video-player" />
-            <span className="video-label">You</span>
-          </div>
+    <div className="call-root">
+      {/* ================= Video Stage ================= */}
+      <div className="video-stage">
+        {!showAvatar ? (
+          <div ref={remoteVideoRef} className="remote-video" />
+        ) : (
+          <AudioAvatar user={remoteUserInfo} />
         )}
 
-        {/* Remote videos */}
-        {remoteUsers.map((user) => (
-          <RemoteVideo key={user.uid} user={user} tick={tick} />
-        ))}
+        {/* Local PiP */}
+        {callType === "video" && !cameraOff && (
+          <div className="local-pip">
+            <div ref={localVideoRef} className="local-video" />
+          </div>
+        )}
       </div>
 
-      <div className="controls">
-        <button className="end-call-btn" onClick={stopCall}>
-          End Call
-        </button>
+      {/* ================= Controls ================= */}
+      <div className="call-controls">
+        <IconButton onClick={handleMute}>
+          {micMuted ? <MicOffIcon /> : <MicIcon />}
+        </IconButton>
+
+        {callType === "video" && (
+          <IconButton onClick={handleCamera}>
+            {cameraOff ? <VideocamOffIcon /> : <VideocamIcon />}
+          </IconButton>
+        )}
+
+        <IconButton onClick={handleSpeaker}>
+          {speakerMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+        </IconButton>
+
+        <IconButton onClick={handleEnd} style={{ backgroundColor: "#e53935" }}>
+          <CallEndIcon />
+        </IconButton>
       </div>
     </div>
   );
 }
 
-// -------------------
-// Remote Video Component
-// -------------------
-function RemoteVideo({ user, tick }) {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    if (!user.videoTrack) return;
-
-    console.log("▶️ Playing remote video:", user.uid);
-
-    ref.current.innerHTML = "";
-    user.videoTrack.stop();
-    user.videoTrack.play(ref.current);
-  }, [user, tick]);
-
+/* ================= Audio Avatar ================= */
+function AudioAvatar({ user }) {
   return (
-    <div className="video-box">
-      <div ref={ref} className="video-player" />
-      <span className="video-label">{user.uid}</span>
+    <div className="audio-avatar">
+      <Avatar src={user?.avatar} sx={{ width: 140, height: 140 }} />
+      <h2>{user?.username || "Unknown"}</h2>
+      <p>Audio Call</p>
     </div>
   );
 }

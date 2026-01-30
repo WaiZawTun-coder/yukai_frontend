@@ -40,19 +40,9 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="main-layout-container">
-      {/* <NotificationProvider>
-        <BusyProvider>
-          <CallProvider> */}
-      {/* Initialize socket here so it has access to NotificationContext */}
-      {/* <SocketInitializer /> */}
       <Sidebar />
       <main className="main-content">{children}</main>
       <RightBar />
-      {/* <FloatingCall />
-            <MessageNotifications />
-          </CallProvider>
-        </BusyProvider>
-      </NotificationProvider> */}
     </div>
   );
 }

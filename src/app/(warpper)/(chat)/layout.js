@@ -41,16 +41,7 @@ export default function MainLayout({ children }) {
   return (
     <div className="main-layout-container">
       <main className="main-content-chat" id="main-content">
-        {/* <NotificationProvider>
-          <BusyProvider>
-            <CallProvider>
-              <SocketInitializer /> */}
         {children}
-        {/* <FloatingCall />
-              <MessageNotifications />
-            </CallProvider>
-          </BusyProvider>
-        </NotificationProvider> */}
       </main>
     </div>
   );

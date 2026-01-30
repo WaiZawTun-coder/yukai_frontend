@@ -1,45 +1,45 @@
 import { useNotification } from "../context/NotificationContext";
 import { useEffect, useState } from "react";
 
-export const CallNotifications = ({ socket }) => {
+export const CallNotifications = () => {
   const { calls, removeCall } = useNotification();
-  const [activeRingtone, setActiveRingtone] = useState(null);
+  const [ringtones, setRingtones] = useState({}); // Map of call.id to audio instance
 
   useEffect(() => {
     calls.forEach((call) => {
-      // Play ringtone
-      if (!activeRingtone) {
-        const audio = new Audio("/ringtone.mp3");
+      // Play ringtone for this call if not already playing
+      if (!ringtones[call.id]) {
+        const audio = new Audio("/sounds/ringtone.mp3");
         audio.loop = true;
-        audio.play();
-        setActiveRingtone(audio);
+        try {
+          audio.play();
+        } catch (err) {
+          console.error("Ringtone play failed:", err);
+        }
+        setRingtones((prev) => ({ ...prev, [call.id]: audio }));
       }
-
-      // In-app popup
-      const popup = document.createElement("div");
-      popup.className = "call-popup";
-      popup.innerHTML = `
-        <p>Incoming call from <strong>${call.fromUser}</strong></p>
-        <button class="accept-call">Accept</button>
-        <button class="decline-call">Decline</button>
-      `;
-      document.body.appendChild(popup);
-
-      popup.querySelector(".accept-call").onclick = () => {
-        activeRingtone?.pause();
-        socket.emit("accept-call", { callId: call.callId });
-        popup.remove();
-        removeCall(call.id);
-      };
-
-      popup.querySelector(".decline-call").onclick = () => {
-        activeRingtone?.pause();
-        socket.emit("decline-call", { callId: call.callId });
-        popup.remove();
-        removeCall(call.id);
-      };
     });
-  }, [calls, socket, removeCall, activeRingtone]);
 
-  return null;
+    // Stop ringtones for removed calls
+    Object.keys(ringtones).forEach((callId) => {
+      if (!calls.some((call) => call.id === callId)) {
+        console.log("Stopping ringtone for call:", callId);
+        ringtones[callId]?.pause();
+        setRingtones((prev) => {
+          const newRingtones = { ...prev };
+          delete newRingtones[callId];
+          return newRingtones;
+        });
+      }
+    });
+  }, [calls, ringtones]);
+
+  // Cleanup on unmount: Stop all ringtones
+  useEffect(() => {
+    return () => {
+      Object.values(ringtones).forEach((audio) => audio?.pause());
+    };
+  }, [ringtones]);
+
+  return null; // No UI, just audio handling
 };

@@ -26,7 +26,7 @@ export default function FloatingCall() {
         className="mini-video"
         onClick={() => {
           setMinimized(false);
-          router.push("/call");
+          router.push("/chat/call");
         }}
       />
 

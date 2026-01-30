@@ -545,7 +545,12 @@ const ChatView = ({ username }) => {
       chatData.chat_id
     );
 
-    await startCall(roomId, "video");
+    const userInfo = {
+      username: chatData.other_display_name,
+      profile: chatData.other_profile_image,
+    };
+
+    await startCall(userInfo, roomId, "video");
 
     makeCall({
       toUserId: chatData.other_user_id,
@@ -574,7 +579,12 @@ const ChatView = ({ username }) => {
       chatData.chat_id
     );
 
-    await startCall(roomId, "audio");
+    const userInfo = {
+      username: chatData.other_display_name,
+      profile: chatData.other_profile_image,
+    };
+
+    await startCall(userInfo, roomId, "audio");
 
     makeCall({
       toUserId: chatData.other_user_id,
