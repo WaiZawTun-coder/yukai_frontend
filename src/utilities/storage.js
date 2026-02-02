@@ -1,13 +1,15 @@
 import { openDB } from "@/helpers/indexDB";
 
+const STORE_NAME = "yukai-e2ee-keys";
+
 export async function saveKey(name, key) {
   const db = await openDB();
 
   const jwk = await crypto.subtle.exportKey("jwk", key);
 
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("keys", "readwrite");
-    const store = tx.objectStore("keys");
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const store = tx.objectStore(STORE_NAME);
 
     store.put({ name, jwk });
 
@@ -20,8 +22,8 @@ export async function loadKey(name, algo, usage) {
   const db = await openDB();
 
   return new Promise((resolve, reject) => {
-    const tx = db.transaction("keys", "readonly");
-    const store = tx.objectStore("keys");
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const store = tx.objectStore(STORE_NAME);
     const request = store.get(name);
 
     request.onsuccess = async () => {
