@@ -1,14 +1,14 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-import { getBackendUrl } from "@/utilities/url";
 import {
   clearUserKeys,
   generateDeviceKeys,
   loadDeviceKeys,
 } from "@/utilities/deviceKeys";
+import { getBackendUrl } from "@/utilities/url";
 
 import {
   fromBase64,
@@ -18,10 +18,10 @@ import {
 } from "@/helpers/Base64";
 
 import {
-  socket,
   connectSocket,
   disconnectSocket,
   setSocketAuth,
+  socket,
 } from "@/utilities/socket";
 
 /* ------------------------------------------------------------------ */
@@ -87,19 +87,56 @@ export const AuthProvider = ({ children }) => {
 
   /* ===================== INIT DEVICE KEYS ===================== */
 
+  const initRef = useRef(false);
+
   useEffect(() => {
     if (!accessToken || !user) return;
+    if (initRef.current) return;
+    initRef.current = true;
 
     let alive = true;
+    const controller = new AbortController();
+
+    const getDeviceStatus = async (deviceId) => {
+      const res = await fetch(
+        getBackendUrl() + `/api/device-status?device_id=${deviceId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          signal: controller.signal,
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch device status");
+      }
+
+      return res.json();
+    };
+
+    function extractPublicBundle(loaded) {
+      return {
+        identityKey: loaded.identityPubBase64,
+        signedPrekeyId: loaded.signedPrekeyId,
+        signedPrekey: loaded.signedPrekeyPubBase64,
+        registrationId: loaded.registrationId,
+      };
+    }
 
     (async () => {
       try {
         const deviceId = getDeviceId();
-        if (!deviceId) return;
+        if (!deviceId) throw new Error("Missing deviceId");
 
-        const loaded = await loadDeviceKeys(user.user_id);
+        const deviceStatus = await getDeviceStatus(deviceId);
+        let loaded = await loadDeviceKeys(user.user_id);
 
-        if (!loaded.identityPrivate || !loaded.signedPrekeyPrivate) {
+        const hasLocalKeys =
+          loaded.identityPrivate && loaded.signedPrekeyPrivate;
+
+        // CASE 1: clean state
+        if (!hasLocalKeys && !deviceStatus.exists) {
           const publicBundle = await generateDeviceKeys(user.user_id);
 
           await fetch(getBackendUrl() + "/api/register-device", {
@@ -113,31 +150,55 @@ export const AuthProvider = ({ children }) => {
               device_id: deviceId,
               platform: "web",
             }),
+            signal: controller.signal,
           });
 
-          const reloaded = await loadDeviceKeys(user.user_id);
-
-          identityPrivRef.current = reloaded.identityPrivate;
-          signedPrekeyPrivRef.current = reloaded.signedPrekeyPrivate;
-          signedPrekeyPubRef.current = reloaded.signedPrekeyPubBase64;
-          signedPrekeyIdRef.current = reloaded.signedPrekeyId;
-          registrationIdRef.current = reloaded.registrationId;
-        } else {
-          identityPrivRef.current = loaded.identityPrivate;
-          signedPrekeyPrivRef.current = loaded.signedPrekeyPrivate;
-          signedPrekeyPubRef.current = loaded.signedPrekeyPubBase64;
-          signedPrekeyIdRef.current = loaded.signedPrekeyId;
-          registrationIdRef.current = loaded.registrationId;
+          loaded = await loadDeviceKeys(user.user_id);
         }
 
-        if (alive) setHasKeys(true);
+        // CASE 2: backend has device, local lost keys → STOP
+        else if (!hasLocalKeys && deviceStatus.exists) {
+          throw new Error(
+            "Device exists on server but local keys are missing. Reset device required."
+          );
+        }
+
+        // CASE 3: local keys exist but backend lost device → re-register
+        else if (hasLocalKeys && !deviceStatus.exists) {
+          await fetch(getBackendUrl() + "/api/register-device", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...extractPublicBundle(loaded),
+              device_id: deviceId,
+              platform: "web",
+            }),
+            signal: controller.signal,
+          });
+        }
+
+        if (!alive) return;
+
+        identityPrivRef.current = loaded.identityPrivate;
+        signedPrekeyPrivRef.current = loaded.signedPrekeyPrivate;
+        signedPrekeyPubRef.current = loaded.signedPrekeyPubBase64;
+        signedPrekeyIdRef.current = loaded.signedPrekeyId;
+        registrationIdRef.current = loaded.registrationId;
+
+        setHasKeys(true);
       } catch (err) {
-        console.error("❌ Device key init failed:", err);
+        if (err.name !== "AbortError") {
+          console.error("❌ Device key init failed:", err);
+        }
       }
     })();
 
     return () => {
       alive = false;
+      controller.abort();
     };
   }, [accessToken, user]);
 
@@ -262,7 +323,10 @@ export const AuthProvider = ({ children }) => {
         signedPrekeySigBase64: device.signed_prekey_sig,
       });
 
-      if (!valid) continue;
+      if (!valid) {
+        console.warn("Invalid signed prekey for device", device.device_id);
+        continue;
+      }
 
       const sharedSecret = await deriveSharedSecret(device.signed_prekey_pub);
       const aesKey = await deriveAESKey(sharedSecret);
@@ -324,9 +388,13 @@ export const AuthProvider = ({ children }) => {
     disconnectSocket();
     socketConnectedRef.current = false;
 
+    initRef.current = false;
+
     identityPrivRef.current = null;
     signedPrekeyPrivRef.current = null;
     signedPrekeyPubRef.current = null;
+    signedPrekeyIdRef.current = null;
+    registrationIdRef.current = null;
 
     if (user) await clearUserKeys(user.user_id);
 

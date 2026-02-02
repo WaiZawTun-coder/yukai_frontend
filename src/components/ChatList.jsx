@@ -302,7 +302,7 @@ const ChatList = ({ onSelectChat }) => {
 
                 <div className="chat-bottom">
                   <span className="chat-message">
-                    {decryptedMessages[chat.chat_id] ?? "Loading..."}
+                    {decryptedMessages[chat.chat_id] ?? ""}
                   </span>
 
                   {chat.unread_count > 0 && (

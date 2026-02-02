@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 /* ============================================================
    Config
 ============================================================ */
-const SOCKET_URL = "http://localhost:8080";
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
 
 /* ============================================================
    Socket Instance (SINGLETON)
