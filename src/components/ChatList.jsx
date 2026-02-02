@@ -1,63 +1,106 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import SearchIcon from "@mui/icons-material/Search";
 import WestRoundedIcon from "@mui/icons-material/WestRounded";
+import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
+
 import { useRouter } from "next/navigation";
 import { useApi } from "@/utilities/api";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 
-const CHATS = [
-  {
-    id: 1,
-    name: "Thant Sithu Thein",
-    avatar: "/Images/Eunsoo.jpg",
-    lastMessage: "Are you free tonight?",
-    time: "10:24",
-    unread: 2,
-    online: true,
-  },
-  {
-    id: 2,
-    name: "Frontend Team",
-    avatar: "/Images/group.png",
-    lastMessage: "Deploy is done 🚀",
-    time: "Yesterday",
-    unread: 0,
-    online: false,
-  },
-  {
-    id: 3,
-    name: "Aung Aung",
-    avatar: "/Images/user.png",
-    lastMessage: "Thanks bro!",
-    time: "09:12",
-    unread: 1,
-    online: true,
-  },
-];
+import {
+  requestOnlineUsers,
+  onOnlineUsers,
+  onUserOnline,
+  onUserOffline,
+  offPresenceListeners,
+  onChatCreate,
+  offChatCreate,
+} from "@/utilities/socket";
+import Modal from "./ui/Modal";
+import Button from "./ui/Button";
 
 const ChatList = ({ onSelectChat }) => {
   const { getDeviceId, decryptPayload, hasKeys } = useAuth();
   const router = useRouter();
   const apiFetch = useApi();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [chatsList, setChatsList] = useState([]);
   const [decryptedMessages, setDecryptedMessages] = useState({});
   const [filteredChats, setFilteredChats] = useState([]);
 
+  // ✅ Online users from socket
+  const [onlineUserIds, setOnlineUserIds] = useState(new Set());
+
+  const getChat = useCallback(
+    async (chat_id) => {
+      const res = await apiFetch(
+        `/api/get-group-chat?chat_id=${chat_id}&device_id=${getDeviceId()}`
+      );
+
+      return res.data;
+    },
+    [apiFetch, getDeviceId]
+  );
+
+  /* ===================== CHAT CREATE SOCKET ===================== */
+  useEffect(() => {
+    const updateChat = async (new_chat) => {
+      const chat = await getChat(new_chat.chat_id);
+      setChatsList((prev) => [chat, ...prev]);
+    };
+    onChatCreate(updateChat);
+
+    return () => offChatCreate(updateChat);
+  }, [getChat]);
+
+  /* ===================== PRESENCE SOCKET ===================== */
+
+  useEffect(() => {
+    requestOnlineUsers();
+
+    onOnlineUsers((userIds) => {
+      setOnlineUserIds(new Set(userIds.users));
+    });
+
+    onUserOnline(({ userId }) => {
+      setOnlineUserIds((prev) => {
+        const next = new Set(prev);
+        next.add(userId);
+        return next;
+      });
+    });
+
+    onUserOffline(({ userId }) => {
+      setOnlineUserIds((prev) => {
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
+      });
+    });
+
+    return () => {
+      offPresenceListeners();
+    };
+  }, []);
+
+  /* ===================== FETCH CHATS ===================== */
+
   useEffect(() => {
     const getData = async () => {
       const res = await apiFetch(`/api/chats?device_id=${getDeviceId()}`);
-
       setChatsList(res.data ?? []);
     };
 
     getData();
   }, [apiFetch, getDeviceId]);
+
+  /* ===================== DECRYPT LAST MESSAGE ===================== */
 
   const getLastMessagePlainText = async ({
     cipher_text,
@@ -66,8 +109,8 @@ const ChatList = ({ onSelectChat }) => {
   }) => {
     const plainText = await decryptPayload({
       ciphertext: cipher_text,
-      iv: iv,
-      sender_signed_prekey_pub: sender_signed_prekey_pub,
+      iv,
+      sender_signed_prekey_pub,
     });
     return plainText;
   };
@@ -100,27 +143,48 @@ const ChatList = ({ onSelectChat }) => {
     decryptAllMessages();
   }, [chatsList, hasKeys]);
 
+  /* ===================== ATTACH ONLINE STATUS ===================== */
+
+  const chatsWithStatus = useMemo(() => {
+    return chatsList.map((chat) => {
+      const user = chat.participants[0];
+      const isOnline = onlineUserIds.has(String(user?.user_id));
+
+      return {
+        ...chat,
+        online: isOnline,
+      };
+    });
+  }, [chatsList, onlineUserIds]);
+
+  /* ===================== FILTER TABS ===================== */
+
   useEffect(() => {
-    const updateFilteredChat = () => {
-      const filterd = chatsList.filter((chat) => {
-        if (activeTab === "unread") return chat.unread_count > 0;
-        if (activeTab === "group") return chat.type === "group";
-        return true;
-      });
+    const filtered = chatsWithStatus.filter((chat) => {
+      if (activeTab === "unread") return chat.unread_count > 0;
+      if (activeTab === "group") return chat.type === "group";
+      return true;
+    });
 
-      setFilteredChats(filterd);
-    };
+    setFilteredChats(filtered);
+  }, [activeTab, chatsWithStatus]);
 
-    updateFilteredChat();
-  }, [activeTab, chatsList]);
+  /* ===================== UI HELPERS ===================== */
 
   const handleOpenChat = (chat) => {
     const username = chat.participants[0]?.username;
+    console.log({ chat, username });
     if (!username) return;
+
+    const route =
+      chat.type === "group"
+        ? `/chat/group?group_id=${chat.chat_id}`
+        : `/chat/${username}`;
+
     if (window.innerWidth < 768) {
-      router.replace(`/chat/${username}`);
+      router.replace(route);
     } else {
-      onSelectChat(username);
+      onSelectChat(username, chat.type, chat.chat_id);
     }
   };
 
@@ -131,6 +195,8 @@ const ChatList = ({ onSelectChat }) => {
       minute: "2-digit",
     });
   };
+
+  /* ===================== RENDER ===================== */
 
   return (
     <div className="main-container-chat">
@@ -152,24 +218,20 @@ const ChatList = ({ onSelectChat }) => {
             </button>
             <span>Chats</span>
           </div>
-          <div
-            className={`chat-search-box active`}
-            // onClick={() => {
-            //   setSearchActive(true);
-            // }}
-          >
-            <SearchIcon className="icon" />
-            <input
-              // ref={inputRef}
-              type="search"
-              placeholder="Search..."
-              // value={searchText}
-              // onFocus={() => setSearchActive(true)}
-              // onBlur={() => {
-              //   if (searchText == "") setSearchActive(false);
-              // }}
-              // onChange={(e) => setSearchText(e.target.value)}
-            />
+
+          <div className="chat-action-box">
+            <div className="chat-search-box active">
+              <SearchIcon className="icon" />
+              <input type="search" placeholder="Search..." />
+            </div>
+            <button
+              className="action-icon"
+              onClick={() => {
+                setIsModalOpen(true);
+              }}
+            >
+              <AddCircleOutlinedIcon />
+            </button>
           </div>
         </div>
       </div>
@@ -189,6 +251,7 @@ const ChatList = ({ onSelectChat }) => {
         >
           Unread
         </button>
+
         <button
           className={activeTab === "group" ? "active" : ""}
           onClick={() => setActiveTab("group")}
@@ -198,54 +261,169 @@ const ChatList = ({ onSelectChat }) => {
       </div>
 
       <div className="chats">
-        {filteredChats.map((chat, i) => (
-          <div
-            className="chat-row"
-            key={chat.chat_id}
-            onClick={() => handleOpenChat(chat)}
-          >
-            {/* Avatar */}
-            <div className="chat-avatar">
-              <Image
-                src={
-                  chat.participants[0].profile_image
-                    ? `/api/images?url=${chat.participants[0].profile_image}`
-                    : `/Images/default-profiles/${chat.participants[0].gender}.jpg`
-                }
-                alt={chat.participants[0].username ?? "account username"}
-                width={48}
-                height={48}
-              />
-              {chat.online && <span className="online-dot" />}
-            </div>
+        {filteredChats.map((chat) => {
+          const user = chat.participants[0];
+          const isGroup = chat.type === "group";
 
-            {/* Content */}
-            <div className="chat-content">
-              <div className="chat-top">
-                {/* {JSON.stringify(chat)} */}
-                {/* {JSON.stringify(chat.type)} */}
-                <span className="chat-name">
-                  {chat.participants[0].display_name}
-                </span>
-                <span className="chat-time">
-                  {formatTime(chat.last_message_time)}
-                </span>
+          return (
+            <div
+              className="chat-row"
+              key={chat.chat_id}
+              onClick={() => handleOpenChat(chat)}
+            >
+              {/* Avatar */}
+              <div className="chat-avatar">
+                <Image
+                  src={
+                    user.profile_image
+                      ? `/api/images?url=${user.profile_image}`
+                      : `/Images/default-profiles/${user.gender}.jpg`
+                  }
+                  alt={user.username ?? "account username"}
+                  width={48}
+                  height={48}
+                />
+
+                {/* ✅ ONLINE DOT */}
+                {chat.online && <span className="online-dot" />}
               </div>
 
-              <div className="chat-bottom">
-                <span className="chat-message">
-                  {decryptedMessages[chat.chat_id] ?? "Loading..."}
-                </span>
+              {/* Content */}
+              <div className="chat-content">
+                <div className="chat-top">
+                  <span className="chat-name">
+                    {isGroup ? chat.chat_name : user.display_name}
+                  </span>
 
-                {chat.unread_count > 0 && (
-                  <span className="chat-badge">{chat.unread_count}</span>
-                )}
+                  <span className="chat-time">
+                    {formatTime(chat.last_message_time)}
+                  </span>
+                </div>
+
+                <div className="chat-bottom">
+                  <span className="chat-message">
+                    {decryptedMessages[chat.chat_id] ?? "Loading..."}
+                  </span>
+
+                  {chat.unread_count > 0 && (
+                    <span className="chat-badge">{chat.unread_count}</span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+      <CreateChatModal
+        isModalOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+        }}
+        onCreated={async (newChat) => {
+          const chat_id = newChat.chat_id;
+          const chat_data = await getChat(chat_id);
+          setChatsList((prev) => [chat_data, ...prev]);
+        }}
+      />
     </div>
   );
 };
+
 export default ChatList;
+
+const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
+  const apiFetch = useApi();
+  const [users, setUsers] = useState([]);
+  const [selected, setSelected] = useState(new Set());
+  const [groupName, setGroupName] = useState("");
+
+  const isGroup = selected.size >= 2;
+
+  useEffect(() => {
+    const update = async () => {
+      const res = await apiFetch("/api/get-friends");
+      const totalPages = res.total_pages;
+      let curPage = res.page + 1;
+      let friendsList = res.data;
+      while (curPage < totalPages) {
+        const res = await apiFetch(`/api/get-friends?page=${curPage}`);
+        friendsList = [...friendsList, ...res.data];
+      }
+
+      setUsers(friendsList);
+    };
+
+    update();
+  }, [apiFetch]);
+
+  const toggleUser = (userId) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(userId) ? next.delete(userId) : next.add(userId);
+      return next;
+    });
+  };
+
+  const handleCreate = async () => {
+    if (isGroup && !groupName.trim()) return;
+
+    const payload = {
+      chat_name: groupName,
+      members: [...selected],
+    };
+
+    const res = await apiFetch("/api/chats/group", {
+      method: "POST",
+      body: payload,
+    });
+
+    onCreated(res.data);
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isModalOpen} onClose={onClose} title={"Create New Group"}>
+      {isGroup && (
+        <input
+          placeholder="Group name"
+          value={groupName}
+          onChange={(e) => {
+            setGroupName(e.target.value);
+          }}
+        />
+      )}
+
+      <div className="user-list">
+        {users.map((user) => (
+          <div
+            key={user.user_id}
+            className={`user-row ${
+              selected.has(user.user_id) ? "selected" : ""
+            }`}
+            onClick={() => toggleUser(user.user_id)}
+          >
+            <Image
+              src={
+                user.profile_image
+                  ? `/api/images?url=${user.profile_image}`
+                  : `/Images/default-profiles/${user.gender}.jpg`
+              }
+              width={40}
+              height={40}
+              alt={user.username}
+            />
+
+            <span>{user.display_name}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="modal-actions">
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleCreate} disabled={!selected.size}>
+          Create
+        </Button>
+      </div>
+    </Modal>
+  );
+};

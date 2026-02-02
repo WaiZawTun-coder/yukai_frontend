@@ -1,0 +1,108 @@
+/* Full-screen container */
+.call-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* background: linear-gradient(135deg, #4facfe, #00f2fe); */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-color);
+  padding: 20px;
+  gap: 30px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* Header */
+.call-page h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+  /* text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); */
+}
+
+/* Video box */
+.video-box {
+  width: 80vw;
+  max-width: 1200px;
+  height: 60vh;
+  background-color: var(--secondary-color);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-size: 1rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Audio only box */
+.audio-only {
+  width: 60vw;
+  max-width: 600px;
+  height: 40vh;
+  background-color: var(--secondary-color);
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  backdrop-filter: blur(10px);
+  /* text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); */
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 15px;
+}
+
+/* Buttons */
+.controls button {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 15px;
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.controls button.danger {
+  background-color: #ee0000;
+}
+
+.controls button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.controls button:active {
+  transform: translateY(1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .video-box {
+    width: 90vw;
+    height: 50vh;
+  }
+  .audio-only {
+    width: 80vw;
+    height: 30vh;
+  }
+  .controls button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}

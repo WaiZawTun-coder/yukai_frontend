@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.back-button {
+.save-back-button {
   background-color: transparent;
   border: none;
   outline: none;
@@ -17,7 +17,7 @@
   border-radius: 8px;
 }
 
-.back-button:hover {
+.save-back-button:hover {
   border-radius: 16px;
   background-color: var(--accent-color);
   color: var(--background-color);

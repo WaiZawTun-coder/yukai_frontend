@@ -1,6 +1,6 @@
 "use client";
 
-import SocialPost from "@/app/(main)/post/page";
+import SocialPost from "@/app/(warpper)/(main)/post/page";
 import { useApi } from "@/utilities/api";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Modal from "./ui/Modal";
@@ -106,7 +106,7 @@ const SavedPost = ({ goBack, savePostList }) => {
     <div className="saved-post-container">
       {/* HEADER */}
       <div className="saved-post-header">
-        <button onClick={goBack} className="back-button">
+        <button onClick={goBack} className="save-back-button">
           ← Back
         </button>
         <h3>{saveListName ?? "Saved Posts"}</h3>

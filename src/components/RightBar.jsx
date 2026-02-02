@@ -5,8 +5,18 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
 import Image from "next/image";
 import { useApi } from "@/utilities/api";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+
+import {
+  connectSocket,
+  isSocketConnected,
+  requestOnlineUsers,
+  onOnlineUsers,
+  onUserOnline,
+  onUserOffline,
+  offPresenceListeners,
+} from "@/utilities/socket";
 
 const RightBar = () => {
   const apiFetch = useApi();
@@ -14,44 +24,56 @@ const RightBar = () => {
 
   const [activeTab, setActiveTab] = useState("all");
   const [page, setPage] = useState(1);
-
   const [friends, setFriends] = useState([]);
-  const [onlineFriends, setOnlineFriends] = useState([]);
+  const [onlineUserIds, setOnlineUserIds] = useState(new Set());
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
   const observerRef = useRef(null);
 
-  // ✅ Derived list (no extra state)
-  const visibleFriends = activeTab === "online" ? onlineFriends : friends;
+  /* ===================== SOCKET PRESENCE ===================== */
 
-  // ✅ Intersection Observer
-  const lastRowRef = useCallback(
-    (node) => {
-      if (!node || isLoading || !hasMore) return;
+  useEffect(() => {
+    if (!isSocketConnected()) {
+      connectSocket();
+    }
 
-      if (observerRef.current) observerRef.current.disconnect();
+    requestOnlineUsers();
 
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prev) => prev + 1); // 🚀 load next page
-        }
+    onOnlineUsers(({ users }) => {
+      setOnlineUserIds(new Set(users.map(String)));
+    });
+
+    onUserOnline(({ userId }) => {
+      setOnlineUserIds((prev) => {
+        const next = new Set(prev);
+        next.add(String(userId));
+        return next;
       });
+    });
 
-      observerRef.current.observe(node);
-    },
-    [isLoading, hasMore]
-  );
+    onUserOffline(({ userId }) => {
+      setOnlineUserIds((prev) => {
+        const next = new Set(prev);
+        next.delete(String(userId));
+        return next;
+      });
+    });
 
-  // ✅ Fetch Friends
+    return () => {
+      offPresenceListeners();
+    };
+  }, []);
+
+  /* ===================== FETCH FRIENDS ===================== */
+
   useEffect(() => {
     let mounted = true;
 
     const getUsers = async () => {
       try {
         setIsLoading(true);
-
         const res = await apiFetch(`/api/get-friends?page=${page}`);
         const newData = res?.data || [];
 
@@ -63,33 +85,64 @@ const RightBar = () => {
         }
 
         setFriends((prev) => [...prev, ...newData]);
-
-        setOnlineFriends((prev) => [
-          ...prev,
-          ...newData.filter((u) => u.status === "online"),
-        ]);
       } catch (err) {
         console.error("Fetch friends failed:", err);
       } finally {
-        if (mounted) setIsLoading(false);
+        mounted && setIsLoading(false);
       }
     };
 
-    if (hasMore) {
-      getUsers();
-    }
+    hasMore && getUsers();
 
     return () => {
       mounted = false;
     };
   }, [apiFetch, page, hasMore]);
 
+  /* ===================== DERIVED DATA ===================== */
+
+  const friendsWithStatus = useMemo(() => {
+    return friends.map((f) => ({
+      ...f,
+      status: onlineUserIds.has(String(f.user_id)) ? "online" : "offline",
+    }));
+  }, [friends, onlineUserIds]);
+
+  const onlineFriends = useMemo(
+    () => friendsWithStatus.filter((f) => f.status === "online"),
+    [friendsWithStatus]
+  );
+
+  const visibleFriends =
+    activeTab === "online" ? onlineFriends : friendsWithStatus;
+
+  /* ===================== INFINITE SCROLL ===================== */
+
+  const lastRowRef = useCallback(
+    (node) => {
+      if (!node || isLoading || !hasMore) return;
+
+      observerRef.current?.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((prev) => prev + 1);
+        }
+      });
+
+      observerRef.current.observe(node);
+    },
+    [isLoading, hasMore]
+  );
+
+  /* ===================== UI ===================== */
+
   return (
     <div className="rightbar-wrapper">
       <div className="container">
         <div className="header-icons">
           <NotificationsActiveIcon />
-          <MessageIcon />
+          <MessageIcon onClick={() => router.push("/chat")} />
         </div>
 
         <div className="friend-header">
@@ -124,25 +177,24 @@ const RightBar = () => {
               <div
                 key={user.user_id}
                 ref={isLast ? lastRowRef : null}
-                className={`friend-item ${user.special ? "special-bg" : ""}`}
+                className="friend-item"
                 onClick={() => router.replace(`/${user.username}`)}
               >
                 <div className="friend-info">
                   <div className="friend-list-avatar-wrapper">
-                    <div className="friend-list-avatar">
-                      <Image
-                        src={
-                          user.profile_image
-                            ? `/api/images?url=${user.profile_image}`
-                            : `/Images/default-profiles/${user.gender}.jpg`
-                        }
-                        alt={user.username}
-                        width={45}
-                        height={45}
-                      />
-                    </div>
+                    <Image
+                      src={
+                        user.profile_image
+                          ? `/api/images?url=${user.profile_image}`
+                          : `/Images/default-profiles/${user.gender}.jpg`
+                      }
+                      alt={user.username}
+                      width={45}
+                      height={45}
+                    />
                     <div className={`status-dot ${user.status}`} />
                   </div>
+
                   <span className="friend-name">{user.display_name}</span>
                 </div>
 
@@ -155,12 +207,7 @@ const RightBar = () => {
                   >
                     <MessageIcon />
                   </span>
-
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
+                  <span onClick={(e) => e.stopPropagation()}>
                     <MoreHorizOutlinedIcon />
                   </span>
                 </div>
@@ -169,7 +216,6 @@ const RightBar = () => {
           })}
 
           {isLoading && <div className="friend-list-end">Loading more...</div>}
-
           {!hasMore && <div className="friend-list-end">No more friends</div>}
         </div>
       </div>

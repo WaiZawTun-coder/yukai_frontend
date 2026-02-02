@@ -12,11 +12,16 @@ export const SnackbarProvider = ({ children }) => {
     title = "",
     message,
     variant = "info",
+    persist = false,
     duration = 3000,
+    actions = null,
   }) => {
     const id = crypto.randomUUID();
 
-    setSnacks((prev) => [...prev, { id, title, message, variant, duration }]);
+    setSnacks((prev) => [
+      ...prev,
+      { id, title, message, variant, duration, actions, persist },
+    ]);
   };
 
   const removeSnackbar = (id) => {

@@ -302,7 +302,7 @@ const SocialPost = ({
           }}
           createdAt={post?.created_at}
           privacy={post?.privacy}
-          taggedUsers={[]}
+          taggedUsers={post?.tagged_users}
           content={post?.content}
           images={post?.attachments}
           likes={post?.react_count}

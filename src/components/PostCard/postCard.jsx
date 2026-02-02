@@ -45,18 +45,7 @@ export default function PostCard({
   },
   content = "",
   images = [],
-  taggedUsers = [
-    {
-      user_id: 1,
-      username: "john",
-      display_name: "John Doe",
-    },
-    {
-      user_id: 2,
-      username: "alice",
-      display_name: "Alice",
-    },
-  ],
+  taggedUsers = [],
   createdAt = "Just now",
   privacy = "public",
   likes = 0,

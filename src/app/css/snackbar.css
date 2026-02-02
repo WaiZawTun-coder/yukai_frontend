@@ -30,6 +30,7 @@
 
 /* Content */
 .snackbar-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -77,6 +78,18 @@
 .snackbar-info {
   background: var(--status-info);
   color: var(--status-info-text);
+}
+
+.snackbar-notification {
+  background: var(--secondary-color);
+  color: var(--text-color);
+  opacity: 1;
+}
+
+.snackbar-call {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  opacity: 1;
 }
 
 /* Animation */

@@ -15,6 +15,7 @@ import Select from "../ui/Select";
 import { useApi } from "@/utilities/api";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useRouter } from "next/navigation";
+import TagFriendsModal from "../TagFriendsModal";
 
 const PRIVACY_OPTIONS = [
   { label: "Public", value: "public" },
@@ -38,6 +39,11 @@ export default function PostComposer({ handleCreate }) {
   const [showEmoji, setShowEmoji] = useState(false);
   const [privacy, setPrivacy] = useState("public");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // tag friends
+  const [showTagModal, setShowTagModal] = useState(false);
+  const [friends, setFriends] = useState([]); // full friend list
+  const [taggedFriends, setTaggedFriends] = useState([]); // selected
 
   /* -------------------- helpers -------------------- */
 
@@ -151,6 +157,19 @@ export default function PostComposer({ handleCreate }) {
     update();
   }, [user]);
 
+  useEffect(() => {
+    async function loadFriends() {
+      try {
+        const res = await apiFetch("/api/get-friends");
+        if (res.status) {
+          setFriends(res.data);
+        }
+      } catch {}
+    }
+
+    loadFriends();
+  }, []);
+
   /* -------------------- UI -------------------- */
 
   return (
@@ -196,9 +215,28 @@ export default function PostComposer({ handleCreate }) {
             />
           )}
 
+          {taggedFriends.length > 0 && (
+            <div className="selected-pills">
+              {taggedFriends.map((f) => (
+                <span key={f.user_id} className="pill">
+                  {f.display_name}
+                  <button
+                    onClick={() => {
+                      setTaggedFriends((prev) =>
+                        prev.filter((fl) => fl.user_id !== f.user_id)
+                      );
+                    }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="post-actions">
             <div className="action-buttons">
-              <button type="button">
+              <button type="button" onClick={() => setShowTagModal(true)}>
                 <LocalOfferOutlinedIcon />
                 Tag Friends
               </button>
@@ -285,6 +323,14 @@ export default function PostComposer({ handleCreate }) {
           setOpen(false);
           if (textareaRef.current) textareaRef.current.blur();
         }}
+      />
+
+      <TagFriendsModal
+        open={showTagModal}
+        friends={friends}
+        selected={taggedFriends}
+        onChange={setTaggedFriends}
+        onClose={() => setShowTagModal(false)}
       />
     </>
   );

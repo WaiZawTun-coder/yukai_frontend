@@ -1,10 +1,16 @@
 "use client";
 
+import FloatingCall from "@/components/FloatingCall";
+import { MessageNotifications } from "@/components/MessageNotification";
 import RightBar from "@/components/RightBar";
 import Sidebar from "@/components/SideBar";
 import AuthLoadingScreen from "@/components/ui/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter, usePathname } from "next/navigation";
+import { BusyProvider } from "@/context/BusyContext";
+import { CallProvider } from "@/context/CallContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+import SocketInitializer from "@/utilities/SocketInitializer";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function MainLayout({ children }) {
@@ -15,13 +21,11 @@ export default function MainLayout({ children }) {
   useEffect(() => {
     if (authLoading) return;
 
-    // not logged in → login
     if (!isLoggedIn) {
       router.replace("/login");
       return;
     }
 
-    // logged in but profile incomplete → register step 2
     if (user && user.completed_step < 2 && pathname !== "/register") {
       router.replace("/register?step=2");
       return;
@@ -36,9 +40,9 @@ export default function MainLayout({ children }) {
 
   return (
     <div className="main-layout-container">
-      <main className="main-content-chat" id="main-content">
-        {children}
-      </main>
+      <Sidebar />
+      <main className="main-content">{children}</main>
+      <RightBar />
     </div>
   );
 }

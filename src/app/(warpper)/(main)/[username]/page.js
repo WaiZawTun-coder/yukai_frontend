@@ -464,9 +464,11 @@ const Profile = () => {
             router.back();
           }}
         >
-          <ArrowBackIosIcon />
+          <ArrowBackIosIcon fontSize="small" />
         </button>
-        <span className="page-name">Page Name</span>
+        <span className="page-name">
+          {user ? user.display_name : "Loading..."}
+        </span>
       </div>
       <div className="profile-card">
         <div className="cover-img">
@@ -610,6 +612,7 @@ const Profile = () => {
       <div
         style={{
           width: "100%",
+          maxWidth: "720px",
           display: activeTab == 0 ? "flex" : "none",
           flexDirection: "column",
           gap: "16px",
@@ -657,7 +660,7 @@ const Profile = () => {
       {/* IMAGES TAB */}
       <div
         className={activeTab == 1 ? "block" : "hidden"}
-        style={{ width: "100%" }}
+        style={{ width: "100%", maxWidth: "720px" }}
       >
         <ProfileImagePost posts={posts.posts} />
       </div>
@@ -666,7 +669,7 @@ const Profile = () => {
       {isLoggedInUser && (
         <div
           className={activeTab == 2 ? "block" : "hidden"}
-          style={{ width: "100%" }}
+          style={{ width: "100%", maxWidth: "720px" }}
         >
           {/* CREATE NEW LIST */}
           <div className="create-list">

@@ -20,9 +20,9 @@
   border-radius: 10px;
   max-width: 720px;
   min-width: 50%;
-  width: 100%;
+  width: 95%;
+  overflow-x: hidden;
 
-  /* 🔥 CRITICAL FIX */
   max-height: 95dvh;
   min-height: 95dvh;
   overflow-y: auto;

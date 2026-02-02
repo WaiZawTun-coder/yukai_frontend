@@ -54,6 +54,13 @@
   gap: 10px;
 }
 
+.chat-list-header .back-button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+}
+
 .chat-header .back-button {
   /* padding: 0; */
   display: none;
@@ -66,8 +73,27 @@
   color: var(--text-primary);
 }
 
+.chat-action-box {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-action-box .action-icon {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 300ms ease;
+}
+
+.chat-action-box .action-icon:active {
+  transform: scale(0.8);
+}
+
 /* SEARCH BOX */
 .chat-search-box {
+  flex: 1;
   position: relative;
   display: flex;
   align-items: center;
@@ -183,7 +209,7 @@
   right: 2px;
   width: 10px;
   height: 10px;
-  background: #4caf50;
+  background: #22c55e;
   border-radius: 50%;
   border: 2px solid #fff;
 }
