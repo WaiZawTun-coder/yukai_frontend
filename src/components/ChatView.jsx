@@ -33,6 +33,8 @@ import {
 } from "@/utilities/socket";
 import Button from "./ui/Button";
 import { useBusy } from "@/context/BusyContext";
+import Modal from "./ui/Modal";
+import TextField from "./ui/TextField";
 
 /* ----------------------- Child Components ------------------------- */
 
@@ -63,7 +65,11 @@ const ChatHeader = ({
     />
 
     <div className="chat-user-info">
-      <span className="user-name">{chatData?.other_display_name}</span>
+      <span className="user-name">
+        {chatData.type === "group"
+          ? chatData?.chat_name
+          : chatData?.other_display_name}
+      </span>
       <span className="last-seen">{isOnline ? "online" : lastSeen}</span>
     </div>
 
@@ -145,7 +151,24 @@ const MessageItem = ({ msg, currentUserId, formatTime, onMessageSeen }) => {
         msg.sender_user_id === currentUserId ? "outgoing" : "incoming"
       }`}
     >
+      {msg.sender_user_id !== currentUserId && (
+        <Image
+          src={
+            msg.profile_image
+              ? `/api/images?url=${msg.profile_image}`
+              : `/Images/default-profiles/${msg.gender}.jpg`
+          }
+          alt={msg.display_name}
+          width={40}
+          height={40}
+          className="msg-sender-image"
+        />
+      )}
       <div className="bubble">
+        {msg.sender_user_id !== currentUserId && (
+          <span className="sender-name">{msg.display_name}</span>
+        )}
+        {/* <br /> */}
         {msg.reply_message_id && (
           <div className="reply-bar">
             <strong>{msg.reply_sender_name}</strong>
@@ -185,7 +208,15 @@ const ChatInput = ({ inputText, setInputText, onSend }) => (
   </div>
 );
 
-const ChatInfoPanel = ({ showInfo, isMobile, chatData, onClose, router }) => (
+const ChatInfoPanel = ({
+  showInfo,
+  isMobile,
+  chatData,
+  onClose,
+  router,
+  handleShowMembersModal,
+  handleShowFriendsModal,
+}) => (
   <div
     className={`chat-info-panel ${showInfo ? "open" : ""} ${
       isMobile ? "mobile" : "desktop"
@@ -208,16 +239,24 @@ const ChatInfoPanel = ({ showInfo, isMobile, chatData, onClose, router }) => (
         className="info-avatar"
         alt=""
       />
-      <h3>{chatData?.other_display_name}</h3>
-      <p>@{chatData?.other_username}</p>
+      <h3>
+        {chatData.type === "group"
+          ? chatData.chat_name
+          : chatData?.other_display_name}
+      </h3>
+      {chatData.type !== "group" && <p>@{chatData?.other_username}</p>}
 
       <div className="info-actions">
-        <Button onClick={() => router.push(`/${chatData?.other_username}`)}>
-          View Profile
-        </Button>
+        {chatData.type !== "group" && (
+          <Button onClick={() => router.push(`/${chatData?.other_username}`)}>
+            View Profile
+          </Button>
+        )}
+        <Button onClick={handleShowMembersModal}>View Members</Button>
+        <Button onClick={handleShowFriendsModal}>Add Members</Button>
         <Button>Mute</Button>
         <Button color="danger" variant="outlined">
-          Block
+          {chatData.type === "group" ? "Leave" : "Block"}
         </Button>
       </div>
     </div>
@@ -226,7 +265,8 @@ const ChatInfoPanel = ({ showInfo, isMobile, chatData, onClose, router }) => (
 
 /* -------------------------- Main Component ------------------------ */
 
-const ChatView = ({ username }) => {
+const ChatView = ({ username, type = "private", group_id = null }) => {
+  console.log({ username, type, group_id });
   const router = useRouter();
   const apiFetch = useApi();
   const { startCall } = useCall();
@@ -244,6 +284,17 @@ const ChatView = ({ username }) => {
     online: false,
     lastSeen: null,
   });
+
+  const [searchMembersValue, setSearchMembersValue] = useState("");
+  const [filteredMembers, setFilteredMembers] = useState([]);
+  const [showMembersModal, setShowMembersModal] = useState(false);
+
+  const [searchFriendsValue, setSearchFriendsValue] = useState("");
+  const [friendsList, setFriendsList] = useState([]);
+  const [filteredFriends, setFilteredFriends] = useState([]);
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
+
+  const [selected, setSelected] = useState(new Set());
 
   const messageEndRef = useRef(null);
 
@@ -299,10 +350,17 @@ const ChatView = ({ username }) => {
   }
 
   const loadChatData = async () => {
-    if (!username) return;
+    if (
+      (!username && type !== "group") ||
+      (type == "group" && group_id == null)
+    )
+      return;
+    console.log({ type, group_id });
     try {
       const resChat = await apiFetch(
-        `/api/chat?username=${username}&device_id=${getDeviceId()}`
+        type !== "group"
+          ? `/api/chat?username=${username}&device_id=${getDeviceId()}`
+          : `/api/get-group-chat?chat_id=${group_id}&device_id=${getDeviceId()}`
       );
       const chat = resChat.data;
       checkUserOnline(String(chat.other_user_id));
@@ -317,6 +375,7 @@ const ChatView = ({ username }) => {
         }&device_id=${getDeviceId()}`
       );
       setChatParticipants(resParticipants.data);
+      setFilteredMembers(resParticipants.data);
 
       const resMessages = await apiFetch(
         `/api/chat/get-messages?chat_id=${
@@ -529,6 +588,70 @@ const ChatView = ({ username }) => {
     loadChatData();
   }, [username]);
 
+  useEffect(() => {
+    const update = () => {
+      setFilteredMembers(
+        chatParticipants.filter((p) =>
+          p.display_name
+            .toLowerCase()
+            .includes(searchMembersValue.toLowerCase())
+        )
+      );
+    };
+    update();
+  }, [chatParticipants, searchMembersValue]);
+
+  useEffect(() => {
+    // if (showFriendsModal) {
+    if (true) {
+      const getFriends = async () => {
+        const res = await apiFetch(`/api/get-friends`);
+        let allFriends = res.data;
+        console.log({ res });
+        let curPage = res.page + 1;
+        const total_pages = res.total_pages;
+
+        while (curPage <= total_pages) {
+          const friendData = await apiFetch(`/api/get-friends?page=${curPage}`);
+          allFriends = [...allFriends, ...friendData.data];
+        }
+
+        setFriendsList(allFriends);
+      };
+      getFriends();
+    }
+  }, [apiFetch, showFriendsModal]);
+
+  useEffect(() => {
+    const update = () => {
+      const participantsId = new Set(
+        chatParticipants.map((p) => String(p.user_id))
+      );
+
+      const search = searchFriendsValue.toLowerCase();
+
+      const value = friendsList.filter((f) => {
+        const name = (f.display_name || "").toLowerCase();
+
+        return name.includes(search) && !participantsId.has(String(f.user_id));
+      });
+
+      console.log({ value });
+
+      setFilteredFriends(
+        friendsList.filter((f) => {
+          const name = (f.display_name || "").toLowerCase();
+
+          return (
+            name.includes(search) && !participantsId.has(String(f.user_id))
+          );
+        })
+      );
+    };
+
+    update();
+  }, [chatParticipants, friendsList, searchFriendsValue]);
+
   /* -------------------- Call Helpers -------------------- */
   const createRoomId = (userA, userB, chatId) => {
     return `room_${userA.username}${userB.user_id}_${userB.username}${userA.user_id}_${chatId}`;
@@ -603,7 +726,22 @@ const ChatView = ({ username }) => {
     router.push("/chat/call");
   };
 
-  console.log(chatData);
+  /* -------------------- handle functions -------------------- */
+  const handleShowMembersModal = () => {
+    setShowMembersModal(true);
+  };
+
+  const handleShowFriendsModal = () => {
+    setShowFriendsModal(true);
+  };
+
+  const toggleUser = (userId) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(userId) ? next.delete(userId) : next.add(userId);
+      return next;
+    });
+  };
 
   /* -------------------- Render -------------------- */
 
@@ -651,10 +789,127 @@ const ChatView = ({ username }) => {
           chatData={chatData}
           onClose={() => setShowInfo(false)}
           router={router}
+          handleShowMembersModal={handleShowMembersModal}
+          handleShowFriendsModal={handleShowFriendsModal}
         />
       </div>
+      <Modal
+        isOpen={showMembersModal}
+        onClose={() => {
+          setShowMembersModal(false);
+          setSearchMembersValue("");
+        }}
+        title={"Chat Members"}
+      >
+        <input
+          placeholder="Search Members"
+          value={searchMembersValue}
+          onChange={(e) => {
+            setSearchMembersValue(e.target.value);
+          }}
+        />
+
+        <div className="member-list">
+          {filteredMembers.map((member) => (
+            <div key={member.user_id} className="member-item">
+              <Image
+                src={
+                  member.profile_image
+                    ? `/api/images?url=${member.profile_image}`
+                    : `/Images/default-profiles/${member.gender}.jpg`
+                }
+                alt={member.display_name}
+                width={40}
+                height={40}
+              />
+              {member.display_name}
+            </div>
+          ))}
+        </div>
+      </Modal>
+      <Modal
+        isOpen={showFriendsModal}
+        onClose={() => {
+          setShowFriendsModal(false);
+          setSearchFriendsValue("");
+          setSelected(new Set());
+        }}
+        title="Add Members"
+      >
+        <input
+          placeholder="Search Friends"
+          value={searchFriendsValue}
+          onChange={(e) => {
+            setSearchFriendsValue(e.target.value);
+          }}
+        />
+
+        <div className="member-list">
+          {filteredFriends.map((friend) => (
+            <div
+              key={friend.user_id}
+              className={`user-row ${
+                selected.has(friend.user_id) ? "selected" : ""
+              }`}
+              onClick={() => toggleUser(friend.user_id)}
+            >
+              <Image
+                src={
+                  friend.profile_image
+                    ? `/api/images?url=${friend.profile_image}`
+                    : `/Images/default-profiles/${friend.gender}.jpg`
+                }
+                alt={friend.display_name}
+                width={40}
+                height={40}
+              />
+              {friend.display_name}
+            </div>
+          ))}
+        </div>
+
+        <div className="modal-actions">
+          <Button
+            onClick={() => {
+              setShowFriendsModal(false);
+              setSearchFriendsValue("");
+              setSelected(new Set());
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={async () => {
+              alert("Wire add members");
+              const payload = {
+                chat_id: chatData.chat_id,
+                members: [...selected],
+              };
+
+              const res = await apiFetch("/api/chats/add-participants", {
+                method: "POST",
+                body: payload,
+              });
+
+              if (res.status) {
+                const resParticipants = await apiFetch(
+                  `/api/chats/participants?chat_id=${
+                    chat.chat_id
+                  }&device_id=${getDeviceId()}`
+                );
+
+                setChatParticipants(resParticipants.data);
+              }
+            }}
+          >
+            Add
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };
 
 export default ChatView;
+
+// TODO: show participants on chat detail

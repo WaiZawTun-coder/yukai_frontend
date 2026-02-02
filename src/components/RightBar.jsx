@@ -142,7 +142,7 @@ const RightBar = () => {
       <div className="container">
         <div className="header-icons">
           <NotificationsActiveIcon />
-          <MessageIcon />
+          <MessageIcon onClick={() => router.push("/chat")} />
         </div>
 
         <div className="friend-header">

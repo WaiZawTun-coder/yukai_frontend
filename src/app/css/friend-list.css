@@ -42,7 +42,7 @@
 }
 
 .header-icons > *:hover {
-  color: var(--secondary-color);
+  color: var(--accent-color);
 }
 
 .header-icons > *:active {

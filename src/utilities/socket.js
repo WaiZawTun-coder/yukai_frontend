@@ -77,6 +77,17 @@ export const leaveRoom = (roomId) => {
 };
 
 /* ============================================================
+  Chat
+============================================================ */
+export const onChatCreate = (cb) => {
+  socket.on("chat-created", cb);
+};
+
+export const offChatCreate = (cb) => {
+  socket.off("chat-created", cb);
+};
+
+/* ============================================================
    Messaging
 ============================================================ */
 export const sendMessage = (message) => {

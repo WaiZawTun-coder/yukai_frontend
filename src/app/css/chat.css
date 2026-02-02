@@ -98,6 +98,16 @@
 .message {
   margin-bottom: 6px;
   display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.message .msg-sender-image {
+  border-radius: 50%;
+}
+
+.message .sender-name {
+  font-weight: bold;
 }
 
 .message.outgoing {
@@ -119,6 +129,9 @@
   align-items: flex-start;
   justify-content: center;
   color: var(--text-inverse);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .bubble:hover {
@@ -332,4 +345,21 @@
 /* Incoming messages only show time */
 .message.incoming .status {
   display: none;
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+}
+
+.member-item img {
+  border-radius: 50%;
 }

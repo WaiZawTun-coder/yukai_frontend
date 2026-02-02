@@ -11,11 +11,16 @@ export default function ChatPage() {
   const router = useRouter();
   const username = params.get("username");
   const [activeChat, setActiveChat] = useState(username ?? "");
+  const [activeChatType, setActiveChatType] = useState("private");
+  const [activeGroupId, setActiveGroupId] = useState(0);
 
-  const changeChat = (username) => {
-    console.log(username);
+  const changeChat = (username, chatType, groupId) => {
+    console.log({ username, chatType, groupId });
     setActiveChat(username);
-    router.push(`?username=${username}`);
+    setActiveChatType(chatType);
+    setActiveGroupId(groupId);
+    if (chatType === "group") router.push(`?type=group&chat_id=${groupId}`);
+    else router.push(`?username=${username}`);
   };
 
   return (
@@ -26,7 +31,11 @@ export default function ChatPage() {
 
       <div className="chat-view-pane">
         {activeChat ? (
-          <ChatView username={username} />
+          <ChatView
+            username={username}
+            type={activeChatType}
+            group_id={activeGroupId}
+          />
         ) : (
           <div className="empty-chat">Select a chat</div>
         )}
