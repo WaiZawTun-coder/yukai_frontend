@@ -114,10 +114,28 @@ export async function loadDeviceKeys(userId) {
 
   // Metadata
   const signedPrekeyId = await loadUserMeta(userId, "signed_prekey_id");
-
   const registrationId = await loadUserMeta(userId, "registration_id");
+  const signedPrekeySigRaw = await loadUserMeta(userId, "signed_prekey_sig");
 
-  const signedPrekeySig = await loadUserMeta(userId, "signed_prekey_sig");
+  // ✅ Safely convert signedPrekeySig to Base64
+  let signedPrekeySig = null;
+  if (signedPrekeySigRaw) {
+    let sigBuffer;
+    if (signedPrekeySigRaw instanceof ArrayBuffer) {
+      sigBuffer = new Uint8Array(signedPrekeySigRaw);
+    } else if (signedPrekeySigRaw instanceof Uint8Array) {
+      sigBuffer = signedPrekeySigRaw;
+    } else if (Array.isArray(signedPrekeySigRaw)) {
+      sigBuffer = new Uint8Array(signedPrekeySigRaw);
+    } else {
+      console.warn("Unknown signedPrekeySig format:", signedPrekeySigRaw);
+      sigBuffer = null;
+    }
+
+    if (sigBuffer) {
+      signedPrekeySig = toBase64(sigBuffer);
+    }
+  }
 
   return {
     identityPrivate,
@@ -125,10 +143,10 @@ export async function loadDeviceKeys(userId) {
 
     signedPrekeyPrivate,
     signedPrekeyPubBase64,
-    signedPrekeySig: toBase64(signedPrekeySig),
+    signedPrekeySig,
 
-    signedPrekeyId,
-    registrationId,
+    signedPrekeyId: signedPrekeyId != null ? signedPrekeyId.toString() : null,
+    registrationId: registrationId != null ? registrationId.toString() : null,
   };
 }
 
