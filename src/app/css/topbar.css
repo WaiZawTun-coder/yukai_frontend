@@ -157,6 +157,20 @@
   color: var(--btn-primary);
 }
 
+.header-action {
+  display: flex;
+  /* flex-direction: column; */
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  gap: 10px;
+}
+
+.chat-icon {
+  display: none !important;
+  cursor: pointer;
+}
+
 /* RESPONSIVE */
 @media (max-width: 992px) {
   .nav-tabs {
@@ -170,6 +184,10 @@
   .search-box.active input {
     width: 100%;
     display: block;
+  }
+
+  .chat-icon {
+    display: block !important;
   }
 }
 
