@@ -1,6 +1,7 @@
 "use client";
 
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
+import MessageIcon from "@mui/icons-material/Message";
 import SearchIcon from "@mui/icons-material/Search";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -156,21 +157,28 @@ const TopBar = ({ setData }) => {
           </div>
         </div>
 
-        {/* SEARCH */}
-        <div
-          className={`search-box ${searchActive ? "active" : ""}`}
-          onClick={() => setSearchActive(true)}
-        >
-          <SearchIcon className="icon" />
-          <input
-            ref={inputRef}
-            type="search"
-            placeholder="Search..."
-            value={searchText}
-            onFocus={() => setSearchActive(true)}
-            onBlur={handleInputBlur}
-            onChange={handleInputChange}
-            onKeyDown={handleInputKeyDown}
+        <div className={`header-action ${searchActive ? "active" : ""}`}>
+          {/* SEARCH */}
+          <div
+            className={`search-box ${searchActive ? "active" : ""}`}
+            onClick={() => setSearchActive(true)}
+          >
+            <SearchIcon className="icon" />
+            <input
+              ref={inputRef}
+              type="search"
+              placeholder="Search..."
+              value={searchText}
+              onFocus={() => setSearchActive(true)}
+              onBlur={handleInputBlur}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+            />
+          </div>
+          {/* chat icon */}
+          <MessageIcon
+            onClick={() => router.push("/chat")}
+            className="chat-icon"
           />
         </div>
       </div>

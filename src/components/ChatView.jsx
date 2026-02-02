@@ -252,8 +252,12 @@ const ChatInfoPanel = ({
             View Profile
           </Button>
         )}
-        <Button onClick={handleShowMembersModal}>View Members</Button>
-        <Button onClick={handleShowFriendsModal}>Add Members</Button>
+        {chatData.type === "group" && (
+          <>
+            <Button onClick={handleShowMembersModal}>View Members</Button>
+            <Button onClick={handleShowFriendsModal}>Add Members</Button>
+          </>
+        )}
         <Button>Mute</Button>
         <Button color="danger" variant="outlined">
           {chatData.type === "group" ? "Leave" : "Block"}
