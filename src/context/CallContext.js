@@ -1,24 +1,23 @@
 "use client";
 
+import { useSnackbar } from "@/context/SnackbarContext";
+import { offIncomingCall, onIncomingCall, socket } from "@/utilities/socket";
+// import AgoraRTC from "agora-rtc-sdk-ng";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
-  useEffect,
-  useCallback,
 } from "react";
-import AgoraRTC from "agora-rtc-sdk-ng";
-import { useSnackbar } from "@/context/SnackbarContext";
-import { onIncomingCall, offIncomingCall, socket } from "@/utilities/socket";
-import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
-import { permission } from "node:process";
 
 const CallContext = createContext(null);
 const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID;
 
-AgoraRTC.setLogLevel(AgoraRTC.LOG_LEVEL_NONE);
+// AgoraRTC.setLogLevel(AgoraRTC.LOG_LEVEL_NONE);
 
 const CALL_STATE = {
   calling: "Calling",
@@ -29,6 +28,8 @@ const CALL_STATE = {
 };
 
 export function CallProvider({ children }) {
+  const AgoraRTCRef = useRef(null);
+
   const localTracks = useRef({ audio: null, video: null });
   const { showSnackbar } = useSnackbar();
   const router = useRouter();
@@ -50,8 +51,28 @@ export function CallProvider({ children }) {
   const clientRef = useRef(null);
 
   useEffect(() => {
-    clientRef.current = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    return () => (clientRef.current = null);
+    let mounted = true;
+
+    (async () => {
+      if (typeof window === "undefined") return;
+
+      const AgoraRTC = (await import("agora-rtc-sdk-ng")).default;
+
+      AgoraRTC.setLogLevel(AgoraRTC.LOG_LEVEL_NONE);
+
+      if (!mounted) return;
+
+      AgoraRTCRef.current = AgoraRTC;
+      clientRef.current = AgoraRTC.createClient({
+        mode: "rtc",
+        codec: "vp8",
+      });
+    })();
+
+    return () => {
+      mounted = false;
+      clientRef.current = null;
+    };
   }, []);
 
   // -------------------
@@ -143,6 +164,7 @@ export function CallProvider({ children }) {
   const answerCall = useCallback(
     async (callData) => {
       if (inCall) return;
+
       const userInfo = {
         username: callData.caller.display_name,
         profile: callData.caller.profile_image,
@@ -160,11 +182,11 @@ export function CallProvider({ children }) {
         toUserId: callData.caller.user_id,
       });
 
-      if (window.location.pathname !== "/chat/call") {
+      if (pathname !== "/chat/call") {
         router.push("/chat/call");
       }
     },
-    [inCall, router, startCall]
+    [inCall, router, startCall, pathname]
   );
 
   // -------------------

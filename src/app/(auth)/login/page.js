@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 const Login = () => {
@@ -16,15 +16,18 @@ const Login = () => {
 
   const { login, accessToken, loading: authLoading, isLoggedIn } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const { showSnackbar } = useSnackbar();
   useEffect(() => {
     if (accessToken && !authLoading && isLoggedIn) {
       // allow staying on register step 2
-      if (window.location.pathname.startsWith("/register")) return;
+      const isRegisterPage = pathname.startsWith("/register");
+
+      if (isRegisterPage) return;
       router.replace("/");
     }
-  }, [accessToken, authLoading, isLoggedIn, router]);
+  }, [accessToken, authLoading, isLoggedIn, pathname, router]);
 
   // to handle input changes
   const handleFieldChange = useCallback((name, value) => {

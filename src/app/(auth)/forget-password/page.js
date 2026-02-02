@@ -5,10 +5,13 @@ import TextField from "@/components/ui/TextField";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useApi } from "@/utilities/api";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 const ForgetPassword = () => {
   const apiFetch = useApi();
+  const router = useRouter();
+
   const { showSnackbar } = useSnackbar();
 
   // step: 1 = email, 2 = otp + new password
@@ -136,8 +139,7 @@ const ForgetPassword = () => {
       });
 
       if (res.status) {
-        // go back to login
-        window.location.href = "/login";
+        router.push("/login");
       }
     } catch (err) {
       showSnackbar({
