@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function NotFound({
   title = "Page Not Found",
   message = "The page you're looking for doesn't exist or may have been removed",
 }) {
+  const router = useRouter();
   return (
     <div className="notfound-page">
       <div className="notfound-card">
@@ -21,7 +23,7 @@ export default function NotFound({
             Go Home
           </Link>
 
-          <button className="btn ghost" onClick={() => window.history.back()}>
+          <button className="btn ghost" onClick={() => router.back()}>
             Go Back
           </button>
         </div>
