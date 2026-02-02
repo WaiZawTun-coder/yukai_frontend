@@ -15,6 +15,8 @@ import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import CallEndIcon from "@mui/icons-material/CallEnd";
 
+const INACTIVITY_TIMEOUT = 3000;
+
 const playSound = (src) => {
   const audio = new Audio(src);
   audio.volume = 0.6;
@@ -43,6 +45,9 @@ export default function CallPage() {
   const [remoteUid, setRemoteUid] = useState(null);
   const [remoteVideoTrack, setRemoteVideoTrack] = useState(null); // New: Store the remote track
   const [mounted, setMounted] = useState(false);
+
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const inactivityTimerRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -168,6 +173,33 @@ export default function CallPage() {
   }, [inCall]);
 
   /* -------------------- Controls -------------------- */
+  const resetInactivityTimer = useCallback(() => {
+    setControlsVisible(true);
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    inactivityTimerRef.current = setTimeout(() => {
+      setControlsVisible(false);
+    }, INACTIVITY_TIMEOUT);
+  }, []);
+
+  useEffect(() => {
+    // Attach listeners for user activity
+    const handleActivity = () => resetInactivityTimer();
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("mousedown", handleActivity);
+    window.addEventListener("touchstart", handleActivity);
+    window.addEventListener("keydown", handleActivity);
+
+    resetInactivityTimer();
+
+    return () => {
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("mousedown", handleActivity);
+      window.removeEventListener("touchstart", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    };
+  }, [resetInactivityTimer]);
+
   const handleEnd = () => {
     stopCall();
     router.back();
@@ -205,7 +237,9 @@ export default function CallPage() {
       </div>
 
       {/* ================= Controls ================= */}
-      <div className="call-controls">
+      <div
+        className={`call-controls ${controlsVisible ? "visible" : "hidden"}`}
+      >
         <IconButton onClick={handleMute}>
           {micMuted ? <MicOffIcon /> : <MicIcon />}
         </IconButton>

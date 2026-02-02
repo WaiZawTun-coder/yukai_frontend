@@ -92,6 +92,8 @@ export function CallProvider({ children }) {
         await client.join(APP_ID, roomId, data.token, data.uid);
         setCallType(type);
 
+        const AgoraRTC = AgoraRTCRef.current;
+
         if (type === "audio") {
           const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
           localTracks.current.audio = audioTrack;
@@ -323,6 +325,7 @@ export function CallProvider({ children }) {
 
     // CAMERA ON
     try {
+      const AgoraRTC = AgoraRTCRef.current;
       const newVideoTrack = await AgoraRTC.createCameraVideoTrack();
 
       localTracks.current.video = newVideoTrack;
