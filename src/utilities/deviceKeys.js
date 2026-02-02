@@ -25,7 +25,6 @@ export async function generateDeviceKeys(userId) {
     ["deriveBits"]
   );
 
-  // Export public keys
   const identityPub = await crypto.subtle.exportKey(
     "raw",
     identityKeyPair.publicKey
@@ -36,7 +35,6 @@ export async function generateDeviceKeys(userId) {
     signedPrekeyPair.publicKey
   );
 
-  // Sign signed-prekey
   const signedPrekeySig = await crypto.subtle.sign(
     "Ed25519",
     identityKeyPair.privateKey,
@@ -46,7 +44,7 @@ export async function generateDeviceKeys(userId) {
   const signedPrekeyId = crypto.getRandomValues(new Uint32Array(1))[0];
   const registrationId = crypto.getRandomValues(new Uint16Array(1))[0];
 
-  // Persist keys per user
+  // 🔐 Persist keys
   await saveUserKey(userId, "identity_private", identityKeyPair.privateKey);
   await saveUserKey(userId, "identity_public", identityKeyPair.publicKey);
   await saveUserKey(
@@ -55,6 +53,10 @@ export async function generateDeviceKeys(userId) {
     signedPrekeyPair.privateKey
   );
   await saveUserKey(userId, "signed_prekey_public", signedPrekeyPair.publicKey);
+
+  await saveUserMeta(userId, "signed_prekey_sig", signedPrekeySig);
+  await saveUserMeta(userId, "signed_prekey_id", signedPrekeyId);
+  await saveUserMeta(userId, "registration_id", registrationId);
 
   return {
     identity_key_pub: toBase64(identityPub),
@@ -68,6 +70,7 @@ export async function generateDeviceKeys(userId) {
 /* ---------------- Load Keys ---------------- */
 
 export async function loadDeviceKeys(userId) {
+  // Identity key (Ed25519)
   const identityPrivate = await loadUserKey(
     userId,
     "identity_private",
@@ -75,6 +78,20 @@ export async function loadDeviceKeys(userId) {
     ["sign"]
   );
 
+  const identityPublic = await loadUserKey(
+    userId,
+    "identity_public",
+    { name: "Ed25519" },
+    []
+  );
+
+  let identityPubBase64 = null;
+  if (identityPublic) {
+    const raw = await crypto.subtle.exportKey("raw", identityPublic);
+    identityPubBase64 = toBase64(raw);
+  }
+
+  // Signed prekey (X25519)
   const signedPrekeyPrivate = await loadUserKey(
     userId,
     "signed_prekey_private",
@@ -90,16 +107,28 @@ export async function loadDeviceKeys(userId) {
   );
 
   let signedPrekeyPubBase64 = null;
-
   if (signedPrekeyPublic) {
     const raw = await crypto.subtle.exportKey("raw", signedPrekeyPublic);
     signedPrekeyPubBase64 = toBase64(raw);
   }
 
+  // Metadata
+  const signedPrekeyId = await loadUserMeta(userId, "signed_prekey_id");
+
+  const registrationId = await loadUserMeta(userId, "registration_id");
+
+  const signedPrekeySig = await loadUserMeta(userId, "signed_prekey_sig");
+
   return {
     identityPrivate,
+    identityPubBase64,
+
     signedPrekeyPrivate,
     signedPrekeyPubBase64,
+    signedPrekeySig: toBase64(signedPrekeySig),
+
+    signedPrekeyId,
+    registrationId,
   };
 }
 
@@ -127,6 +156,8 @@ export async function clearUserKeys(userId) {
       "identity_public",
       "signed_prekey_private",
       "signed_prekey_public",
+      "signed_prekey_id",
+      "registration_id",
     ];
 
     for (const k of keys) {
@@ -135,5 +166,34 @@ export async function clearUserKeys(userId) {
 
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
+  });
+}
+
+export async function saveUserMeta(userId, name, value) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const store = tx.objectStore(STORE_NAME);
+
+    // store as object with keyPath "name"
+    store.put({ name: keyName(userId, name), value });
+
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+export async function loadUserMeta(userId, name) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const store = tx.objectStore(STORE_NAME);
+
+    const req = store.get(keyName(userId, name));
+
+    req.onsuccess = () => resolve(req.result?.value ?? null);
+    req.onerror = () => reject(req.error);
   });
 }

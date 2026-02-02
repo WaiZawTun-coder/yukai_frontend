@@ -86,7 +86,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /* ===================== INIT DEVICE KEYS ===================== */
-
   const initRef = useRef(false);
 
   useEffect(() => {
@@ -117,10 +116,11 @@ export const AuthProvider = ({ children }) => {
 
     function extractPublicBundle(loaded) {
       return {
-        identityKey: loaded.identityPubBase64,
-        signedPrekeyId: loaded.signedPrekeyId,
-        signedPrekey: loaded.signedPrekeyPubBase64,
-        registrationId: loaded.registrationId,
+        identity_key_pub: loaded.identityPubBase64,
+        signed_prekey_id: loaded.signedPrekeyId,
+        signed_prekey_pub: loaded.signedPrekeyPubBase64,
+        registration_id: loaded.registrationId,
+        signed_prekey_sig: loaded.signedPrekeySig,
       };
     }
 
@@ -136,7 +136,7 @@ export const AuthProvider = ({ children }) => {
           loaded.identityPrivate && loaded.signedPrekeyPrivate;
 
         // CASE 1: clean state
-        if (!hasLocalKeys && !deviceStatus.exists) {
+        if (!hasLocalKeys && !deviceStatus.has_keys) {
           const publicBundle = await generateDeviceKeys(user.user_id);
 
           await fetch(getBackendUrl() + "/api/register-device", {
@@ -157,14 +157,14 @@ export const AuthProvider = ({ children }) => {
         }
 
         // CASE 2: backend has device, local lost keys → STOP
-        else if (!hasLocalKeys && deviceStatus.exists) {
+        else if (!hasLocalKeys && deviceStatus.has_keys) {
           throw new Error(
             "Device exists on server but local keys are missing. Reset device required."
           );
         }
 
         // CASE 3: local keys exist but backend lost device → re-register
-        else if (hasLocalKeys && !deviceStatus.exists) {
+        else if (hasLocalKeys && !deviceStatus.has_keys) {
           await fetch(getBackendUrl() + "/api/register-device", {
             method: "POST",
             headers: {
