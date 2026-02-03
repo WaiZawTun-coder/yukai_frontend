@@ -6,6 +6,8 @@ import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import Button from "./ui/Button";
 import { useApi } from "@/utilities/api";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { emitAccountRequest } from "@/utilities/socket";
 
 const ACTION_CONFIG = {
   friends: {
@@ -159,6 +161,7 @@ export function PeopleCard({
   const apiFetch = useApi();
   const router = useRouter();
   const menuRef = useRef(null);
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -189,6 +192,9 @@ export function PeopleCard({
     }
 
     try {
+      let payload;
+      let notifRes;
+      console.log({ user });
       switch (action) {
         case "send_request":
           await apiFetch("/api/send-request", {
@@ -196,6 +202,26 @@ export function PeopleCard({
             body: { user_id: person.user_id },
           });
           setCompleted(true);
+          payload = {
+            type: "request",
+            referenceId: user.user_id,
+            message: `${user.display_name} sent a friend request to you.`,
+            target_user_id: person.user_id,
+          };
+
+          notifRes = await apiFetch(`/api/add-notification`, {
+            method: "POST",
+            body: payload,
+          });
+
+          payload.id = notifRes.data.event_id;
+          payload.sender_id = user.user_id;
+          payload.sender_name = user.user_display_name;
+          payload.profile_image = user.profile_image;
+          payload.gender = user.gender;
+          payload.read = false;
+
+          emitAccountRequest(payload);
           break;
 
         case "cancel_request":
@@ -212,6 +238,26 @@ export function PeopleCard({
             body: { user_id: person.user_id, status: "accepted" },
           });
           setCompleted(true);
+          payload = {
+            type: "request",
+            referenceId: user.user_id,
+            message: `${user.display_name} accepted your friend request`,
+            target_user_id: person.user_id,
+          };
+
+          notifRes = await apiFetch(`/api/add-notification`, {
+            method: "POST",
+            body: payload,
+          });
+
+          payload.id = notifRes.data.event_id;
+          payload.sender_id = user.user_id;
+          payload.sender_name = user.user_display_name;
+          payload.profile_image = user.profile_image;
+          payload.gender = user.gender;
+          payload.read = false;
+
+          emitAccountRequest(payload);
           break;
 
         case "reject_request":
@@ -226,6 +272,26 @@ export function PeopleCard({
             method: "POST",
             body: { user_id: person.user_id },
           });
+          payload = {
+            type: "request",
+            referenceId: user.user_id,
+            message: `${user.display_name} started to follow you.`,
+            target_user_id: person.user_id,
+          };
+
+          notifRes = await apiFetch(`/api/add-notification`, {
+            method: "POST",
+            body: payload,
+          });
+
+          payload.id = notifRes.data.event_id;
+          payload.sender_id = user.user_id;
+          payload.sender_name = user.user_display_name;
+          payload.profile_image = user.profile_image;
+          payload.gender = user.gender;
+          payload.read = false;
+
+          emitAccountRequest(payload);
           break;
 
         case "unfollow":
