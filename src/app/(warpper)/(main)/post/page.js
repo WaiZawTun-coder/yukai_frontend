@@ -9,6 +9,7 @@ import PostSkeleton from "@/components/ui/PostSkeleton";
 import { useAuth } from "@/context/AuthContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useApi } from "@/utilities/api";
+import { emitPostComment } from "@/utilities/socket";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -64,9 +65,8 @@ const SocialPost = ({
             message: res.message,
             variant: "error",
           });
-          return;
-        } else {
           setIsValid(false);
+          return;
         }
         setPost(res.data[0]);
       } catch (err) {
@@ -186,6 +186,27 @@ const SocialPost = ({
         return;
       }
 
+      const payload = {
+        type: "comment",
+        referenceId: post.post_id,
+        message: `${user.display_name} commented on your post`,
+        target_user_id: post.creator.id,
+      };
+
+      const notifRes = await apiFetch(`/api/add-notification`, {
+        method: "POST",
+        body: payload,
+      });
+
+      payload.id = notifRes.data.event_id;
+      payload.sender_id = user.user_id;
+      payload.sender_name = user.user_display_name;
+      payload.profile_image = user.profile_image;
+      payload.gender = user.gender;
+      payload.read = false;
+
+      emitPostComment(payload);
+
       showSnackbar({
         title: "Comment posted",
         message: "",
@@ -293,6 +314,7 @@ const SocialPost = ({
       <div className="post-scrollable">
         <PostCard
           user={{
+            userId: post?.creator?.id,
             username: post?.creator.username,
             name: post?.creator?.display_name,
             avatar:

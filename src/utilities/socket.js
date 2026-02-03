@@ -234,6 +234,30 @@ export const offCheckUserOnline = (cb) => {
 };
 
 /* ============================================================
+   Notify user actions (react, comment, friend requests <sent request, accept request, follow>)
+============================================================ */
+
+export const emitPostReact = (payload) => {
+  socket.emit("post-react", payload);
+};
+
+export const emitPostComment = (payload) => {
+  socket.emit("post-comment", payload);
+};
+
+export const emitAccountRequest = (payload) => {
+  socket.emit("account-request", payload);
+};
+
+export const onNotification = (cb) => {
+  socket.on("notification", cb);
+};
+
+export const offNotification = (cb) => {
+  socket.off("notification", cb);
+};
+
+/* ============================================================
    Utils
 ============================================================ */
 

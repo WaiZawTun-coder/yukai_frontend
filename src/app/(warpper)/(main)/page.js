@@ -226,7 +226,7 @@ const Home = () => {
   // -------------------------------
   // Handle reactions
   // -------------------------------
-  const handleComment = async (postId) => {
+  const handleComment = async (postId, creatorId) => {
     setCommenting(true);
     try {
       const res = await apiFetch("/api/comment-post", {
@@ -356,6 +356,7 @@ const Home = () => {
               >
                 <PostCard
                   user={{
+                    userId: post?.creator?.id,
                     username: post?.creator?.username,
                     name: post?.creator?.display_name ?? "",
                     avatar:
