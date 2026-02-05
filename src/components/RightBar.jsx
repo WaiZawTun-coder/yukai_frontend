@@ -39,11 +39,11 @@ const RightBar = () => {
       connectSocket();
     }
 
-    requestOnlineUsers();
-
     onOnlineUsers(({ users }) => {
       setOnlineUserIds(new Set(users.map(String)));
     });
+
+    requestOnlineUsers();
 
     onUserOnline(({ userId }) => {
       setOnlineUserIds((prev) => {
@@ -84,7 +84,13 @@ const RightBar = () => {
           return;
         }
 
-        setFriends((prev) => [...prev, ...newData]);
+        setFriends((prev) => {
+          const oldFriendIds = new Set(prev.map((f) => f.user_id));
+          const newFriends = newData.filter(
+            (f) => !oldFriendIds.has(f.user_id)
+          );
+          return [...prev, ...newFriends];
+        });
       } catch (err) {
         console.error("Fetch friends failed:", err);
       } finally {

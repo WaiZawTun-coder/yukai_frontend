@@ -4,7 +4,6 @@
 .post-box {
   max-width: 720px;
   width: 100%;
-  min-width: 400px;
 
   background: var(--secondary-color);
   padding: 8px;

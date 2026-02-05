@@ -402,6 +402,8 @@ export const AuthProvider = ({ children }) => {
 
     setAccessToken(data.data.access_token);
     setUser(data.data);
+
+    return data;
   };
 
   const logout = async () => {

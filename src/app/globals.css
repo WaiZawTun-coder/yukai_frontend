@@ -198,6 +198,16 @@
   scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
 }
 
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+.small-input {
+  transform: scale(0.9);
+}
+
 @media (max-width: 450px) {
   /* Headings */
   h1 {
