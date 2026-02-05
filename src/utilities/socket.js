@@ -249,6 +249,10 @@ export const emitAccountRequest = (payload) => {
   socket.emit("account-request", payload);
 };
 
+export const emitPostCreate = (payload) => {
+  socket.emit("post-create", payload);
+};
+
 export const onNotification = (cb) => {
   socket.on("notification", cb);
 };

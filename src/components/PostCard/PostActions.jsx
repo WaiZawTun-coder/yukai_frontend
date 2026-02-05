@@ -79,8 +79,10 @@ export default function PostActions({
         type: "react",
         referenceId: postId,
         message: `${user.display_name} ${type} your post`,
-        target_user_id: creatorId,
+        target_user_id: [creatorId],
       };
+
+      if (creatorId == user.user_id) return;
 
       const notifRes = await apiFetch(`/api/add-notification`, {
         method: "POST",

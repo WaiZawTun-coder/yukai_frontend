@@ -206,8 +206,10 @@ export function PeopleCard({
             type: "request",
             referenceId: user.user_id,
             message: `${user.display_name} sent a friend request to you.`,
-            target_user_id: person.user_id,
+            target_user_id: [person.user_id],
           };
+
+          if (person.user_id == user.user_id) return;
 
           notifRes = await apiFetch(`/api/add-notification`, {
             method: "POST",
@@ -242,8 +244,10 @@ export function PeopleCard({
             type: "request",
             referenceId: user.user_id,
             message: `${user.display_name} accepted your friend request`,
-            target_user_id: person.user_id,
+            target_user_id: [person.user_id],
           };
+
+          if (person.user_id == user.user_id) return;
 
           notifRes = await apiFetch(`/api/add-notification`, {
             method: "POST",
@@ -276,8 +280,10 @@ export function PeopleCard({
             type: "request",
             referenceId: user.user_id,
             message: `${user.display_name} started to follow you.`,
-            target_user_id: person.user_id,
+            target_user_id: [person.user_id],
           };
+
+          if (person.user_id == user.user_id) return;
 
           notifRes = await apiFetch(`/api/add-notification`, {
             method: "POST",

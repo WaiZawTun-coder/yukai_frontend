@@ -246,8 +246,10 @@ const SearchResults = () => {
         type: "comment",
         referenceId: postId,
         message: `${user.display_name} commented on your post`,
-        target_user_id: creatorId,
+        target_user_id: [creatorId],
       };
+
+      if (creatorId == user.user_id) return;
 
       const notifRes = await apiFetch(`/api/add-notification`, {
         method: "POST",
