@@ -180,6 +180,8 @@ export const AuthProvider = ({ children }) => {
           });
         }
 
+        console.log({ alive });
+
         if (!alive) return;
 
         identityPrivRef.current = loaded.identityPrivate;
@@ -205,6 +207,7 @@ export const AuthProvider = ({ children }) => {
   /* ===================== AUTO SOCKET CONNECT ===================== */
 
   useEffect(() => {
+    console.log({ accessToken, user, hasKeys });
     if (!accessToken || !user || !hasKeys) return;
 
     const deviceId = getDeviceId();

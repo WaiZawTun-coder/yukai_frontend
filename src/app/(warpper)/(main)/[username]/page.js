@@ -421,8 +421,10 @@ const Profile = () => {
       type: "request",
       referenceId: authUser.user_id,
       message: `${authUser.display_name} sent a friend request to you.`,
-      target_user_id: user.user_id,
+      target_user_id: [user.user_id],
     };
+
+    if (user.user_id == authUser.user_id) return;
 
     const notifRes = await apiFetch(`/api/add-notification`, {
       method: "POST",
@@ -452,8 +454,10 @@ const Profile = () => {
         type: "request",
         referenceId: authUser.user_id,
         message: `${authUser.display_name} accepted your friend request.`,
-        target_user_id: user.user_id,
+        target_user_id: [user.user_id],
       };
+
+      if (user.user_id == authUser.user_id) return;
 
       const notifRes = await apiFetch(`/api/add-notification`, {
         method: "POST",
@@ -485,9 +489,12 @@ const Profile = () => {
       type: "request",
       referenceId: authUser.user_id,
       message: `${authUser.display_name} stated to follow you.`,
-      target_user_id: user.user_id,
+      target_user_id: [user.user_id],
     };
 
+    if (user.user_id == authUser.user_id) return;
+
+    if (user.user_id == authUser.user_id) return;
     const notifRes = await apiFetch(`/api/add-notification`, {
       method: "POST",
       body: payload,
