@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import '../css/setting-sidebar.css';
+import '../css/settings.css';
 
 const SettingSidebar = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -159,4 +159,4 @@ const SettingSidebar = () => {
   );
 };
 
-export default SettingSidebar;
+export default Settings;
