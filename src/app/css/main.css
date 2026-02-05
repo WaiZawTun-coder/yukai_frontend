@@ -58,12 +58,18 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 24px;
+  padding: 0 10px;
   position: sticky;
   top: 0;
   z-index: 100;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
+}
+
+.page-header-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .page-header--scrolled {
@@ -72,7 +78,7 @@
 
 .page-header .back-button {
   background-color: transparent;
-  color: var(--text-primary);
+  color: var(--text-color);
   cursor: pointer;
   outline: none;
   border: none;

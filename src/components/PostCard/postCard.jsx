@@ -38,6 +38,7 @@ function PrivacyIcon({ type }) {
 
 export default function PostCard({
   user = {
+    userId: 0,
     name: "John Doe",
     avatar: "https://i.pravatar.cc/150",
     gender: "male",
@@ -172,6 +173,7 @@ export default function PostCard({
 
       {/* ACTIONS */}
       <PostActions
+        creatorId={user.userId}
         postId={postId}
         likes={likes}
         comments={comments}

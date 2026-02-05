@@ -27,6 +27,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { emitAccountRequest } from "@/utilities/socket";
 
 const TABS = [
   { id: 1, name: "Posts", url: "posts" },
@@ -415,6 +416,27 @@ const Profile = () => {
 
     setIsSentRequest(true);
     setRequestDirection("sent");
+
+    const payload = {
+      type: "request",
+      referenceId: authUser.user_id,
+      message: `${authUser.display_name} sent a friend request to you.`,
+      target_user_id: user.user_id,
+    };
+
+    const notifRes = await apiFetch(`/api/add-notification`, {
+      method: "POST",
+      body: payload,
+    });
+
+    payload.id = notifRes.data.event_id;
+    payload.sender_id = authUser.user_id;
+    payload.sender_name = authUser.user_display_name;
+    payload.profile_image = authUser.profile_image;
+    payload.gender = authUser.gender;
+    payload.read = false;
+
+    emitAccountRequest(payload);
   };
 
   const handleResponseRequest = async (type) => {
@@ -424,6 +446,29 @@ const Profile = () => {
       method: "POST",
       body: { user_id: user.user_id, status: type },
     });
+
+    if (type == "accepted") {
+      const payload = {
+        type: "request",
+        referenceId: authUser.user_id,
+        message: `${authUser.display_name} accepted your friend request.`,
+        target_user_id: user.user_id,
+      };
+
+      const notifRes = await apiFetch(`/api/add-notification`, {
+        method: "POST",
+        body: payload,
+      });
+
+      payload.id = notifRes.data.event_id;
+      payload.sender_id = authUser.user_id;
+      payload.sender_name = authUser.user_display_name;
+      payload.profile_image = authUser.profile_image;
+      payload.gender = authUser.gender;
+      payload.read = false;
+
+      emitAccountRequest(payload);
+    }
   };
 
   const goToMessage = () => {
@@ -435,6 +480,27 @@ const Profile = () => {
       method: "POST",
       body: { following_id: user.user_id },
     });
+
+    const payload = {
+      type: "request",
+      referenceId: authUser.user_id,
+      message: `${authUser.display_name} stated to follow you.`,
+      target_user_id: user.user_id,
+    };
+
+    const notifRes = await apiFetch(`/api/add-notification`, {
+      method: "POST",
+      body: payload,
+    });
+
+    payload.id = notifRes.data.event_id;
+    payload.sender_id = authUser.user_id;
+    payload.sender_name = authUser.user_display_name;
+    payload.profile_image = authUser.profile_image;
+    payload.gender = authUser.gender;
+    payload.read = false;
+
+    emitAccountRequest(payload);
   };
 
   const handleUnfollow = async () => {

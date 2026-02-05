@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 
 // icons
-import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded";
-import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
+import { useAuth } from "@/context/AuthContext";
+import { useApi } from "@/utilities/api";
+import { emitPostReact } from "@/utilities/socket";
+import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import EmojiEmotionsRoundedIcon from "@mui/icons-material/EmojiEmotionsRounded";
 import EmojiObjectsRoundedIcon from "@mui/icons-material/EmojiObjectsRounded";
+import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import SentimentDissatisfiedRoundedIcon from "@mui/icons-material/SentimentDissatisfiedRounded";
 import SentimentVeryDissatisfiedRoundedIcon from "@mui/icons-material/SentimentVeryDissatisfiedRounded";
-import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import ShareIcon from "@mui/icons-material/Share";
+import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded";
 
 // need to change the reacton type from emoji to svg icons
 const reactionTypes = {
@@ -51,14 +54,18 @@ export default function PostActions({
   comments = 0,
   onLike,
   onComment,
+  creatorId,
 }) {
+  const apiFetch = useApi();
+  const { user } = useAuth();
+
   const [currentReaction, setCurrentReaction] = useState(userReaction);
   const [reactionCount, setReactionCount] = useState(likes);
   const [showPicker, setShowPicker] = useState(false);
   const [pressTimer, setPressTimer] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  const handleReact = (type) => {
+  const handleReact = async (type) => {
     if (currentReaction === type) {
       setCurrentReaction(null);
       setReactionCount((c) => Math.max(0, c - 1));
@@ -67,6 +74,27 @@ export default function PostActions({
       setReactionCount((c) => (currentReaction ? c : c + 1));
       setCurrentReaction(type);
       onLike?.(postId, type);
+
+      const payload = {
+        type: "react",
+        referenceId: postId,
+        message: `${user.display_name} ${type} your post`,
+        target_user_id: creatorId,
+      };
+
+      const notifRes = await apiFetch(`/api/add-notification`, {
+        method: "POST",
+        body: payload,
+      });
+
+      payload.id = notifRes.data.event_id;
+      payload.sender_id = user.user_id;
+      payload.sender_name = user.user_display_name;
+      payload.profile_image = user.profile_image;
+      payload.gender = user.gender;
+      payload.read = false;
+
+      emitPostReact(payload);
     }
     setShowPicker(false);
   };

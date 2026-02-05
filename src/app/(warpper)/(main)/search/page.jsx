@@ -11,6 +11,8 @@ import SocialPost from "../post/page";
 
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
 import TextField from "@/components/ui/TextField";
+import { useAuth } from "@/context/AuthContext";
+import { emitPostComment } from "@/utilities/socket";
 
 const TABS = [
   { id: 1, name: "All", value: "all" },
@@ -23,6 +25,7 @@ const SearchResults = () => {
   const searchParams = useSearchParams();
   const apiFetch = useApi();
   const { showSnackbar } = useSnackbar();
+  const { user } = useAuth();
 
   const typeParam = searchParams.get("type") || "all";
   const queryParam = searchParams.get("q") || "";
@@ -214,7 +217,7 @@ const SearchResults = () => {
     }
   };
 
-  const handleComment = async (postId, commentText) => {
+  const handleComment = async (postId, commentText, creatorId) => {
     try {
       const res = await apiFetch("/api/comment-post", {
         method: "POST",
@@ -238,6 +241,27 @@ const SearchResults = () => {
             : p
         ),
       }));
+
+      const payload = {
+        type: "comment",
+        referenceId: postId,
+        message: `${user.display_name} commented on your post`,
+        target_user_id: creatorId,
+      };
+
+      const notifRes = await apiFetch(`/api/add-notification`, {
+        method: "POST",
+        body: payload,
+      });
+
+      payload.id = notifRes.data.event_id;
+      payload.sender_id = user.user_id;
+      payload.sender_name = user.user_display_name;
+      payload.profile_image = user.profile_image;
+      payload.gender = user.gender;
+      payload.read = false;
+
+      emitPostComment(payload);
 
       showSnackbar({
         title: "Comment success",
@@ -394,6 +418,7 @@ const SearchResults = () => {
                   >
                     <PostCard
                       user={{
+                        userId: post?.creator?.id,
                         username: post?.creator?.username,
                         name: post?.creator?.display_name ?? "",
                         avatar: post?.creator?.profile_image
@@ -443,7 +468,9 @@ const SearchResults = () => {
             paramPost={modalPost}
             comments={comments}
             lastCommentRef={lastCommentRef}
-            onComment={(text) => handleComment(modalPost.post_id, text)}
+            onComment={(text) =>
+              handleComment(modalPost.post_id, text, modalPost.creator.id)
+            }
             onReact={(type) => handleReact(modalPost.post_id, type)}
             onShare={() => handleShare(modalPost.post_id)}
           />
