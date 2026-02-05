@@ -24,7 +24,6 @@ export const NotificationProvider = ({ children }) => {
 
   // Add a new call notification
   const addCall = useCallback((fromUser, callId) => {
-    console.log("handle", { fromUser, callId });
     setCalls((prev) => [...prev, { fromUser, callId, id: Date.now() }]);
   }, []);
 

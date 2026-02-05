@@ -64,7 +64,6 @@ const SnackbarItem = ({
                     result.finally(() => onClose?.());
                   } else {
                     // otherwise close immediately
-                    console.log("close");
                     onClose?.();
                   }
                 },

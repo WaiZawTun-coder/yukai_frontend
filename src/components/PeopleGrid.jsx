@@ -194,7 +194,6 @@ export function PeopleCard({
     try {
       let payload;
       let notifRes;
-      console.log({ user });
       switch (action) {
         case "send_request":
           await apiFetch("/api/send-request", {

@@ -19,15 +19,21 @@ import { useCall } from "@/context/CallContext";
 import { useApi } from "@/utilities/api";
 import {
   checkUserOnline,
+  emitStopTyping,
+  emitTypingMessage,
   emitUpdateReceipt,
   joinRoom,
   leaveRoom,
   makeCall,
+  offEndCall,
   offReceiptUpdate,
   offReceiveMessage,
+  offTypingMessage,
   onCheckUserOnline,
+  onEndCall,
   onReceiptUpdate,
   onReceiveMessage,
+  onTypingMessage,
   sendMessage,
   socket,
 } from "@/utilities/socket";
@@ -44,6 +50,7 @@ const ChatHeader = ({
   onToggleInfo,
   handleCall,
   isOnline,
+  typingUser,
   lastSeen,
   isUserBusy,
 }) => (
@@ -70,7 +77,9 @@ const ChatHeader = ({
           ? chatData?.chat_name
           : chatData?.other_display_name}
       </span>
-      <span className="last-seen">{isOnline ? "online" : lastSeen}</span>
+      <span className="last-seen">
+        {typingUser ? "Typing..." : isOnline ? "online" : lastSeen}
+      </span>
     </div>
 
     <div className="action-icon-container">
@@ -270,10 +279,9 @@ const ChatInfoPanel = ({
 /* -------------------------- Main Component ------------------------ */
 
 const ChatView = ({ username, type = "private", group_id = null }) => {
-  console.log({ username, type, group_id });
   const router = useRouter();
   const apiFetch = useApi();
-  const { startCall } = useCall();
+  const { startCall, stopCall } = useCall();
   const { isUserBusy } = useBusy();
 
   const { user, getDeviceId, encryptForDevices, decryptPayload } = useAuth();
@@ -297,10 +305,13 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const [friendsList, setFriendsList] = useState([]);
   const [filteredFriends, setFilteredFriends] = useState([]);
   const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const [typingUser, setTypingUser] = useState(null);
 
   const [selected, setSelected] = useState(new Set());
 
   const messageEndRef = useRef(null);
+
+  const typingTimeoutRef = useRef(null);
 
   const chatId = chatData?.chat_id;
 
@@ -359,7 +370,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       (type == "group" && group_id == null)
     )
       return;
-    console.log({ type, group_id });
     try {
       const resChat = await apiFetch(
         type !== "group"
@@ -413,6 +423,20 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     } catch (err) {
       console.error("Load chat failed", err);
     }
+  };
+
+  const handleTyping = (value) => {
+    setInputText(value);
+
+    emitTypingMessage(chatId, user.user_id);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      emitStopTyping(chatId, user.user_id);
+    }, 1500);
   };
 
   useEffect(() => {
@@ -494,6 +518,28 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     return () => (window.__ACTIVE_CHAT_ID__ = null);
   }, [chatId]);
 
+  useEffect(() => {
+    const handleTyping = ({ chatId: incomingChatId, userId, typing }) => {
+      if (incomingChatId !== chatId) return;
+
+      if (typing) {
+        setTypingUser(userId);
+
+        setTimeout(() => {
+          setTypingUser(null);
+        }, 3000);
+      } else {
+        setTypingUser(null);
+      }
+    };
+
+    onTypingMessage(handleTyping);
+
+    return () => {
+      offTypingMessage(handleTyping);
+    };
+  }, [chatId]);
+
   const handleSend = async () => {
     if (!inputText.trim() || !chatParticipants.length) return;
 
@@ -552,7 +598,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
 
     if (res.status) {
       outgoingMessages.forEach((message) => {
-        console.log({ message });
         sendMessage({
           ...message,
           message_id: res.message_id,
@@ -611,7 +656,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       const getFriends = async () => {
         const res = await apiFetch(`/api/get-friends`);
         let allFriends = res.data;
-        console.log({ res });
         let curPage = res.page + 1;
         const total_pages = res.total_pages;
 
@@ -640,8 +684,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
         return name.includes(search) && !participantsId.has(String(f.user_id));
       });
 
-      console.log({ value });
-
       setFilteredFriends(
         friendsList.filter((f) => {
           const name = (f.display_name || "").toLowerCase();
@@ -662,7 +704,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   };
 
   const handleVideoCall = async () => {
-    console.log("video call");
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },
       {
@@ -673,6 +714,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     );
 
     const userInfo = {
+      user_id: chatData.other_user_id,
       username: chatData.other_display_name,
       profile: chatData.other_profile_image,
     };
@@ -693,13 +735,24 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       roomId,
     });
 
+    onEndCall(() => {
+      stopCall();
+    });
+
     router.push("/chat/call");
+
+    return () => {
+      offEndCall(() => {
+        stopCall();
+      });
+    };
   };
 
   const handleAudioCall = async () => {
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },
       {
+        // todo: make real time for rejecting and ending call
         username: chatData.other_username,
         user_id: chatData.other_user_id,
       },
@@ -707,6 +760,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     );
 
     const userInfo = {
+      user_id: chatData.other_user_id,
       username: chatData.other_display_name,
       profile: chatData.other_profile_image,
     };
@@ -759,6 +813,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             onToggleInfo={() => setShowInfo((v) => !v)}
             handleCall={{ handleVideoCall, handleAudioCall }}
             isOnline={onlineStatus.online}
+            typingUser={typingUser}
             lastSeen={onlineStatus.lastSeen}
             isUserBusy={
               !(
@@ -777,7 +832,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           />
           <ChatInput
             inputText={inputText}
-            setInputText={setInputText}
+            setInputText={handleTyping}
             onSend={handleSend}
           />
         </div>
