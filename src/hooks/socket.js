@@ -26,7 +26,6 @@ export const useSocket = () => {
        Message Listener
     ============================ */
     const handleNewMessage = (msg) => {
-      console.log("new Message");
       const activeChatId = window.__ACTIVE_CHAT_ID__;
       if (msg.chat_id === activeChatId) return;
 
@@ -40,10 +39,7 @@ export const useSocket = () => {
     /* ============================
        Busy Status Listener (optional UI)
     ============================ */
-    const handleBusy = (data) => {
-      updateBusy(data.userId, data.busy);
-      console.log("🚦 Busy status:", data);
-    };
+    const handleBusy = (data) => {};
 
     onNewMessage(handleNewMessage);
     // socket.on("busy-status", handleBusy);

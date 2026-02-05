@@ -10,7 +10,6 @@ const Chat = () => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log({ id });
     if (typeof window === "undefined") return;
 
     let timeoutId;

@@ -22,6 +22,8 @@ export const SnackbarProvider = ({ children }) => {
       ...prev,
       { id, title, message, variant, duration, actions, persist },
     ]);
+
+    return id;
   };
 
   const removeSnackbar = (id) => {
@@ -29,7 +31,7 @@ export const SnackbarProvider = ({ children }) => {
   };
 
   return (
-    <SnackbarContext.Provider value={{ showSnackbar }}>
+    <SnackbarContext.Provider value={{ showSnackbar, removeSnackbar }}>
       {children}
       <Snackbar snacks={snacks} onRemove={removeSnackbar} />
     </SnackbarContext.Provider>

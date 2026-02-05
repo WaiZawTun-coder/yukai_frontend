@@ -173,7 +173,6 @@ const ChatList = ({ onSelectChat }) => {
 
   const handleOpenChat = (chat) => {
     const username = chat.participants[0]?.username;
-    console.log({ chat, username });
     if (!username) return;
 
     const route =

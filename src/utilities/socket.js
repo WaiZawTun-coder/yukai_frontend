@@ -31,7 +31,7 @@ socket.on("disconnect", (reason) => {
 });
 
 socket.on("connect_error", (err) => {
-  console.error("❌ Socket connection error:", err.message);
+  console.log("❌ Socket connection error:", err.message);
 });
 
 /* ============================================================
@@ -43,8 +43,6 @@ export const setSocketAuth = ({ token, deviceId, username }) => {
     deviceId,
     username,
   };
-
-  console.log("🔐 Socket auth updated:", socket.auth);
 };
 
 /* ============================================================
@@ -115,6 +113,24 @@ export const offNewMessage = (cb) => {
   socket.off("new-message", cb);
 };
 
+export const emitTypingMessage = (chatId, userId) => {
+  if (!chatId || !userId) return;
+  socket.emit("typing", { chatId, userId });
+};
+
+export const emitStopTyping = (chatId, userId) => {
+  if (!chatId || !userId) return;
+  socket.emit("stop-typing", { chatId, userId });
+};
+
+export const onTypingMessage = (cb) => {
+  socket.on("typing", cb);
+};
+
+export const offTypingMessage = (cb) => {
+  socket.off("typing", cb);
+};
+
 /* ============================================================
    Receipts
 ============================================================ */
@@ -172,17 +188,65 @@ export const offIncomingCall = (cb) => {
   socket.off("incoming-call", cb);
 };
 
-export const answerCall = (toUserId) => {
-  if (!toUserId) return;
-  socket.emit("answer-call", { toUserId: String(toUserId) });
+export const onRejectedCall = (cb) => {
+  socket.on("call-rejected", cb);
 };
 
-export const rejectCall = (toUserId) => {
-  if (!toUserId) return;
-  socket.emit("reject-call", { toUserId: String(toUserId) });
+export const offRejectCall = (cb) => {
+  socket.off("call-rejected", cb);
+};
+
+export const onEndCall = (cb) => {
+  console.log("CALL ENDED - SOCKET");
+  socket.on("call-ended", cb);
+};
+
+export const offEndCall = (cb) => {
+  socket.off("call-ended", cb);
+};
+
+export const onUserBusy = (cb) => {
+  socket.on("user-busy", cb);
+};
+
+export const offUserBusy = (cb) => {
+  socket.off("user-busy", cb);
+};
+
+export const onCallUserOffline = (cb) => {
+  socket.on("user-offline", cb);
+};
+
+export const offCallUserOffline = (cb) => {
+  socket.off("user-offline", cb);
+};
+
+export const onStopRinging = (cb) => {
+  socket.on("stop-ringing", cb);
+};
+
+export const offStopRinging = (cb) => {
+  socket.off("socket-ringing", cb);
+};
+
+export const emitAnswerCall = (callId, toUserId) => {
+  if (!callId || !toUserId) return;
+  socket.emit("answer-call", {
+    toUserId: toUserId,
+    callId: callId,
+  });
+};
+
+export const emitRejectCall = (callId, toUserId) => {
+  if (!callId || !toUserId) return;
+  socket.emit("reject-call", {
+    toUserId: toUserId,
+    callId: callId,
+  });
 };
 
 export const endCall = (toUserId) => {
+  console.log("END CALL - SOCKET");
   if (!toUserId) return;
   socket.emit("end-call", { toUserId: String(toUserId) });
 };

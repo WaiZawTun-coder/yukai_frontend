@@ -70,7 +70,6 @@ const ProfileTabs = ({ activeTab, setActiveTab, isLoggedInUser }) => {
   return (
     <div className="tabs profile-tabs">
       {TABS.map((tab, i) => {
-        console.log({ isLoggedInUser });
         if (isLoggedInUser || tab.url != "saved")
           return (
             <span

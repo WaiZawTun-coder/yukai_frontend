@@ -23,7 +23,6 @@ export const CallNotifications = () => {
     // Stop ringtones for removed calls
     Object.keys(ringtones).forEach((callId) => {
       if (!calls.some((call) => call.id === callId)) {
-        console.log("Stopping ringtone for call:", callId);
         ringtones[callId]?.pause();
         setRingtones((prev) => {
           const newRingtones = { ...prev };
