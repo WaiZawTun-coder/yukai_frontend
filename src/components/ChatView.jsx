@@ -52,24 +52,27 @@ const ChatHeader = ({
   isOnline,
   typingUser,
   lastSeen,
-  isUserBusy,
+  iscalleeusy,
 }) => (
   <div className="chat-header">
     <div className="back-button" onClick={onBack}>
       <WestRoundedIcon style={{ verticalAlign: "middle", fontSize: 20 }} />
     </div>
 
-    <Image
-      src={
-        chatData?.other_profile_image
-          ? `/api/images?url=${chatData.other_profile_image}`
-          : `/Images/default-profiles/${chatData?.other_gender}.jpg`
-      }
-      alt="Profile"
-      className="profile-pic"
-      width={37}
-      height={37}
-    />
+    <div className="chat-avatar">
+      <Image
+        src={
+          chatData?.other_profile_image
+            ? `/api/images?url=${chatData.other_profile_image}`
+            : `/Images/default-profiles/${chatData?.other_gender}.jpg`
+        }
+        alt="Profile"
+        className="profile-pic"
+        width={37}
+        height={37}
+      />
+      {isOnline && <span className="online-dot" />}
+    </div>
 
     <div className="chat-user-info">
       <span className="user-name">
@@ -86,14 +89,14 @@ const ChatHeader = ({
       <button
         className="chat-header-button"
         onClick={handleCall.handleAudioCall}
-        disabled={isUserBusy}
+        disabled={iscalleeusy}
       >
         <CallRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
       </button>
       <button
         className="chat-header-button"
         onClick={handleCall.handleVideoCall}
-        disabled={isUserBusy}
+        disabled={iscalleeusy}
       >
         <VideocamRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
       </button>
@@ -282,7 +285,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const router = useRouter();
   const apiFetch = useApi();
   const { startCall, stopCall } = useCall();
-  const { isUserBusy } = useBusy();
+  const { iscalleeusy } = useBusy();
 
   const { user, getDeviceId, encryptForDevices, decryptPayload } = useAuth();
 
@@ -335,12 +338,16 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     if (chatId) emitUpdateReceipt(messageId, chatId, "delivered");
   };
 
-  const markMessageSeen = (messageId) => {
+  const markMessageSeen = async (messageId) => {
     setMessages((prev) =>
       prev.map((m) =>
         m.message_id === messageId ? { ...m, status: "seen" } : m
       )
     );
+    const res = await apiFetch(`/api/chat/update-receipt`, {
+      method: "POST",
+      body: { message_id: messageId, status: "seen" },
+    });
     if (chatId) emitUpdateReceipt(messageId, chatId, "seen");
   };
 
@@ -574,6 +581,9 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           recipient_device_id: payload.device_id,
           message_type: "text",
           sent_at: new Date().toISOString(),
+          profile_image: user.profile_image,
+          gender: user.gender,
+          display_name: user.display_name,
         });
       });
     }
@@ -699,17 +709,36 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   }, [chatParticipants, friendsList, searchFriendsValue]);
 
   /* -------------------- Call Helpers -------------------- */
-  const createRoomId = (userA, userB, chatId) => {
-    return `room_${userA.username}${userB.user_id}_${userB.username}${userA.user_id}_${chatId}`;
+  const createRoomId = (caller, callee, chatId) => {
+    if (!Array.isArray(callee)) callee = [callee];
+
+    // Sort callees to keep deterministic order
+    const sortedCallees = callee.sort((a, b) => a.user_id - b.user_id);
+
+    // Combine IDs only to shorten length
+    const idsPart = [
+      caller.user_id,
+      ...sortedCallees.map((c) => c.user_id),
+    ].join("_");
+
+    // Optional: Use a hash for extra uniqueness and shorter length
+    const baseString = `${caller.username}_${sortedCallees
+      .map((c) => c.username)
+      .join("_")}_${chatId}`;
+    const hash = Array.from(baseString).reduce(
+      (acc, char) => acc + char.charCodeAt(0),
+      0
+    ); // simple hash
+
+    return `room_${idsPart}_${hash}`.slice(0, 64); // ensure max 64 chars
   };
 
   const handleVideoCall = async () => {
+    console.log({ chatParticipants });
+    // const callee = chatData.
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },
-      {
-        username: chatData.other_username,
-        user_id: chatData.other_user_id,
-      },
+      chatParticipants,
       chatData.chat_id
     );
 
@@ -815,11 +844,10 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             isOnline={onlineStatus.online}
             typingUser={typingUser}
             lastSeen={onlineStatus.lastSeen}
-            isUserBusy={
-              !(
-                chatData.type === "private" &&
-                !isUserBusy(chatData.other_user_id)
-              )
+            iscalleeusy={
+              chatData.type === "private"
+                ? iscalleeusy(chatData.other_user_id)
+                : false
             }
           />
 

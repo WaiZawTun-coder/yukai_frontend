@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function MainLayout({ children }) {
-  const { loading: authLoading, isLoggedIn, user } = useAuth();
+  const { loading: authLoading, isLoggedIn, user, hasKeys } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -32,7 +32,7 @@ export default function MainLayout({ children }) {
     }
   }, [authLoading, isLoggedIn, user, pathname, router]);
 
-  if (authLoading) {
+  if (authLoading && !hasKeys) {
     return <AuthLoadingScreen text="Authentication Loading..." />;
   }
 

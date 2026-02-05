@@ -226,7 +226,7 @@ export const onStopRinging = (cb) => {
 };
 
 export const offStopRinging = (cb) => {
-  socket.off("socket-ringing", cb);
+  socket.off("stop-ringing", cb);
 };
 
 export const emitAnswerCall = (callId, toUserId) => {
