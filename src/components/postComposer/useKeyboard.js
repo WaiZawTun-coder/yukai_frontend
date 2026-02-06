@@ -7,7 +7,7 @@ export function useKeyboard({ enabled, onSubmit, onCancel, onSearch }) {
     const handler = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
-        onSubmit();
+        onSubmit?.();
       }
 
       if (e.key === "Escape") {

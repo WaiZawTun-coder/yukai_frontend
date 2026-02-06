@@ -195,7 +195,11 @@ const SocialPost = ({
         target_user_id: [post.creator.id],
       };
 
-      if (creator.id == user.user_id) return;
+      setComments((prev) => [res.comment, ...prev]);
+      setComment("");
+      setPost((prev) => ({ ...prev, comment_count: prev.comment_count + 1 }));
+
+      if (post.creator.id == user.user_id) return;
 
       const notifRes = await apiFetch(`/api/add-notification`, {
         method: "POST",
@@ -210,20 +214,10 @@ const SocialPost = ({
       payload.read = false;
 
       emitPostComment(payload);
-
-      showSnackbar({
-        title: "Comment posted",
-        message: "",
-        variant: "success",
-      });
-
-      setComments((prev) => [res.comment, ...prev]);
-      setComment("");
-      setPost((prev) => ({ ...prev, comment_count: prev.comment_count + 1 }));
     } catch (err) {
       showSnackbar({
         title: "Error",
-        message: "Unable to post comment",
+        message: err.meessage ?? "Unable to post comment",
         variant: "error",
       });
     } finally {
@@ -272,17 +266,22 @@ const SocialPost = ({
   // Time Formatter
   // -------------------------
   const formatDate = (dateStr) => {
-    const d = new Date(dateStr.replace(" ", "T"));
-    const diff = (Date.now() - d) / 1000;
+    const d = new Date(dateStr.replace(" ", "T") + "Z");
+    const diffSeconds = (Date.now() - d.getTime()) / 1000;
 
-    if (diff < 86400) {
-      return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
-        -Math.floor(diff / 3600),
-        "hour"
-      );
+    if (diffSeconds < 60) return "Just now";
+
+    if (diffSeconds < 3600) {
+      const mins = Math.floor(diffSeconds / 60);
+      return `${mins}m ago`;
     }
 
-    return d.toLocaleDateString("en-US", {
+    if (diffSeconds < 86400) {
+      const hours = Math.floor(diffSeconds / 3600);
+      return `${hours}h ago`;
+    }
+
+    return d.toLocaleDateString(undefined, {
       month: "short",
       day: "numeric",
     });
@@ -444,7 +443,11 @@ const SocialPost = ({
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
-        <button className="comment-submit" onClick={handleComment}>
+        <button
+          className="comment-submit"
+          onClick={handleComment}
+          disabled={commenting}
+        >
           {commenting ? "Posting..." : "Post"}
         </button>
       </div>
