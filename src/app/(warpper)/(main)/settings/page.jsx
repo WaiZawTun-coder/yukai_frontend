@@ -4,6 +4,8 @@
 import React, { useState } from 'react';
 import ProfileSettings from './editprofile';
 import ChangeEmail from './changeemail'; // Import the new component
+import ChangePassword from './changepassword';
+
 import '../../../css/settings.css';
 
 const SettingSidebar = () => {
@@ -20,8 +22,8 @@ const SettingSidebar = () => {
     } else if (name === 'Change Email') {
       setActivePage('changeEmail');
     } else if (name === 'Change Password') {
-      // You can add change password page similarly
-      console.log('Change Password clicked');
+      setActivePage('changePassword');
+      
     } else if (name === 'Deactivate Account') {
       if (confirm('Are you sure you want to deactivate your account?')) {
         console.log('Account deactivation requested');
@@ -52,8 +54,8 @@ const SettingSidebar = () => {
         { name: 'Change Password' },
         { name: 'Switch Account' },
         { name: 'Deactivate Account' },
-        { name: 'Delete Account'},
-        { name: 'Logout' },
+        { name: 'Delete Account'}
+       
       ],
     },
     {
@@ -117,6 +119,7 @@ const SettingSidebar = () => {
         { name: 'Logout from all devices' },
       ],
     },
+    
   ];
 
   // Render ProfileSettings component when activePage is 'editProfile'
@@ -128,7 +131,10 @@ const SettingSidebar = () => {
   if (activePage === 'changeEmail') {
     return <ChangeEmail onBack={() => setActivePage('settings')} />;
   }
-
+  //Render ChangeEmail component when activePage is 'changeEmail'
+  if (activePage === 'changePassword') {
+    return <ChangePassword onBack={() => setActivePage('settings')} />;
+  }
   // Render settings sidebar
   return (
     <div className="card">
