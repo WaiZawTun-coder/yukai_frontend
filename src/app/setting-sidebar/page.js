@@ -1,43 +1,13 @@
-// page.jsx
 'use client';
 
 import React, { useState } from 'react';
-import ProfileSettings from './editprofile';
-import ChangeEmail from './changeemail'; // Import the new component
-import '../../../css/settings.css';
+import '../css/settings.css';
 
 const SettingSidebar = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [activePage, setActivePage] = useState('settings'); // Track active page
 
   const toggleDropdown = (name) => {
     setOpenDropdown((prev) => (prev === name ? null : name));
-  };
-
-  const handleMenuItemClick = (name) => {
-    if (name === 'Edit Profile') {
-      setActivePage('editProfile');
-    } else if (name === 'Change Email') {
-      setActivePage('changeEmail');
-    } else if (name === 'Change Password') {
-      // You can add change password page similarly
-      console.log('Change Password clicked');
-    } else if (name === 'Deactivate Account') {
-      if (confirm('Are you sure you want to deactivate your account?')) {
-        console.log('Account deactivation requested');
-      }
-    } else if (name === 'Delete Account') {
-      if (confirm('⚠️ WARNING: This will permanently delete your account. This action cannot be undone. Are you sure?')) {
-        console.log('Account deletion requested');
-      }
-    } else if (name === 'Logout') {
-      if (confirm('Are you sure you want to logout?')) {
-        console.log('User logged out');
-        // Add your logout logic here
-      }
-    } else {
-      console.log(`Clicked: ${name}`);
-    }
   };
 
   const settingsData = [
@@ -47,6 +17,13 @@ const SettingSidebar = () => {
       items: [
         {
           name: 'Edit Profile',
+          subItems: [
+            'Change Name',
+            'Change Username',
+            'Bio',
+            'Change Photo',
+            'Delete Photo'
+          ],
         },
         { name: 'Change Email' },
         { name: 'Change Password' },
@@ -119,31 +96,28 @@ const SettingSidebar = () => {
     },
   ];
 
-  // Render ProfileSettings component when activePage is 'editProfile'
-  if (activePage === 'editProfile') {
-    return <ProfileSettings onBack={() => setActivePage('settings')} />;
-  }
-
-  // Render ChangeEmail component when activePage is 'changeEmail'
-  if (activePage === 'changeEmail') {
-    return <ChangeEmail onBack={() => setActivePage('settings')} />;
-  }
-
-  // Render settings sidebar
   return (
     <div className="card">
       <div className="setting-page-wrapper">
+        
         <header className="setting-container">
           <div className="setting-header">
+            <div className="header-left">
+              <span className="yukai-logo">yukai</span>
+              <h1 className="main-title">愉快</h1>
+            </div>
+
             <h2 className="page-label">
               Setting <i className="fa-solid fa-gear"></i>
             </h2>
+
           </div>
         </header>
 
         <div className="setting-content">
           {settingsData.map((section, index) => (
             <section key={index} className="setting-section">
+              
               <div className="section-header">
                 <h3 className="section-title">{section.title}</h3>
                 <i className={`fa-solid ${section.icon} section-icon`}></i>
@@ -155,19 +129,13 @@ const SettingSidebar = () => {
                     <React.Fragment key={idx}>
                       <li
                         className="setting-item"
-                        onClick={() => {
-                          if (item.subItems) {
-                            toggleDropdown(item.name);
-                          } else {
-                            handleMenuItemClick(item.name);
-                          }
-                        }}
-                        style={{ cursor: 'pointer' }}
+                        onClick={() =>
+                          item.subItems && toggleDropdown(item.name)
+                        }
                       >
                         <span>{item.name}</span>
-                        {item.subItems && (
-                          <i className={`fa-solid fa-chevron-right chevron-icon ${openDropdown === item.name ? 'rotate' : ''}`}></i>
-                        )}
+                        <i className={`fa-solid fa-chevron-right chevron-icon ${openDropdown === item.name ? 'rotate' : ''}`}></i>
+
                       </li>
 
                       {openDropdown === item.name && item.subItems && (
@@ -191,4 +159,4 @@ const SettingSidebar = () => {
   );
 };
 
-export default SettingSidebar;
+export default Settings;
