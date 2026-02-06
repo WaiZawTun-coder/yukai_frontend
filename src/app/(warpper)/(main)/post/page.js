@@ -315,20 +315,22 @@ const SocialPost = ({
 
   return (
     <div className="main-wrapper">
-      <div className="page-header">
-        <button
-          className="back-button"
-          onClick={() => {
-            router.back();
-          }}
-        >
-          <ArrowBackIosIcon fontSize="small" />
-        </button>
-        <span className="page-name">
-          {post?.creator?.display_name}
-          {"'"}s post
-        </span>
-      </div>
+      {pathname == "/post" && (
+        <div className="page-header">
+          <button
+            className="back-button"
+            onClick={() => {
+              router.back();
+            }}
+          >
+            <ArrowBackIosIcon fontSize="small" />
+          </button>
+          <span className="page-name">
+            {post?.creator?.display_name}
+            {"'"}s post
+          </span>
+        </div>
+      )}
       <div className="post-scrollable">
         <PostCard
           user={{

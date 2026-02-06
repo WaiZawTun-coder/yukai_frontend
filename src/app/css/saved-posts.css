@@ -22,3 +22,21 @@
   background-color: var(--accent-color);
   color: var(--background-color);
 }
+
+.save-post-action-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+}
+
+.save-post-action-box input {
+  margin: 0;
+}
+
+.save-post-action-box button {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-color);
+}
