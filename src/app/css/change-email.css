@@ -274,7 +274,7 @@
 }
 
 /* Form Actions */
-.form-actions {
+.form-edit {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
@@ -283,7 +283,7 @@
   border-top: 1px solid #334155; /* Dark border */
 }
 
-.action-button {
+.edit-button {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
@@ -328,7 +328,7 @@
   transform: none !important;
 }
 
-.action-button i {
+.edit-button i {
   font-size: 0.875rem;
 }
 
@@ -368,11 +368,11 @@
     text-align: left;
   }
   
-  .form-actions {
+  .form-edit {
     flex-direction: column;
   }
   
-  .action-button {
+  .edit-button {
     width: 100%;
     min-width: auto;
   }

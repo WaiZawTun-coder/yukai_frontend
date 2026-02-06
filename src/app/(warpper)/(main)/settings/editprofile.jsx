@@ -188,9 +188,9 @@ export default function ProfileSettings({ onBack }) {
         </div>
 
         {/* Action Buttons */}
-        <div className={`action-buttons ${hasChanges ? "visible" : "hidden"}`}>
+        <div className={`edit-buttons ${hasChanges ? "visible" : "hidden"}`}>
           <button
-            className="action-button cancel"
+            className="edit-button cancel"
             onClick={handleCancel}
             disabled={!hasChanges}
           >
@@ -198,7 +198,7 @@ export default function ProfileSettings({ onBack }) {
             Cancel
           </button>
           <button
-            className="action-button save"
+            className="edit-button save"
             onClick={handleSave}
             disabled={!hasChanges}
           >

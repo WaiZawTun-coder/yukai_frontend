@@ -324,11 +324,11 @@ const ChangePassword = ({ onBack }) => {
               
 
               {/* Form Actions */}
-              <div className="form-actions">
+              <div className="form-edit">
                 <button
                   type="button"
                   onClick={onBack}
-                  className="action-button cancel"
+                  className="edit-button cancel"
                   disabled={isLoading}
                 >
                   <i className="fas fa-times"></i>
@@ -337,7 +337,7 @@ const ChangePassword = ({ onBack }) => {
                 
                 <button
                   type="submit"
-                  className="action-button save"
+                  className="edit-button save"
                   disabled={isLoading || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
                 >
                   {isLoading ? (

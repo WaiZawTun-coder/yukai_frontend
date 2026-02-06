@@ -284,7 +284,7 @@ textarea.form-textarea {
 }
 
 /* Action Buttons */
-.action-buttons {
+.edit-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -292,16 +292,16 @@ textarea.form-textarea {
   transition: opacity 0.3s;
 }
 
-.action-buttons.visible {
+.edit-buttons.visible {
   opacity: 1;
 }
 
-.action-buttons.hidden {
+.edit-buttons.hidden {
   opacity: 0.5;
   pointer-events: none;
 }
 
-.action-button {
+.edit-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -315,35 +315,35 @@ textarea.form-textarea {
   color: #ffffff;
 }
 
-.action-button:disabled {
+.edit-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.action-button.cancel {
+.edit-button.cancel {
   background-color: #475569;
   border-color: #64748b;
   color: #ffffff;
 }
 
-.action-button.cancel:hover:not(:disabled) {
+.edit-button.cancel:hover:not(:disabled) {
   background-color: #64748b;
   border-color: #94a3b8;
 }
 
-.action-button.save {
+.edit-button.save {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border-color: transparent;
   color: #ffffff;
 }
 
-.action-button.save:hover:not(:disabled) {
+.edit-button.save:hover:not(:disabled) {
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.action-button i {
+.edit-button i {
   font-size: 0.75rem;
 }
 

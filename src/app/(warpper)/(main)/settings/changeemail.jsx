@@ -245,12 +245,12 @@ const ChangeEmail = ({ onBack }) => {
             </div>
 
             {/* Form Actions */}
-            <div className="form-actions">
+            <div className="form-edit">
               {onBack && (
                 <button
                   type="button"
                   onClick={onBack}
-                  className="action-button cancel-button"
+                  className="edit-button cancel-button"
                   disabled={isLoading}
                 >
                   <i className="fas fa-times"></i>
@@ -260,7 +260,7 @@ const ChangeEmail = ({ onBack }) => {
 
               <button
                 type="submit"
-                className="action-button submit-button"
+                className="edit-button submit-button"
                 disabled={
                   isLoading ||
                   !emailData.newEmail ||

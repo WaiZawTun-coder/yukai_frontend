@@ -52,9 +52,7 @@ const SettingSidebar = () => {
         },
         { name: 'Change Email' },
         { name: 'Change Password' },
-        { name: 'Switch Account' },
-        { name: 'Deactivate Account' },
-        { name: 'Delete Account'}
+        { name: 'Switch Account' }
        
       ],
     },
@@ -73,40 +71,36 @@ const SettingSidebar = () => {
         {
           name: 'Phone number & Birthday',
           subItems: ['Public', 'Friends', 'Only me'],
-        },
-        {
-          name: 'Active status',
-          subItems: ['Show', 'Hide'],
-        },
+        }
       ],
     },    
-    {
-      title: 'Notification Setting',
-      icon: 'fa-bell',
-      items: [
-        { name: 'Post notification' },
-        { name: 'Message notification' },
-        { name: 'Friend request notification' },
-      ],
-    },
-    {
-      title: 'Chat Setting',
-      icon: 'fa-comments',
-      items: [
-        { name: 'Message request' },
-        { name: 'Block unknown users' },
-        { name: 'Delete chat history' },
-      ],
-    },
+    // {
+    //   title: 'Notification Setting',
+    //   icon: 'fa-bell',
+    //   items: [
+    //     { name: 'Post notification' },
+    //     { name: 'Message notification' },
+    //     { name: 'Friend request notification' },
+    //   ],
+    // },
+    // {
+    //   title: 'Chat Setting',
+    //   icon: 'fa-comments',
+    //   items: [
+    //     { name: 'Message request' },
+    //     { name: 'Block unknown users' },
+    //     { name: 'Delete chat history' },
+    //   ],
+    // },
     {
       title: 'App Setting',
       icon: 'fa-palette',
       items: [
         { name: 'Appearance'},
-        {
-          name: 'Language',
-          subItems: ['Myanmar', 'English'],
-        }    
+        // {
+        //   name: 'Language',
+        //   subItems: ['Myanmar', 'English'],
+        // }    
       ],
     },
     {
@@ -115,10 +109,19 @@ const SettingSidebar = () => {
       items: [
         { name: 'Two-factor authentication' },
         { name: 'Account health'},
-        { name: 'Login activity' },
-        { name: 'Logout from all devices' },
+        { name: 'Login activity' }
       ],
     },
+    {
+      title: 'Danger Zone',
+      icon: 'fa-shield-halved',
+      items: [
+        { name: 'Delete Account' },
+        { name: 'Deactivate Account'},
+        { name: 'Logout from all devices' },
+        { name: 'Logout' },
+      ],
+    }
     
   ];
 
