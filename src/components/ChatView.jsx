@@ -52,7 +52,7 @@ const ChatHeader = ({
   isOnline,
   typingUser,
   lastSeen,
-  iscalleeusy,
+  isCalleeBusy,
 }) => (
   <div className="chat-header">
     <div className="back-button" onClick={onBack}>
@@ -89,14 +89,14 @@ const ChatHeader = ({
       <button
         className="chat-header-button"
         onClick={handleCall.handleAudioCall}
-        disabled={iscalleeusy}
+        disabled={isCalleeBusy}
       >
         <CallRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
       </button>
       <button
         className="chat-header-button"
         onClick={handleCall.handleVideoCall}
-        disabled={iscalleeusy}
+        disabled={isCalleeBusy}
       >
         <VideocamRoundedIcon style={{ fontSize: 30 }} className="header-icon" />
       </button>
@@ -285,7 +285,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const router = useRouter();
   const apiFetch = useApi();
   const { startCall, stopCall } = useCall();
-  const { iscalleeusy } = useBusy();
+  const { isUserBusy } = useBusy();
 
   const { user, getDeviceId, encryptForDevices, decryptPayload } = useAuth();
 
@@ -844,9 +844,9 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             isOnline={onlineStatus.online}
             typingUser={typingUser}
             lastSeen={onlineStatus.lastSeen}
-            iscalleeusy={
+            isCalleeBusy={
               chatData.type === "private"
-                ? iscalleeusy(chatData.other_user_id)
+                ? isUserBusy(chatData.other_user_id)
                 : false
             }
           />

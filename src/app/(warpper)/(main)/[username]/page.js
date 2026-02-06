@@ -243,7 +243,7 @@ const Profile = () => {
     };
 
     getSavedLists();
-  }, [apiFetch, showSnackbar]);
+  }, [apiFetch, showSnackbar, username]);
 
   useEffect(() => {
     setIsLoggedInUser(authUser && username === authUser.username);
