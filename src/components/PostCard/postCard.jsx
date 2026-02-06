@@ -74,8 +74,11 @@ export default function PostCard({
   }
 
   useEffect(() => {
+    const parseLocalDateTime = (dateStr) => {
+      return new Date(dateStr.replace(" ", "T") + "Z");
+    };
     function formatPostDate(dateStr) {
-      const d = parseLocalDateTime(dateStr); // ✅ local time
+      const d = parseLocalDateTime(dateStr);
       const diffSeconds = (Date.now() - d.getTime()) / 1000;
 
       if (diffSeconds < 60) return "Just now";

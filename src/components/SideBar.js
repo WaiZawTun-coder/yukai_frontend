@@ -83,7 +83,7 @@ const Sidebar = () => {
       // ignore tiny scrolls
       if (Math.abs(currentY - lastScrollY) < 10) return;
 
-      if (currentY > lastScrollY && currentY > 80) {
+      if (currentY > lastScrollY && currentY > 10) {
         // scrolling down
         setHidden(true);
       } else {
