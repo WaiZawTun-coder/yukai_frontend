@@ -90,7 +90,6 @@ const Login = () => {
     try {
       setIsLoading(true);
       const response = await login(username, password);
-      console.log({ response });
       if (response.status) {
         if (response.incomplete || response.data?.completed_step < 2) {
           router.replace("/register?step=2");

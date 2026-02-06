@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
 import { useState } from "react";
-import '../../../css/edit-profile.css';
+import "../../../css/edit-profile.css";
 
 export default function ProfileSettings({ onBack }) {
   const [profileData, setProfileData] = useState({
     name: "John Doe",
     username: "johndoe",
     bio: "Software developer | Tech enthusiast | Coffee lover ☕",
-    profileImage: "https://images.unsplash.com/photo-1683815251677-8df20f826622?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwZXJzb24lMjBwb3J0cmFpdHxlbnwxfHx8fDE3NzAyNzUyODV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+    profileImage:
+      "https://images.unsplash.com/photo-1683815251677-8df20f826622?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwZXJzb24lMjBwb3J0cmFpdHxlbnwxfHx8fDE3NzAyNzUyODV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
   });
 
   const [originalData, setOriginalData] = useState({ ...profileData });
@@ -45,7 +46,6 @@ export default function ProfileSettings({ onBack }) {
   };
 
   const handleSave = () => {
-    console.log("Saving profile data:", profileData);
     setOriginalData({ ...profileData });
     setHasChanges(false);
     alert("Profile updated successfully");
@@ -70,15 +70,12 @@ export default function ProfileSettings({ onBack }) {
       <div className="edit-profile-wrapper">
         {/* Back Button */}
         {onBack && (
-          <button
-            onClick={onBack}
-            className="back-button"
-          >
+          <button onClick={onBack} className="back-button">
             <i className="fas fa-arrow-left"></i>
             Back to Settings
           </button>
         )}
-        
+
         <div className="profile-header">
           <h1 className="profile-title">Edit Profile</h1>
           <p className="profile-subtitle">Update your personal information</p>
@@ -87,28 +84,25 @@ export default function ProfileSettings({ onBack }) {
         <div className="profile-card">
           <div className="card-header">
             <h2 className="card-title">Profile Information</h2>
-            
           </div>
-          
+
           <div className="card-content">
             {/* Profile Photo Section */}
             <div className="profile-photo-section">
               <div className="avatar-container">
                 <div className="avatar">
                   {profileData.profileImage ? (
-                    <img 
-                      src={profileData.profileImage} 
-                      alt={profileData.name} 
+                    <img
+                      src={profileData.profileImage}
+                      alt={profileData.name}
                       className="avatar-image"
                     />
                   ) : (
-                    <div className="avatar-fallback">
-                      {getInitials()}
-                    </div>
+                    <div className="avatar-fallback">{getInitials()}</div>
                   )}
                 </div>
               </div>
-              
+
               <div className="photo-buttons">
                 <button
                   className="photo-button primary"
@@ -117,7 +111,7 @@ export default function ProfileSettings({ onBack }) {
                   <i className="fas fa-upload"></i>
                   {profileData.profileImage ? "Change Photo" : "Upload Photo"}
                 </button>
-                
+
                 {profileData.profileImage && (
                   <button
                     className="photo-button delete"
@@ -128,7 +122,7 @@ export default function ProfileSettings({ onBack }) {
                   </button>
                 )}
               </div>
-              
+
               <p className="photo-hint">
                 Recommended: Square image, at least 400x400px
               </p>
@@ -160,7 +154,9 @@ export default function ProfileSettings({ onBack }) {
                   type="text"
                   id="username"
                   value={profileData.username}
-                  onChange={(e) => handleInputChange("username", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("username", e.target.value)
+                  }
                   placeholder="username"
                   className="form-input with-prefix"
                 />
@@ -172,7 +168,9 @@ export default function ProfileSettings({ onBack }) {
 
             {/* Bio Field */}
             <div className="form-field">
-              <label htmlFor="bio" className="form-label">Bio</label>
+              <label htmlFor="bio" className="form-label">
+                Bio
+              </label>
               <textarea
                 id="bio"
                 value={profileData.bio}
@@ -190,18 +188,18 @@ export default function ProfileSettings({ onBack }) {
         </div>
 
         {/* Action Buttons */}
-        <div className={`action-buttons ${hasChanges ? 'visible' : 'hidden'}`}>
-          <button 
+        <div className={`action-buttons ${hasChanges ? "visible" : "hidden"}`}>
+          <button
             className="action-button cancel"
-            onClick={handleCancel} 
+            onClick={handleCancel}
             disabled={!hasChanges}
           >
             <i className="fas fa-times"></i>
             Cancel
           </button>
-          <button 
+          <button
             className="action-button save"
-            onClick={handleSave} 
+            onClick={handleSave}
             disabled={!hasChanges}
           >
             <i className="fas fa-save"></i>
@@ -217,19 +215,17 @@ export default function ProfileSettings({ onBack }) {
               This is how your profile will appear to others
             </p>
           </div>
-          
+
           <div className="preview-content">
             <div className="preview-avatar">
               {profileData.profileImage ? (
-                <img 
-                  src={profileData.profileImage} 
-                  alt={profileData.name} 
+                <img
+                  src={profileData.profileImage}
+                  alt={profileData.name}
                   className="preview-avatar-image"
                 />
               ) : (
-                <div className="preview-avatar-fallback">
-                  {getInitials()}
-                </div>
+                <div className="preview-avatar-fallback">{getInitials()}</div>
               )}
             </div>
             <div className="preview-details">

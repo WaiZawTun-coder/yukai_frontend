@@ -145,7 +145,6 @@ const Home = () => {
             (post) => !oldPostIds.has(post.post_id)
           );
 
-          console.log({ filterNewPosts });
           return {
             ...prev,
             [activeTab]: [...prev[activeTab], ...filterNewPosts],
