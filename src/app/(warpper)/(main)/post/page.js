@@ -14,6 +14,8 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+
 const SocialPost = ({
   paramPost = null,
   isCommentOpen = true,
@@ -190,8 +192,10 @@ const SocialPost = ({
         type: "comment",
         referenceId: post.post_id,
         message: `${user.display_name} commented on your post`,
-        target_user_id: post.creator.id,
+        target_user_id: [post.creator.id],
       };
+
+      if (creator.id == user.user_id) return;
 
       const notifRes = await apiFetch(`/api/add-notification`, {
         method: "POST",
@@ -311,6 +315,20 @@ const SocialPost = ({
 
   return (
     <div className="main-wrapper">
+      <div className="page-header">
+        <button
+          className="back-button"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          <ArrowBackIosIcon fontSize="small" />
+        </button>
+        <span className="page-name">
+          {post?.creator?.display_name}
+          {"'"}s post
+        </span>
+      </div>
       <div className="post-scrollable">
         <PostCard
           user={{

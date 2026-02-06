@@ -34,12 +34,6 @@ export const MessageNotifications = () => {
           await apiFetch(`/api/get-user?user_id=${msg.fromUser}`)
         ).data;
 
-        console.log(
-          msg.message.cipher_text,
-          msg.message.iv,
-          msg.message.sender_signed_prekey_pub
-        );
-
         const plainText = await decryptPayload({
           ciphertext: msg.message.cipher_text,
           iv: msg.message.iv,

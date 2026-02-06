@@ -136,6 +136,7 @@ export const AuthProvider = ({ children }) => {
           loaded.identityPrivate && loaded.signedPrekeyPrivate;
 
         // CASE 1: clean state
+        // CASE 1: clean state → generate and register
         if (!hasLocalKeys && !deviceStatus.has_keys) {
           const publicBundle = await generateDeviceKeys(user.user_id);
 
@@ -156,14 +157,33 @@ export const AuthProvider = ({ children }) => {
           loaded = await loadDeviceKeys(user.user_id);
         }
 
-        // CASE 2: backend has device, local lost keys → STOP
+        // CASE 2: backend has device but local keys missing → generate new keys and re-register
         else if (!hasLocalKeys && deviceStatus.has_keys) {
-          throw new Error(
-            "Device exists on server but local keys are missing. Reset device required."
+          console.warn(
+            "Local keys missing. Generating new keys and re-registering device..."
           );
+
+          const publicBundle = await generateDeviceKeys(user.user_id);
+
+          await fetch(getBackendUrl() + "/api/register-device", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...publicBundle,
+              device_id: deviceId,
+              platform: "web",
+              force_update: true, // optional flag if backend supports overwrite
+            }),
+            signal: controller.signal,
+          });
+
+          loaded = await loadDeviceKeys(user.user_id);
         }
 
-        // CASE 3: local keys exist but backend lost device → re-register
+        // CASE 3: local keys exist but backend lost device → register existing keys
         else if (hasLocalKeys && !deviceStatus.has_keys) {
           await fetch(getBackendUrl() + "/api/register-device", {
             method: "POST",
@@ -382,6 +402,8 @@ export const AuthProvider = ({ children }) => {
 
     setAccessToken(data.data.access_token);
     setUser(data.data);
+
+    return data;
   };
 
   const logout = async () => {

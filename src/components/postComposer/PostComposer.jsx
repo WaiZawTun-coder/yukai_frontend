@@ -16,6 +16,7 @@ import { useApi } from "@/utilities/api";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useRouter } from "next/navigation";
 import TagFriendsModal from "../TagFriendsModal";
+import { emitPostCreate } from "@/utilities/socket";
 
 const PRIVACY_OPTIONS = [
   { label: "Public", value: "public" },
@@ -141,6 +142,26 @@ export default function PostComposer({ handleCreate }) {
       unlockScroll();
 
       handleCreate(data.data[0]);
+
+      const res = await apiFetch("/api/get-followers");
+
+      const followers = res.data;
+
+      const followerIds = new Set(followers.map((f) => f.user_id));
+
+      const payload = {
+        type: "post",
+        referenceId: data.post_id,
+        message: `${user.display_name} added new post.`,
+        target_user_id: followerIds,
+      };
+
+      const notifRes = await apiFetch(`/api/add-notification`, {
+        method: "POST",
+        body: payload,
+      });
+
+      emitPostCreate();
     } catch (err) {
       showSnackbar("Network error", "Please try again", "error");
     } finally {

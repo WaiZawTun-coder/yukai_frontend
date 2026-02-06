@@ -3,7 +3,6 @@
 .post-container {
   max-width: 720px;
   width: 100%;
-  min-width: 400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;

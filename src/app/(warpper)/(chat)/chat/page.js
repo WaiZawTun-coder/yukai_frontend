@@ -15,7 +15,6 @@ export default function ChatPage() {
   const [activeGroupId, setActiveGroupId] = useState(0);
 
   const changeChat = (username, chatType, groupId) => {
-    console.log({ username, chatType, groupId });
     setActiveChat(username);
     setActiveChatType(chatType);
     setActiveGroupId(groupId);

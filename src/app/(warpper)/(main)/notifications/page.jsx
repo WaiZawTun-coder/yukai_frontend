@@ -158,7 +158,6 @@ export default function NotificationMenu() {
       router.push(`/post?post_id=${target}`);
     } else if (type == "request") {
       const res = await apiFetch(`/api/get-user?user_id=${target}`);
-      // console.log({ res });
       router.push(`/${res.data.username}`);
     }
   };

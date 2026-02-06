@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SectionLoader({ children }) {
-  const { loading: authLoading, isLoggedIn } = useAuth();
+  const { loading: authLoading, isLoggedIn, hasKeys } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -15,7 +15,9 @@ export default function SectionLoader({ children }) {
     if (isLoggedIn) router.replace("/");
   }, [authLoading, isLoggedIn, router]);
 
-  if (authLoading) return <AuthLoadingScreen text="Loading..." />;
+  console.log({ hasKeys });
+
+  if (authLoading && !hasKeys) return <AuthLoadingScreen text="Loading..." />;
 
   if (isLoggedIn) return;
 

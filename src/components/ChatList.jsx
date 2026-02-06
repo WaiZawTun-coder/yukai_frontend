@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import SearchIcon from "@mui/icons-material/Search";
 import WestRoundedIcon from "@mui/icons-material/WestRounded";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
@@ -19,6 +18,8 @@ import {
   offPresenceListeners,
   onChatCreate,
   offChatCreate,
+  onNewMessage,
+  offNewMessage,
 } from "@/utilities/socket";
 import Modal from "./ui/Modal";
 import Button from "./ui/Button";
@@ -32,185 +33,185 @@ const ChatList = ({ onSelectChat }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [chatsList, setChatsList] = useState([]);
   const [decryptedMessages, setDecryptedMessages] = useState({});
-  const [filteredChats, setFilteredChats] = useState([]);
-
-  // ✅ Online users from socket
   const [onlineUserIds, setOnlineUserIds] = useState(new Set());
+  const [activeChatId, setActiveChatId] = useState(null);
 
-  const getChat = useCallback(
-    async (chat_id) => {
-      const res = await apiFetch(
-        `/api/get-group-chat?chat_id=${chat_id}&device_id=${getDeviceId()}`
-      );
+  /* ===================== FETCH CHATS ===================== */
+  const fetchChats = useCallback(async () => {
+    const res = await apiFetch(`/api/chats?device_id=${getDeviceId()}`);
+    setChatsList(res.data ?? []);
+  }, [apiFetch, getDeviceId]);
 
-      return res.data;
-    },
-    [apiFetch, getDeviceId]
-  );
+  useEffect(() => {
+    fetchChats();
+  }, [fetchChats]);
 
   /* ===================== CHAT CREATE SOCKET ===================== */
   useEffect(() => {
-    const updateChat = async (new_chat) => {
-      const chat = await getChat(new_chat.chat_id);
-      setChatsList((prev) => [chat, ...prev]);
+    const handleNewChat = async (newChat) => {
+      const chatData = await apiFetch(
+        `/api/get-group-chat?chat_id=${
+          newChat.chat_id
+        }&device_id=${getDeviceId()}`
+      );
+      setChatsList((prev) => [chatData, ...prev]);
     };
-    onChatCreate(updateChat);
-
-    return () => offChatCreate(updateChat);
-  }, [getChat]);
-
-  /* ===================== PRESENCE SOCKET ===================== */
-
-  useEffect(() => {
-    requestOnlineUsers();
-
-    onOnlineUsers((userIds) => {
-      setOnlineUserIds(new Set(userIds.users));
-    });
-
-    onUserOnline(({ userId }) => {
-      setOnlineUserIds((prev) => {
-        const next = new Set(prev);
-        next.add(userId);
-        return next;
-      });
-    });
-
-    onUserOffline(({ userId }) => {
-      setOnlineUserIds((prev) => {
-        const next = new Set(prev);
-        next.delete(userId);
-        return next;
-      });
-    });
-
-    return () => {
-      offPresenceListeners();
-    };
-  }, []);
-
-  /* ===================== FETCH CHATS ===================== */
-
-  useEffect(() => {
-    const getData = async () => {
-      const res = await apiFetch(`/api/chats?device_id=${getDeviceId()}`);
-      setChatsList(res.data ?? []);
-    };
-
-    getData();
+    onChatCreate(handleNewChat);
+    return () => offChatCreate(handleNewChat);
   }, [apiFetch, getDeviceId]);
 
-  /* ===================== DECRYPT LAST MESSAGE ===================== */
+  /* ===================== PRESENCE SOCKET ===================== */
+  useEffect(() => {
+    requestOnlineUsers();
+    onOnlineUsers(({ users }) => setOnlineUserIds(new Set(users)));
+    onUserOnline(({ userId }) =>
+      setOnlineUserIds((prev) => new Set(prev).add(userId))
+    );
+    onUserOffline(({ userId }) =>
+      setOnlineUserIds((prev) => {
+        const copy = new Set(prev);
+        copy.delete(userId);
+        return copy;
+      })
+    );
+    return () => offPresenceListeners();
+  }, []);
 
-  const getLastMessagePlainText = async ({
-    cipher_text,
-    iv,
-    sender_signed_prekey_pub,
-  }) => {
-    const plainText = await decryptPayload({
-      ciphertext: cipher_text,
-      iv,
-      sender_signed_prekey_pub,
-    });
-    return plainText;
-  };
+  /* ===================== DECRYPT MESSAGE ===================== */
+  const decryptMessage = useCallback(
+    async ({ chat_id, cipher_text, iv, sender_signed_prekey_pub }) => {
+      if (!cipher_text || !hasKeys) {
+        setDecryptedMessages((prev) => ({
+          ...prev,
+          [chat_id]: "Encrypted message",
+        }));
+        return "Encrypted message";
+      }
 
+      try {
+        const plain = await decryptPayload({
+          ciphertext: cipher_text,
+          iv,
+          sender_signed_prekey_pub,
+        });
+        setDecryptedMessages((prev) => ({ ...prev, [chat_id]: plain }));
+        return plain;
+      } catch (err) {
+        console.error("Decrypt failed", err);
+        setDecryptedMessages((prev) => ({
+          ...prev,
+          [chat_id]: "Encrypted message",
+        }));
+        return "Encrypted message";
+      }
+    },
+    [decryptPayload, hasKeys]
+  );
+
+  /* ===================== INITIAL DECRYPT ALL ===================== */
   useEffect(() => {
     if (!hasKeys || !chatsList.length) return;
 
-    const decryptAllMessages = async () => {
-      const newDecrypted = {};
-      for (const chat of chatsList) {
-        if (newDecrypted[chat.chat_id]) continue;
-
-        try {
-          if (chat.last_message_cipher_text != null) {
-            newDecrypted[chat.chat_id] = await getLastMessagePlainText({
-              cipher_text: chat.last_message_cipher_text,
-              iv: chat.last_message_iv,
-              sender_signed_prekey_pub:
-                chat.last_message_sender_signed_prekey_pub,
-            });
-          }
-        } catch (err) {
-          console.error(err.message);
-          newDecrypted[chat.chat_id] = "Encrypted message";
-        }
+    chatsList.forEach((chat) => {
+      if (chat.last_message_cipher_text) {
+        decryptMessage({
+          chat_id: chat.chat_id,
+          cipher_text: chat.last_message_cipher_text,
+          iv: chat.last_message_iv,
+          sender_signed_prekey_pub: chat.last_message_sender_signed_prekey_pub,
+        });
       }
-      setDecryptedMessages(newDecrypted);
+    });
+  }, [chatsList, decryptMessage]);
+
+  /* ===================== NEW MESSAGE SOCKET ===================== */
+  useEffect(() => {
+    const handleNewMessage = async (message) => {
+      const { chat_id, cipher_text, iv, sender_signed_prekey_pub } = message;
+      const preview = await decryptMessage({
+        cipher_text,
+        iv,
+        sender_signed_prekey_pub,
+      });
+
+      console.log({ [chat_id]: preview }); // real time message data is updating on group chat (only for receiving message) unread count is working too
+
+      setDecryptedMessages((prev) => ({ ...prev, [chat_id]: preview }));
+
+      setChatsList((prev) => {
+        const index = prev.findIndex((c) => c.chat_id === chat_id);
+        if (index === -1) return prev;
+        const chat = prev[index];
+
+        const updatedChat = {
+          ...chat,
+          last_message_time: new Date().toISOString(),
+          unread_count:
+            chat_id === activeChatId ? 0 : (chat.unread_count ?? 0) + 1,
+        };
+
+        const newList = [...prev];
+        newList.splice(index, 1);
+        return [updatedChat, ...newList];
+      });
     };
 
-    decryptAllMessages();
-  }, [chatsList, hasKeys]);
+    onNewMessage(handleNewMessage);
+    return () => offNewMessage(handleNewMessage);
+  }, [decryptMessage, activeChatId]);
 
-  /* ===================== ATTACH ONLINE STATUS ===================== */
-
-  const chatsWithStatus = useMemo(() => {
-    return chatsList.map((chat) => {
-      const user = chat.participants[0];
-      const isOnline = onlineUserIds.has(String(user?.user_id));
-
-      return {
-        ...chat,
-        online: isOnline,
-      };
-    });
-  }, [chatsList, onlineUserIds]);
+  /* ===================== ONLINE STATUS ===================== */
+  const chatsWithStatus = useMemo(
+    () =>
+      chatsList.map((chat) => {
+        const user = chat.participants[0];
+        return { ...chat, online: onlineUserIds.has(String(user?.user_id)) };
+      }),
+    [chatsList, onlineUserIds]
+  );
 
   /* ===================== FILTER TABS ===================== */
-
-  useEffect(() => {
-    const filtered = chatsWithStatus.filter((chat) => {
+  const filteredChats = useMemo(() => {
+    return chatsWithStatus.filter((chat) => {
       if (activeTab === "unread") return chat.unread_count > 0;
       if (activeTab === "group") return chat.type === "group";
       return true;
     });
+  }, [chatsWithStatus, activeTab]);
 
-    setFilteredChats(filtered);
-  }, [activeTab, chatsWithStatus]);
-
-  /* ===================== UI HELPERS ===================== */
-
+  /* ===================== OPEN CHAT ===================== */
   const handleOpenChat = (chat) => {
     const username = chat.participants[0]?.username;
-    console.log({ chat, username });
     if (!username) return;
+
+    setActiveChatId(chat.chat_id);
+    setChatsList((prev) =>
+      prev.map((c) =>
+        c.chat_id === chat.chat_id ? { ...c, unread_count: 0 } : c
+      )
+    );
 
     const route =
       chat.type === "group"
         ? `/chat/group?group_id=${chat.chat_id}`
         : `/chat/${username}`;
-
-    if (window.innerWidth < 768) {
-      router.replace(route);
-    } else {
-      onSelectChat(username, chat.type, chat.chat_id);
-    }
+    if (window.innerWidth < 768) router.replace(route);
+    else onSelectChat(username, chat.type, chat.chat_id);
   };
 
-  const formatTime = (time) => {
-    if (!time) return "";
-    return new Date(time).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  /* ===================== RENDER ===================== */
+  const formatTime = (time) =>
+    !time
+      ? ""
+      : new Date(time).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
 
   return (
     <div className="main-container-chat">
       <div className="chat-list-container">
-        {/* search bar */}
         <div className="chat-list-header">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              gap: 5,
-            }}
-          >
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <button className="back-button" onClick={() => router.replace("/")}>
               <WestRoundedIcon
                 style={{ verticalAlign: "middle", fontSize: 20 }}
@@ -218,7 +219,6 @@ const ChatList = ({ onSelectChat }) => {
             </button>
             <span>Chats</span>
           </div>
-
           <div className="chat-action-box">
             <div className="chat-search-box active">
               <SearchIcon className="icon" />
@@ -226,9 +226,7 @@ const ChatList = ({ onSelectChat }) => {
             </div>
             <button
               className="action-icon"
-              onClick={() => {
-                setIsModalOpen(true);
-              }}
+              onClick={() => setIsModalOpen(true)}
             >
               <AddCircleOutlinedIcon />
             </button>
@@ -236,7 +234,6 @@ const ChatList = ({ onSelectChat }) => {
         </div>
       </div>
 
-      {/* tabs */}
       <div className="chat-tabs">
         <button
           className={activeTab === "all" ? "active" : ""}
@@ -244,14 +241,12 @@ const ChatList = ({ onSelectChat }) => {
         >
           All
         </button>
-
         <button
           className={activeTab === "unread" ? "active" : ""}
           onClick={() => setActiveTab("unread")}
         >
           Unread
         </button>
-
         <button
           className={activeTab === "group" ? "active" : ""}
           onClick={() => setActiveTab("group")}
@@ -263,15 +258,12 @@ const ChatList = ({ onSelectChat }) => {
       <div className="chats">
         {filteredChats.map((chat) => {
           const user = chat.participants[0];
-          const isGroup = chat.type === "group";
-
           return (
             <div
               className="chat-row"
               key={chat.chat_id}
               onClick={() => handleOpenChat(chat)}
             >
-              {/* Avatar */}
               <div className="chat-avatar">
                 <Image
                   src={
@@ -283,28 +275,21 @@ const ChatList = ({ onSelectChat }) => {
                   width={48}
                   height={48}
                 />
-
-                {/* ✅ ONLINE DOT */}
                 {chat.online && <span className="online-dot" />}
               </div>
-
-              {/* Content */}
               <div className="chat-content">
                 <div className="chat-top">
                   <span className="chat-name">
-                    {isGroup ? chat.chat_name : user.display_name}
+                    {chat.type === "group" ? chat.chat_name : user.display_name}
                   </span>
-
                   <span className="chat-time">
                     {formatTime(chat.last_message_time)}
                   </span>
                 </div>
-
                 <div className="chat-bottom">
                   <span className="chat-message">
                     {decryptedMessages[chat.chat_id] ?? ""}
                   </span>
-
                   {chat.unread_count > 0 && (
                     <span className="chat-badge">{chat.unread_count}</span>
                   )}
@@ -314,15 +299,12 @@ const ChatList = ({ onSelectChat }) => {
           );
         })}
       </div>
+
       <CreateChatModal
         isModalOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-        }}
+        onClose={() => setIsModalOpen(false)}
         onCreated={async (newChat) => {
-          const chat_id = newChat.chat_id;
-          const chat_data = await getChat(chat_id);
-          setChatsList((prev) => [chat_data, ...prev]);
+          const chatData = await fetchChats();
         }}
       />
     </div>
@@ -331,6 +313,7 @@ const ChatList = ({ onSelectChat }) => {
 
 export default ChatList;
 
+/* ===================== CREATE CHAT MODAL ===================== */
 const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
   const apiFetch = useApi();
   const [users, setUsers] = useState([]);
@@ -349,10 +332,8 @@ const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
         const res = await apiFetch(`/api/get-friends?page=${curPage}`);
         friendsList = [...friendsList, ...res.data];
       }
-
       setUsers(friendsList);
     };
-
     update();
   }, [apiFetch]);
 
@@ -366,17 +347,11 @@ const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
 
   const handleCreate = async () => {
     if (isGroup && !groupName.trim()) return;
-
-    const payload = {
-      chat_name: groupName,
-      members: [...selected],
-    };
-
+    const payload = { chat_name: groupName, members: [...selected] };
     const res = await apiFetch("/api/chats/group", {
       method: "POST",
       body: payload,
     });
-
     onCreated(res.data);
     onClose();
   };
@@ -387,12 +362,9 @@ const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
         <input
           placeholder="Group name"
           value={groupName}
-          onChange={(e) => {
-            setGroupName(e.target.value);
-          }}
+          onChange={(e) => setGroupName(e.target.value)}
         />
       )}
-
       <div className="user-list">
         {users.map((user) => (
           <div
@@ -412,12 +384,10 @@ const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
               height={40}
               alt={user.username}
             />
-
             <span>{user.display_name}</span>
           </div>
         ))}
       </div>
-
       <div className="modal-actions">
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={handleCreate} disabled={!selected.size}>

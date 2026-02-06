@@ -136,10 +136,21 @@ const Home = () => {
         const page = res.page ?? 1;
         const totalPages = res.totalPages ?? 1;
 
-        setData((prev) => ({
-          ...prev,
-          [activeTab]: [...prev[activeTab], ...newPosts],
-        }));
+        setData((prev) => {
+          const oldPostIds = new Set(
+            prev[activeTab].map((post) => post.post_id)
+          );
+
+          const filterNewPosts = newPosts.filter(
+            (post) => !oldPostIds.has(post.post_id)
+          );
+
+          console.log({ filterNewPosts });
+          return {
+            ...prev,
+            [activeTab]: [...prev[activeTab], ...filterNewPosts],
+          };
+        });
 
         setCurPage((prev) => ({
           ...prev,

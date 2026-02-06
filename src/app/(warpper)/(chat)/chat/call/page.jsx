@@ -2,7 +2,7 @@
 
 import { useCall } from "@/context/CallContext";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
@@ -14,6 +14,8 @@ import VideocamOffIcon from "@mui/icons-material/VideocamOff";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import CallEndIcon from "@mui/icons-material/CallEnd";
+
+import { endCall, onEndCall, offEndCall } from "@/utilities/socket";
 
 const INACTIVITY_TIMEOUT = 3000;
 
@@ -40,78 +42,82 @@ export default function CallPage() {
   } = useCall();
 
   const router = useRouter();
+
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+
   const [remoteUid, setRemoteUid] = useState(null);
-  const [remoteVideoTrack, setRemoteVideoTrack] = useState(null); // New: Store the remote track
+  const [remoteVideoTrack, setRemoteVideoTrack] = useState(null);
   const [mounted, setMounted] = useState(false);
 
   const [controlsVisible, setControlsVisible] = useState(true);
   const inactivityTimerRef = useRef(null);
 
+  /* ---------------- Mount ---------------- */
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  /* -------------------- Local video -------------------- */
+  /* ---------------- Handle remote end call ---------------- */
+  useEffect(() => {
+    const handleCallEnded = () => {
+      stopCall();
+      router.back();
+    };
+
+    onEndCall(handleCallEnded);
+
+    return () => {
+      offEndCall(handleCallEnded);
+    };
+  }, [stopCall, router]);
+
+  /* ---------------- Local video ---------------- */
   useEffect(() => {
     if (!inCall || callType !== "video" || cameraOff || !mounted) return;
+
     const el = localVideoRef.current;
     const track = localTracks.current?.video;
-    console.log("Local video: Attempting to play", { el, track });
-    if (!el || !track) {
-      console.error("Local video: Missing element or track", { el, track });
-      return;
-    }
+
+    if (!el || !track) return;
 
     setTimeout(async () => {
-      if (el && track) {
-        try {
-          await track.play(el, { fit: "cover" });
-          console.log("Local video: Play succeeded");
-        } catch (err) {
-          console.error("Local video play failed:", err);
-        }
+      try {
+        await track.play(el, { fit: "cover" });
+      } catch (err) {
+        console.error("Local video play failed:", err);
       }
     }, 100);
 
     return () => {
-      if (track) track.stop();
+      track?.stop();
       if (el) el.innerHTML = "";
     };
-  }, [inCall, cameraOff, callType, localTracks.current?.video, mounted]);
+  }, [inCall, cameraOff, callType, mounted]);
 
-  /* -------------------- Remote subscription -------------------- */
+  /* ---------------- Remote subscription ---------------- */
   useEffect(() => {
     if (!inCall || !clientRef.current || !mounted) return;
+
     const client = clientRef.current;
 
     const subscribeUser = async (user, mediaType) => {
-      console.log("Subscribing to user:", user.uid, mediaType, {
-        hasVideo: user.hasVideo,
-        hasAudio: user.hasAudio,
-      });
       try {
         await client.subscribe(user, mediaType);
 
         if (mediaType === "video") {
           setRemoteUid(user.uid);
-          setRemoteVideoTrack(user.videoTrack); // New: Store the track for later playback
-          console.log("Remote video track stored:", user.videoTrack);
+          setRemoteVideoTrack(user.videoTrack);
         }
 
         if (mediaType === "audio") {
-          if (user.audioTrack) user.audioTrack.play();
+          user.audioTrack?.play();
         }
       } catch (err) {
-        console.error("Subscribe failed, retrying after 1s:", err);
-        setTimeout(() => {
-          subscribeUser(user, mediaType);
-        }, 1000);
+        console.error("Subscribe failed:", err);
       }
     };
 
-    console.log("Existing remote users:", client.remoteUsers);
     Object.values(client.remoteUsers || {}).forEach((user) => {
       if (user.hasAudio) subscribeUser(user, "audio");
       if (user.hasVideo) subscribeUser(user, "video");
@@ -119,11 +125,11 @@ export default function CallPage() {
 
     const handleUserPublished = (user, mediaType) =>
       subscribeUser(user, mediaType);
-    const handleUserLeft = (user) => {
-      console.log("User left:", user.uid);
-      if (remoteVideoRef.current) remoteVideoRef.current.innerHTML = "";
+
+    const handleUserLeft = () => {
       setRemoteUid(null);
-      setRemoteVideoTrack(null); // New: Clear the track
+      setRemoteVideoTrack(null);
+      if (remoteVideoRef.current) remoteVideoRef.current.innerHTML = "";
     };
 
     client.on("user-published", handleUserPublished);
@@ -135,55 +141,47 @@ export default function CallPage() {
     };
   }, [inCall, mounted]);
 
-  /* -------------------- Remote video playback -------------------- */
-  // New: Separate effect to play remote video after remoteUid is set and DOM is ready
+  /* ---------------- Remote video playback ---------------- */
   useEffect(() => {
     if (!remoteUid || !remoteVideoTrack || !mounted) return;
+
     const el = remoteVideoRef.current;
-    console.log("Remote video: Attempting to play after UID set", {
-      el,
-      remoteVideoTrack,
-    });
-    if (!el) {
-      console.error("Remote video: Element still null after UID set", { el });
-      return;
-    }
+    if (!el) return;
 
     setTimeout(async () => {
-      if (el && remoteVideoTrack) {
-        try {
-          await remoteVideoTrack.play(el, { fit: "cover" });
-          console.log("Remote video: Play succeeded");
-        } catch (err) {
-          console.error("Remote video play failed:", err);
-        }
+      try {
+        await remoteVideoTrack.play(el, { fit: "cover" });
+      } catch (err) {
+        console.error("Remote video play failed:", err);
       }
-    }, 200); // Slightly longer delay to ensure DOM update
+    }, 150);
 
     return () => {
-      if (remoteVideoTrack) remoteVideoTrack.stop();
+      remoteVideoTrack?.stop();
       if (el) el.innerHTML = "";
     };
-  }, [remoteUid, remoteVideoTrack, mounted]); // Depends on remoteUid and track
+  }, [remoteUid, remoteVideoTrack, mounted]);
 
-  /* -------------------- Call sounds -------------------- */
+  /* ---------------- Call sounds ---------------- */
   useEffect(() => {
     if (inCall) playSound("/sounds/call-join.mp3");
     return () => playSound("/sounds/call-end.mp3");
   }, [inCall]);
 
-  /* -------------------- Controls -------------------- */
+  /* ---------------- Controls auto hide ---------------- */
   const resetInactivityTimer = useCallback(() => {
     setControlsVisible(true);
+
     if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+
     inactivityTimerRef.current = setTimeout(() => {
       setControlsVisible(false);
     }, INACTIVITY_TIMEOUT);
   }, []);
 
   useEffect(() => {
-    // Attach listeners for user activity
     const handleActivity = () => resetInactivityTimer();
+
     window.addEventListener("mousemove", handleActivity);
     window.addEventListener("mousedown", handleActivity);
     window.addEventListener("touchstart", handleActivity);
@@ -196,11 +194,16 @@ export default function CallPage() {
       window.removeEventListener("mousedown", handleActivity);
       window.removeEventListener("touchstart", handleActivity);
       window.removeEventListener("keydown", handleActivity);
+
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     };
   }, [resetInactivityTimer]);
 
+  /* ---------------- Actions ---------------- */
   const handleEnd = () => {
+    if (remoteUserInfo?.user_id) {
+      endCall(remoteUserInfo.user_id);
+    }
     stopCall();
     router.back();
   };
@@ -220,15 +223,13 @@ export default function CallPage() {
 
   return (
     <div className="call-root">
-      {/* ================= Video Stage ================= */}
       <div className="video-stage">
         {!showAvatar ? (
           <div ref={remoteVideoRef} className="remote-video" />
         ) : (
-          <AudioAvatar user={remoteUserInfo} />
+          <AudioAvatar user={remoteUserInfo} callType={callType} />
         )}
 
-        {/* Local PiP */}
         {callType === "video" && !cameraOff && (
           <div className="local-pip">
             <div ref={localVideoRef} className="local-video" />
@@ -236,7 +237,6 @@ export default function CallPage() {
         )}
       </div>
 
-      {/* ================= Controls ================= */}
       <div
         className={`call-controls ${controlsVisible ? "visible" : "hidden"}`}
       >
@@ -254,7 +254,10 @@ export default function CallPage() {
           {speakerMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
         </IconButton>
 
-        <IconButton onClick={handleEnd} style={{ backgroundColor: "#e53935" }}>
+        <IconButton
+          onClick={handleEnd}
+          style={{ backgroundColor: "#e53935", color: "#fff" }}
+        >
           <CallEndIcon />
         </IconButton>
       </div>
@@ -262,13 +265,13 @@ export default function CallPage() {
   );
 }
 
-/* ================= Audio Avatar ================= */
-function AudioAvatar({ user }) {
+/* ---------------- Avatar ---------------- */
+function AudioAvatar({ user, callType }) {
   return (
     <div className="audio-avatar">
       <Avatar src={user?.avatar} sx={{ width: 140, height: 140 }} />
       <h2>{user?.username || "Unknown"}</h2>
-      <p>Audio Call</p>
+      <p>{callType.charAt(0).toUpperCase() + callType.slice(1)} Call</p>
     </div>
   );
 }
