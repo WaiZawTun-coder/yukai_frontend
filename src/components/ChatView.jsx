@@ -734,7 +734,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   };
 
   const handleVideoCall = async () => {
-    console.log({ chatParticipants });
     // const callee = chatData.
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },

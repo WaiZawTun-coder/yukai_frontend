@@ -15,8 +15,6 @@ export default function SectionLoader({ children }) {
     if (isLoggedIn) router.replace("/");
   }, [authLoading, isLoggedIn, router]);
 
-  console.log({ hasKeys });
-
   if (authLoading && !hasKeys) return <AuthLoadingScreen text="Loading..." />;
 
   if (isLoggedIn) return;
