@@ -39,12 +39,13 @@ const TopBar = ({ setData }) => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
     debounceTimer.current = setTimeout(() => {
+      if (searchText.trim() == "") return;
       router.replace(`/search?q=${searchText}`);
       // Nothing else needed here; searchText is passed to SearchResults
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(debounceTimer.current);
-  }, [searchText]);
+  }, [router, searchActive, searchText]);
 
   /* -------------------- Active tab based on URL -------------------- */
   useEffect(() => {

@@ -13,6 +13,7 @@ import { emitPostComment } from "@/utilities/socket";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import NearMeIcon from "@mui/icons-material/NearMe";
 
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
@@ -436,20 +437,30 @@ const SocialPost = ({
             objectFit: "cover",
           }}
         />
-        <input
-          type="text"
-          className="comment-input"
-          placeholder="Write a comment..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-        />
-        <button
-          className="comment-submit"
-          onClick={handleComment}
-          disabled={commenting}
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            height: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
-          {commenting ? "Posting..." : "Post"}
-        </button>
+          <input
+            type="text"
+            className="comment-input"
+            placeholder="Write a comment..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <button
+            className="comment-submit"
+            onClick={handleComment}
+            disabled={commenting}
+          >
+            <NearMeIcon />
+          </button>
+        </div>
       </div>
 
       {/* DELETE POPUP */}

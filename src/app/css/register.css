@@ -30,7 +30,7 @@
 
 .signup-right {
   width: 50%;
-  color: var(--text-primary);
+  color: var(--text-color);
   padding: 30px 40px;
   position: relative;
 }
@@ -39,7 +39,7 @@
   text-align: center;
   margin-bottom: 10px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .signup-right form {
@@ -52,14 +52,14 @@
 .signup-right label {
   font-size: 13px;
   margin-bottom: 6px;
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .signup-right input {
   border-radius: 10px;
   padding: 12px 14px;
 
-  color: var(--text-primary);
+  color: var(--text-color);
   outline: none;
 
   transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -79,7 +79,7 @@
   border: none;
   padding: 12px;
   border-radius: 8px;
-  color: var(--text-primary);
+  color: var(--text-color);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
@@ -93,7 +93,7 @@
   text-align: center;
   font-size: 13px;
   margin-top: 20px;
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .signin span {
@@ -109,7 +109,7 @@
   bottom: 20px;
   right: 30px;
   font-size: 18px;
-  color: var(--text-secondary);
+  color: var(--text-color);
   font-weight: bold;
 }
 
@@ -188,7 +188,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
+  color: var(--text-color);
   box-shadow: var(--shadow-soft);
 }
 
@@ -209,7 +209,7 @@
   justify-content: center;
   font-weight: 600;
   opacity: 0.4;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .step-dot.active {

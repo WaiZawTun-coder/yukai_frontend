@@ -38,7 +38,6 @@
 .search-box {
   display: flex;
   align-items: center;
-  background: #6b7c95;
   padding: 6px 14px;
   border-radius: 20px;
 }
@@ -154,10 +153,11 @@
 
 .comment-input {
   width: 100%;
-  padding: 10px;
   border-radius: 14px;
   border: none;
   outline: none;
+  margin: 0;
+  padding: 0;
 }
 
 .icon {

@@ -7,6 +7,7 @@
 
 /* Left panel */
 .chat-list-pane {
+  background-color: var(--secondary-color);
   border-right: 1px solid var(--divider);
   overflow-y: auto;
 }
@@ -58,7 +59,7 @@
   background-color: transparent;
   border: none;
   outline: none;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .chat-header .back-button {
@@ -70,7 +71,7 @@
 .chat-list-header span {
   font-size: 20px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .chat-action-box {
@@ -146,7 +147,7 @@
   flex: 1;
   border: none;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-color);
   padding: 8px 10px;
   border-radius: 10px;
   font-size: 14px;
@@ -159,8 +160,8 @@
 }
 
 .chat-tabs button.active {
-  background: var(--primary-color);
-  color: #fff;
+  background: var(--secondary-color);
+  color: var(--text-color);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
@@ -231,7 +232,7 @@
 .chat-name {
   font-weight: 600;
   font-size: 14px;
-  color: var(--text-primary);
+  color: var(--text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

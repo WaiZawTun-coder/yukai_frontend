@@ -29,6 +29,8 @@
   backdrop-filter: blur(6px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
+  background-color: var(--secondary-color);
+
   /* display: grid; */
   /* grid-template-columns: auto 1fr; */
   /* grid-template-rows: auto auto; */
@@ -100,6 +102,7 @@
   transition: all 300ms ease;
   /* height: 36px; */
   max-height: 100%;
+  min-height: 40px;
 }
 
 .search-btn {
@@ -162,14 +165,14 @@
   background-color: transparent;
   border: none;
   outline: none;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .tab-btn {
   flex: 1;
   border: none;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-inverse);
   padding: 8px 10px;
   border-radius: 10px;
   font-size: 14px;
@@ -178,7 +181,7 @@
 
 .tab-btn.active {
   background: var(--secondary-color);
-  color: #fff;
+  color: var(--text-color);
 }
 
 .post-list {
