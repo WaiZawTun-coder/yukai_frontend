@@ -291,7 +291,7 @@ const ChatList = ({ onSelectChat }) => {
                     {chat.type === "group" ? chat.chat_name : user.display_name}
                   </span>
                   <span className="chat-time">
-                    {formatTime(chat.last_message_time)}
+                    {formatTime(chat.last_message_time, { utc: true })}
                   </span>
                 </div>
                 <div className="chat-bottom">

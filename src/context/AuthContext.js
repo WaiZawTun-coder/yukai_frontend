@@ -158,9 +158,6 @@ export const AuthProvider = ({ children }) => {
 
         // CASE 2: local keys missing, but device exists on backend → generate new keys and re-register
         else if (!hasLocalKeys && deviceStatus.has_keys) {
-          console.warn(
-            "Local keys missing. Generating new keys and re-registering device..."
-          );
           const publicBundle = await generateDeviceKeys(user.user_id);
           await fetch(getBackendUrl() + "/api/register-device", {
             method: "POST",
