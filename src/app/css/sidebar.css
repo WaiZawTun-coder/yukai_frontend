@@ -190,23 +190,16 @@
   bottom: 20px;
   right: 12px;
 
-  width: 48px;
+  width: fit-content;
   height: 26px;
   padding: 4px;
 
-  background: var(--surface-2);
   border-radius: 20px;
 
   display: flex;
   align-items: center;
 
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-soft);
-}
-
-.toggle:hover {
-  background: var(--surface-3);
 }
 
 /* ======================================================

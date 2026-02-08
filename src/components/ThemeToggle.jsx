@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import ThemeToggleSwitch from "./ui/theme-toggler";
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState(null);
@@ -20,5 +21,5 @@ export default function ThemeToggle() {
     setTheme(newTheme);
   };
 
-  return <button onClick={toggleTheme}>Toggle Theme</button>;
+  return <ThemeToggleSwitch checked={theme == "dark"} onChange={toggleTheme} />;
 }
