@@ -34,6 +34,18 @@ export default function RootLayout({ children }) {
         <SnackbarProvider>
           <AuthProvider>{children}</AuthProvider>
         </SnackbarProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            (function() {
+              const theme = localStorage.getItem("theme");
+              if (theme) {
+                document.documentElement.setAttribute("data-theme", theme);
+              }
+            })();
+          `,
+          }}
+        />
       </body>
     </html>
   );

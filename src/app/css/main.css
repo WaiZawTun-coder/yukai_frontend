@@ -9,7 +9,7 @@
   place-items: center;
 
   background: var(--bg-primary);
-  color: var(--text-primary);
+  color: var(--text-color);
 
   text-align: center;
 }
@@ -40,7 +40,7 @@
   flex-direction: column;
 
   background: var(--background-color);
-  color: var(--text-primary);
+  color: var(--text-color);
   overflow-x: hidden;
   overflow-y: auto;
   margin-left: var(--sidebar-width);

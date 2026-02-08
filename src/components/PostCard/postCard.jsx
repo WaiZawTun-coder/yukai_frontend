@@ -63,16 +63,6 @@ export default function PostCard({
   const [time, setTime] = useState("");
   const { user: authUser } = useAuth();
 
-  function parseLocalDateTime(dateStr) {
-    // "2026-01-21 13:45:10" → [2026,01,21,13,45,10]
-    const [datePart, timePart = "00:00:00"] = dateStr.split(" ");
-    const [y, m, d] = datePart.split("-").map(Number);
-    const [hh, mm, ss] = timePart.split(":").map(Number);
-
-    // Month is 0-based in JS
-    return new Date(y, m - 1, d, hh, mm, ss);
-  }
-
   useEffect(() => {
     const parseLocalDateTime = (dateStr) => {
       return new Date(dateStr.replace(" ", "T") + "Z");

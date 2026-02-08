@@ -100,7 +100,7 @@
   border: none;
   outline: none;
 
-  color: var(--text-primary);
+  color: var(--text-color);
   font-size: 15px;
   line-height: 1.6;
 
@@ -145,7 +145,7 @@
   align-items: center;
   gap: 6px;
 
-  color: var(--text-secondary);
+  color: var(--text-primary);
   white-space: nowrap;
 
   transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
@@ -154,7 +154,7 @@
 .action-buttons button:hover,
 .action-buttons label:hover {
   background: var(--btn-primary-hover);
-  color: var(--text-primary);
+  color: var(--text-color);
   box-shadow: var(--shadow-soft);
 }
 
@@ -183,7 +183,7 @@ button.ghost {
 
 button.ghost:hover {
   background: var(--surface-3);
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 /* ======================================================

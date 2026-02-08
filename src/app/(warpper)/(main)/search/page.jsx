@@ -11,6 +11,7 @@ import SocialPost from "../post/page";
 
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
 import TextField from "@/components/ui/TextField";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { emitPostComment } from "@/utilities/socket";
 
@@ -357,12 +358,12 @@ const SearchResults = () => {
               className="search-input"
             />
 
-            <button
+            <Button
               onClick={() => setDebouncedKeyword(keyword.trim())}
               className="search-btn"
             >
               Search
-            </button>
+            </Button>
           </div>
 
           <div className="search-tabs">

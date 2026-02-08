@@ -15,7 +15,6 @@
 /* Layout */
 .chat-message-layout {
   width: 100%;
-  max-width: 1200px;
   height: 100vh;
   position: relative;
   display: flex;

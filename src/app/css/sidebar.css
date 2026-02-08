@@ -18,7 +18,7 @@
   padding: 20px;
 
   background: var(--secondary-color);
-  color: var(--text-primary);
+  color: var(--text-color);
 
   border-right: 1px solid var(--border-soft);
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03);
@@ -31,14 +31,14 @@
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 12px;
-  color: var(--text-primary);
+  color: var(--text-color);
   white-space: nowrap;
 }
 
 .logo small {
   display: block;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-color);
   letter-spacing: 0.3px;
 }
 
@@ -48,7 +48,7 @@
 .profile {
   background: var(--secondary-color);
   /* background: rgba(177, 201, 239, 0.18); */
-  color: var(--text-primary);
+  color: var(--text-color);
   border-radius: 16px;
   padding: 14px;
   position: relative;
@@ -75,7 +75,7 @@
 .profile h4 {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .profile p {
@@ -93,7 +93,7 @@
   font-size: 11px;
   text-align: center;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .stats span {
@@ -103,7 +103,7 @@
 
 .stats span:hover {
   background: var(--hover-overlay);
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 /* ======================================================
@@ -114,7 +114,7 @@
   top: 14px;
   right: 12px;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .edit:hover {
@@ -145,13 +145,13 @@
   padding: 12px 14px;
   border-radius: 12px;
   margin-bottom: 8px;
+  color: var(--text-color);
 
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 12px;
 
-  color: var(--text-secondary);
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -166,15 +166,15 @@
 /* Active */
 .menu li.active,
 .menu a.active {
-  background: rgba(177, 201, 239, 0.18);
-  color: #ffffff;
+  background: var(--primary-color);
+  color: var(--text-primary);
   font-weight: 600;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .menu i {
   font-size: 20px;
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .menu li:hover i,
@@ -190,23 +190,16 @@
   bottom: 20px;
   right: 12px;
 
-  width: 48px;
+  width: fit-content;
   height: 26px;
   padding: 4px;
 
-  background: var(--surface-2);
   border-radius: 20px;
 
   display: flex;
   align-items: center;
 
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-soft);
-}
-
-.toggle:hover {
-  background: var(--surface-3);
 }
 
 /* ======================================================
@@ -286,7 +279,6 @@
   /* ACTIVE STATE */
   .menu li.active,
   .menu a.active {
-    background: rgba(177, 201, 239, 0.18);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   }
 

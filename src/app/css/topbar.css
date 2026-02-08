@@ -96,7 +96,7 @@
   min-width: 54px;
   white-space: nowrap;
 
-  color: var(--text-primary);
+  color: var(--text-color);
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
@@ -134,6 +134,7 @@
 .search-box.active {
   flex: 1;
   width: 100%;
+  background-color: var(--surface-2);
 }
 
 .search-box input {
@@ -141,7 +142,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: var(--text-primary);
+  color: var(--text-inverse);
   margin-left: 6px;
 }
 
@@ -176,6 +177,16 @@
   .nav-tabs {
     gap: 14px;
   }
+
+  .search-box {
+    background: transparent;
+    color: var(--text-color);
+  }
+
+  .icon {
+    color: var(--text-color);
+  }
+
   .search-box input {
     width: 0%;
     display: none;
