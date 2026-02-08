@@ -480,6 +480,12 @@ const SocialPost = ({
         footer={
           <div className="popup-actions">
             <button
+              className="popup-btn popup-btn-danger"
+              onClick={handleDelete}
+            >
+              Delete
+            </button>
+            <button
               className="popup-btn popup-btn-cancel"
               onClick={() => {
                 setTargetPostId(null);
@@ -487,13 +493,6 @@ const SocialPost = ({
               }}
             >
               Cancel
-            </button>
-
-            <button
-              className="popup-btn popup-btn-danger"
-              onClick={handleDelete}
-            >
-              Delete
             </button>
           </div>
         }

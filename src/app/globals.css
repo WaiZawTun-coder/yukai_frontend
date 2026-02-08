@@ -114,7 +114,7 @@ html[data-theme="light"] {
   --status-info: #3b82f6;
   --status-info-bg: #eff6ff;
   --status-info-border: #93c5fd;
-  --status-info-text: #1e40af;
+  --status-info-text: #c0c2c8;
 
   --status-neutral: #6b7280;
   --status-neutral-bg: #f9fafb;
@@ -127,7 +127,7 @@ html[data-theme="light"] {
   --shadow-strong: 0 12px 32px rgba(0, 0, 0, 0.25);
 
   /* EFFECTS */
-  --hover-overlay: rgba(177, 201, 239, 0.08);
+  --hover-overlay: rgba(131, 128, 128, 0.06);
   --active-overlay: rgba(177, 201, 239, 0.18);
   --focus-ring: rgba(110, 193, 228, 0.6);
 

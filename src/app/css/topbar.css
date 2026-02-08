@@ -172,6 +172,13 @@
   cursor: pointer;
 }
 
+@media (max-width: 1200px) {
+  .chat-icon {
+    display: block !important;
+    color: var(--primary-color);
+  }
+}
+
 /* RESPONSIVE */
 @media (max-width: 992px) {
   .nav-tabs {

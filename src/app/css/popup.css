@@ -62,7 +62,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #e5e7eb;
 }
 
 .popup-title {
@@ -98,8 +97,6 @@
 /* Footer */
 .popup-footer {
   padding: 16px 20px;
-  border-top: 1px solid #e5e7eb;
-  background: var(--primary-color);
   border-radius: 0 0 16px 16px;
 }
 
