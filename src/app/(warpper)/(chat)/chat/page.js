@@ -36,7 +36,15 @@ export default function ChatPage() {
             group_id={activeGroupId}
           />
         ) : (
-          <div className="empty-chat">Select a chat</div>
+          <div className="empty-chat">
+            <div className="empty-bubbles">
+              <div className="empty-bubble"></div>
+              <div className="empty-bubble"></div>
+              <div className="empty-bubble"></div>
+            </div>
+            <h2>Select a chat to start talking</h2>
+            <p>You can search for contacts or select a conversation.</p>
+          </div>
         )}
       </div>
     </div>

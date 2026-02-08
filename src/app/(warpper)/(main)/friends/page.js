@@ -123,22 +123,24 @@ export default function Friends() {
 
   return (
     <div className="friends-page">
-      <div className="friends-header">
-        <h1>Friends</h1>
-        <p>Manage your friends, following and requests</p>
-      </div>
+      <div className="friends-header-container">
+        <div className="friends-header">
+          <h1>Friends</h1>
+          <p>Manage your friends, following and requests</p>
+        </div>
 
-      {/* TABS */}
-      <div className="friend-tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={activeTab === tab.url ? "active" : ""}
-            onClick={() => handleTabChange(tab)}
-          >
-            {tab.name}
-          </button>
-        ))}
+        {/* TABS */}
+        <div className="friend-tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={activeTab === tab.url ? "active" : ""}
+              onClick={() => handleTabChange(tab)}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* GRID */}

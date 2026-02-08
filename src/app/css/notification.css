@@ -7,6 +7,12 @@
   overflow-x: hidden;
 }
 
+@media (min-width: 1200px) {
+  .notif-root {
+    height: 95vh;
+  }
+}
+
 .notif-wrapper {
   right: 0;
   margin-top: 12px;
@@ -67,6 +73,7 @@
   border-radius: 16px;
   overflow: hidden;
   color: var(--text-inverse);
+  border: 1px solid var(--border-soft);
 }
 
 .notif-item:hover {
@@ -76,6 +83,7 @@
 .notif-item.unread {
   background: var(--secondary-color);
   color: var(--text-color);
+  border-color: var(--secondary-color);
 }
 
 .notif-icon-wrap {

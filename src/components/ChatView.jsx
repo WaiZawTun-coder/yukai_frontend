@@ -113,6 +113,7 @@ const MessageList = ({
   messageEndRef,
   formatTime,
   onMessageSeen,
+  chatType,
 }) => {
   return (
     <div className="message-list">
@@ -123,6 +124,7 @@ const MessageList = ({
           currentUserId={currentUserId}
           formatTime={formatTime}
           onMessageSeen={onMessageSeen}
+          chatType={chatType}
         />
       ))}
       <div ref={messageEndRef} />
@@ -130,7 +132,13 @@ const MessageList = ({
   );
 };
 
-const MessageItem = ({ msg, currentUserId, formatTime, onMessageSeen }) => {
+const MessageItem = ({
+  msg,
+  currentUserId,
+  formatTime,
+  onMessageSeen,
+  chatType,
+}) => {
   const ref = useRef(null);
   const hasMarkedRef = useRef(false); // prevent duplicate calls
 
@@ -154,7 +162,13 @@ const MessageItem = ({ msg, currentUserId, formatTime, onMessageSeen }) => {
 
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [msg.message_id, msg.status, currentUserId, onMessageSeen]);
+  }, [
+    msg.message_id,
+    msg.status,
+    currentUserId,
+    onMessageSeen,
+    msg.sender_user_id,
+  ]);
 
   return (
     <div
@@ -163,7 +177,7 @@ const MessageItem = ({ msg, currentUserId, formatTime, onMessageSeen }) => {
         msg.sender_user_id === currentUserId ? "outgoing" : "incoming"
       }`}
     >
-      {msg.sender_user_id !== currentUserId && (
+      {msg.sender_user_id !== currentUserId && chatType == "group" && (
         <Image
           src={
             msg.profile_image
@@ -177,7 +191,7 @@ const MessageItem = ({ msg, currentUserId, formatTime, onMessageSeen }) => {
         />
       )}
       <div className="bubble">
-        {msg.sender_user_id !== currentUserId && (
+        {msg.sender_user_id !== currentUserId && chatType == "group" && (
           <span className="sender-name">{msg.display_name}</span>
         )}
         {/* <br /> */}
@@ -189,7 +203,9 @@ const MessageItem = ({ msg, currentUserId, formatTime, onMessageSeen }) => {
           </div>
         )}
 
-        {msg.plain_text || "Encrypted message"}
+        <span className="message-content">
+          {msg.plain_text || "Encrypted message"}
+        </span>
 
         <span className="time">
           {formatTime(msg.sent_at)}
@@ -856,6 +872,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             messageEndRef={messageEndRef}
             formatTime={formatTime}
             onMessageSeen={markMessageSeen}
+            chatType={chatData.type}
           />
           <ChatInput
             inputText={inputText}

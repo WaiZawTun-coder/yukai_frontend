@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hasKeys, setHasKeys] = useState(false);
-
+  const [keysLoading, setKeysLoading] = useState(false);
   // Crypto refs
   const identityPrivRef = useRef(null);
   const signedPrekeyPrivRef = useRef(null);
@@ -89,8 +89,7 @@ export const AuthProvider = ({ children }) => {
   const initRef = useRef(false);
 
   useEffect(() => {
-    if (!accessToken || !user) return;
-    if (initRef.current) return;
+    if (!accessToken || !user || initRef.current) return;
     initRef.current = true;
 
     let alive = true;
@@ -126,6 +125,8 @@ export const AuthProvider = ({ children }) => {
 
     (async () => {
       try {
+        setKeysLoading(true); // Start loading keys
+
         const deviceId = getDeviceId();
         if (!deviceId) throw new Error("Missing deviceId");
 
@@ -135,11 +136,9 @@ export const AuthProvider = ({ children }) => {
         const hasLocalKeys =
           loaded.identityPrivate && loaded.signedPrekeyPrivate;
 
-        // CASE 1: clean state
-        // CASE 1: clean state → generate and register
+        // CASE 1: clean state → generate and register keys
         if (!hasLocalKeys && !deviceStatus.has_keys) {
           const publicBundle = await generateDeviceKeys(user.user_id);
-
           await fetch(getBackendUrl() + "/api/register-device", {
             method: "POST",
             headers: {
@@ -157,14 +156,12 @@ export const AuthProvider = ({ children }) => {
           loaded = await loadDeviceKeys(user.user_id);
         }
 
-        // CASE 2: backend has device but local keys missing → generate new keys and re-register
+        // CASE 2: local keys missing, but device exists on backend → generate new keys and re-register
         else if (!hasLocalKeys && deviceStatus.has_keys) {
           console.warn(
             "Local keys missing. Generating new keys and re-registering device..."
           );
-
           const publicBundle = await generateDeviceKeys(user.user_id);
-
           await fetch(getBackendUrl() + "/api/register-device", {
             method: "POST",
             headers: {
@@ -175,7 +172,7 @@ export const AuthProvider = ({ children }) => {
               ...publicBundle,
               device_id: deviceId,
               platform: "web",
-              force_update: true, // optional flag if backend supports overwrite
+              force_update: true, // optional flag to overwrite
             }),
             signal: controller.signal,
           });
@@ -183,7 +180,7 @@ export const AuthProvider = ({ children }) => {
           loaded = await loadDeviceKeys(user.user_id);
         }
 
-        // CASE 3: local keys exist but backend lost device → register existing keys
+        // CASE 3: local keys exist but device is not registered on backend → register existing keys
         else if (hasLocalKeys && !deviceStatus.has_keys) {
           await fetch(getBackendUrl() + "/api/register-device", {
             method: "POST",
@@ -212,6 +209,10 @@ export const AuthProvider = ({ children }) => {
       } catch (err) {
         if (err.name !== "AbortError") {
           console.error("❌ Device key init failed:", err);
+        }
+      } finally {
+        if (alive) {
+          setKeysLoading(false); // Keys are loaded
         }
       }
     })();

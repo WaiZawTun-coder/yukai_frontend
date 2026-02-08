@@ -115,18 +115,18 @@ export default function PeopleGrid({
         const isLast = index === list.length - 1;
 
         return (
-          <div key={person.user_id} ref={isLast ? lastItemRef : null}>
-            <PeopleCard
-              person={person}
-              type={type}
-              removeCard={() =>
-                setList((prev) =>
-                  prev.filter((p) => p.user_id !== person.user_id)
-                )
-              }
-              setOpenMenuId={() => {}}
-            />
-          </div>
+          <PeopleCard
+            person={person}
+            type={type}
+            removeCard={() =>
+              setList((prev) =>
+                prev.filter((p) => p.user_id !== person.user_id)
+              )
+            }
+            setOpenMenuId={() => {}}
+            key={person.user_id}
+            ref={isLast ? lastItemRef : null}
+          />
         );
       })}
 

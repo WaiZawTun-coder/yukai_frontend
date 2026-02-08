@@ -96,26 +96,24 @@ const SocialPost = ({
   // Fetch Comments (by page)
   // -------------------------
   useEffect(() => {
-    if ((!paramPostId && !paramPost) || !hasMore) return;
+    if (!isCommentOpen) return;
+    if (!paramPostId && !paramPost) return;
 
     const postId = paramPostId ? paramPostId : paramPost.post_id;
 
     const getComments = async () => {
-      if (!isCommentOpen) return;
       setIsFetchingComments(true);
+
       try {
-        const res = await apiFetch(`/api/get-comment/${postId}?page=${page}`, {
-          method: "GET",
-        });
+        const res = await apiFetch(`/api/get-comment/${postId}?page=${page}`);
 
         setComments((prev) => {
-          const ids = new Set(prev.map((c) => c.comment_id));
-
-          const newOnes = res.data.filter((c) => !ids.has(c.comment_id));
-
+          const ids = new Set(prev.map((c) => c.post_comment_id));
+          const newOnes = res.data.filter((c) => !ids.has(c.post_comment_id));
           return [...prev, ...newOnes];
         });
-        setHasMore(res.total_page > res.page);
+
+        setHasMore(res.page < res.total_page);
       } catch (err) {
         showSnackbar({
           title: "Failed",
@@ -128,7 +126,13 @@ const SocialPost = ({
     };
 
     getComments();
-  }, [page, hasMore, apiFetch, showSnackbar, paramPostId, paramPost]);
+  }, [page, isCommentOpen, paramPostId, paramPost, apiFetch, showSnackbar]);
+
+  useEffect(() => {
+    setComments([]);
+    setPage(1);
+    setHasMore(true);
+  }, [paramPostId, paramPost]);
 
   // -------------------------------
   // Handle reactions
@@ -154,10 +158,12 @@ const SocialPost = ({
   const lastCommentRef = useCallback(
     (node) => {
       if (isFetchingComments) return;
+      if (!hasMore) return;
+
       if (observerRef.current) observerRef.current.disconnect();
 
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
+        if (entries[0].isIntersecting) {
           setPage((prev) => prev + 1);
         }
       });
@@ -474,6 +480,12 @@ const SocialPost = ({
         footer={
           <div className="popup-actions">
             <button
+              className="popup-btn popup-btn-danger"
+              onClick={handleDelete}
+            >
+              Delete
+            </button>
+            <button
               className="popup-btn popup-btn-cancel"
               onClick={() => {
                 setTargetPostId(null);
@@ -481,13 +493,6 @@ const SocialPost = ({
               }}
             >
               Cancel
-            </button>
-
-            <button
-              className="popup-btn popup-btn-danger"
-              onClick={handleDelete}
-            >
-              Delete
             </button>
           </div>
         }
