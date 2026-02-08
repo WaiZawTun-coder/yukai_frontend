@@ -88,7 +88,7 @@ h2 {
   animation: fadeIn 0.8s forwards;
 }
 
-p {
+.empty-chat p {
   font-size: 16px;
   margin: 0 0 20px 0;
   opacity: 0;

@@ -16,6 +16,7 @@ import { useAuth } from "@/context/AuthContext";
 import { emitPostComment } from "@/utilities/socket";
 import PostSkeleton from "@/components/ui/PostSkeleton";
 import UserSkeleton from "@/components/UserSkeleton";
+import SearchPeopleGrid from "@/components/SearchPeopleGrid";
 
 const TABS = [
   { id: 1, name: "All", value: "all" },
@@ -389,7 +390,7 @@ const SearchResults = () => {
               <UserSkeleton />
             </>
           ) : (
-            <PeopleGrid
+            <SearchPeopleGrid
               people={users.data}
               type="add-more"
               hasMore={users.page < users.total_pages}
