@@ -164,3 +164,127 @@
     width: 100%;
   }
 }
+
+.user-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1200px) {
+  .user-skeleton-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .user-skeleton-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* Card container */
+.user-skeleton {
+  background: var(--secondary-color);
+  border-radius: 14px;
+  padding: 12px;
+  width: 100%;
+  max-width: 720px;
+  height: 66px;
+}
+
+/* Layout */
+.user-skeleton .top-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Skeleton base */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  /* background: var(--secondary-color); */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Shimmer animation */
+.user-skeleton .avatar::after,
+.user-skeleton .displayName::after,
+.user-skeleton .username::after,
+.user-skeleton .action-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 100%;
+  min-width: 150px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-color),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* Avatar */
+.user-skeleton .avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* Text info */
+.user-skeleton .info {
+  flex: 1;
+}
+
+.user-skeleton .displayName {
+  height: 14px;
+  width: 140px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+}
+
+.user-skeleton .username {
+  height: 12px;
+  width: 100px;
+  border-radius: 6px;
+}
+
+/* Button skeleton */
+.user-skeleton .action-btn {
+  width: 90px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+/* Responsive (mobile like stacked cards if needed) */
+@media (min-width: 600px) {
+  .user-skeleton {
+    height: 207px;
+  }
+
+  .user-skeleton .top-row {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-skeleton .info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .user-skeleton .action-btn {
+    margin-top: 12px;
+    width: 200px;
+  }
+}

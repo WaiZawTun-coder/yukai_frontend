@@ -9,6 +9,11 @@
   gap: 16px;
 }
 
+.post-container * {
+  animation: fadeIn 0.8s forwards;
+  animation-delay: 0.3s;
+}
+
 /* ======================================================
    POST CARD
 ====================================================== */
@@ -330,7 +335,7 @@
   padding: 5px 12px;
   border-radius: 8px;
   border: 1px solid var(--border-soft);
-  color: var(--text-color);
+  color: var(--text-color) !important;
   background: var(--secondary-color);
   cursor: pointer;
   font-weight: 500;

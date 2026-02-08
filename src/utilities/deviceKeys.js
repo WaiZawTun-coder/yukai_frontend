@@ -194,7 +194,7 @@ export async function saveUserMeta(userId, name, value) {
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
 
-    // store as object with keyPath "name"
+    // Wrap value in object matching keyPath
     store.put({ name: keyName(userId, name), value });
 
     tx.oncomplete = () => resolve();

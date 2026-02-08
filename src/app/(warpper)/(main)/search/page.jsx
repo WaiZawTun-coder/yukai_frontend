@@ -14,6 +14,9 @@ import TextField from "@/components/ui/TextField";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { emitPostComment } from "@/utilities/socket";
+import PostSkeleton from "@/components/ui/PostSkeleton";
+import UserSkeleton from "@/components/UserSkeleton";
+import SearchPeopleGrid from "@/components/SearchPeopleGrid";
 
 const TABS = [
   { id: 1, name: "All", value: "all" },
@@ -382,14 +385,12 @@ const SearchResults = () => {
 
       {["all", "users"].includes(activeTab) && (
         <section className="users-section">
-          <h3>Users</h3>
-
           {users.data.length === 0 && loadingUsers ? (
-            <p>Loading users...</p>
-          ) : users.data.length === 0 ? (
-            <p>No users found</p>
+            <>
+              <UserSkeleton />
+            </>
           ) : (
-            <PeopleGrid
+            <SearchPeopleGrid
               people={users.data}
               type="add-more"
               hasMore={users.page < users.total_pages}
@@ -403,12 +404,12 @@ const SearchResults = () => {
 
       {["all", "posts"].includes(activeTab) && (
         <section className="posts-section">
-          <h3>Posts</h3>
-
           {posts.data.length === 0 && loadingPosts ? (
-            <p>Loading posts...</p>
-          ) : posts.data.length === 0 ? (
-            <p>No posts found.</p>
+            <>
+              <PostSkeleton />
+              <PostSkeleton />
+              <PostSkeleton />
+            </>
           ) : (
             <div className="post-list">
               {posts.data.map((post, index) => {
@@ -454,6 +455,26 @@ const SearchResults = () => {
 
           {loadingPosts && <p>Loading more posts...</p>}
         </section>
+      )}
+
+      {((["all"].includes(activeTab) &&
+        users.data.length === 0 &&
+        posts.data.length === 0) ||
+        (activeTab === "users" && users.data.length === 0) ||
+        (activeTab === "posts" && posts.data.length === 0)) && (
+        <div className="no-results-card">
+          <div className="no-results-icon">🔍</div>
+          <h3>No results found</h3>
+          <p>
+            We couldn&apos;t find anything for &quot;
+            <strong>{debouncedKeyword}</strong>&quot;
+          </p>
+          <ul className="no-results-suggestions">
+            <li>Check your spelling</li>
+            <li>Try different keywords</li>
+            <li>Browse popular users or posts</li>
+          </ul>
+        </div>
       )}
 
       {modalPost && (
