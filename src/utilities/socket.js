@@ -228,6 +228,22 @@ export const offStopRinging = (cb) => {
   socket.off("stop-ringing", cb);
 };
 
+export const onCallUserJoin = (cb) => {
+  socket.on("call-user-joined", cb);
+};
+
+export const offCallUserJoin = (cb) => {
+  socket.off("call-user-joined", cb);
+};
+
+export const onCallUserLeft = (cb) => {
+  socket.on("call-user-left", cb);
+};
+
+export const offCallUserLeft = (cb) => {
+  socket.off("call-user-left", cb);
+};
+
 export const emitAnswerCall = (callId, toUserId) => {
   if (!callId || !toUserId) return;
   socket.emit("answer-call", {
@@ -242,6 +258,16 @@ export const emitRejectCall = (callId, toUserId) => {
     toUserId: toUserId,
     callId: callId,
   });
+};
+
+export const emitUserJoin = ({ agoraUid, user }) => {
+  if (!agoraUid || !user) return;
+  socket.emit("call-user-joined", { agoraUid, user });
+};
+
+export const emitUserleft = ({ agoraUid, user }) => {
+  if (!agoraUid || !user) return;
+  socket.emit("call-user-left", { agoraUid, user });
 };
 
 export const endCall = (toUserId) => {
