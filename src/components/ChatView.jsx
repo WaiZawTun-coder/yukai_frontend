@@ -774,6 +774,10 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     };
 
     await startCall(userInfo, roomId, "video");
+    console.log(
+      "Start Call",
+      chatParticipants.map((p) => p.user_id)
+    );
 
     makeCall({
       toUsers: chatParticipants.map((p) => p.user_id),

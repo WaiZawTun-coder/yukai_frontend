@@ -61,6 +61,7 @@ export default function CallPage() {
   /* ---------------- Handle remote end call ---------------- */
   useEffect(() => {
     const handleCallEnded = () => {
+      console.log("End Call - Socket");
       stopCall();
       router.back();
     };
