@@ -4,10 +4,15 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import {
   emitAnswerCall,
   emitRejectCall,
+  emitUserJoin,
+  offCallUserJoin,
+  offCallUserLeft,
   offEndCall,
   offIncomingCall,
   offRejectCall,
   offStopRinging,
+  onCallUserJoin,
+  onCallUserLeft,
   onEndCall,
   onIncomingCall,
   onRejectedCall,
@@ -50,6 +55,8 @@ export function CallProvider({ children }) {
   const [micMuted, setMicMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(false);
   const [speakerMuted, setSpeakerMuted] = useState(false);
+
+  const [participants, setParticipants] = useState({}); // { [agoraUid]: { userId, username, profile } }
 
   // -------------------
   // Load Agora SDK
@@ -151,6 +158,7 @@ export function CallProvider({ children }) {
 
         await client.join(APP_ID, roomId, token, uid);
         setCallType(type);
+        emitUserJoin({ agoraUid: uid, user: userInfo });
 
         const AgoraRTC = AgoraRTCRef.current;
 
@@ -179,6 +187,31 @@ export function CallProvider({ children }) {
     [inCall, stopIncomingUI]
   );
 
+  useEffect(() => {
+    const handleUserJoin = ({ agoraUid, user }) => {
+      setParticipants((prev) => ({
+        ...prev,
+        [agoraUid]: user,
+      }));
+    };
+
+    const handleUserLeft = ({ agoraUid }) => {
+      setParticipants((prev) => {
+        const copy = { ...prev };
+        delete copy[agoraUid];
+        return copy;
+      });
+    };
+
+    onCallUserJoin(handleUserJoin);
+    onCallUserLeft(handleUserLeft);
+
+    return () => {
+      offCallUserJoin(handleUserJoin);
+      offCallUserLeft(handleUserLeft);
+    };
+  }, []);
+
   // -------------------
   // Stop Call
   // -------------------
@@ -192,6 +225,10 @@ export function CallProvider({ children }) {
       localTracks.current.video?.stop();
       localTracks.current.video?.close();
       await client.leave();
+      emitUserleft({
+        agoraUid: client.uid,
+        user: callerInfo,
+      });
     } catch (e) {
       console.error(e);
     } finally {
@@ -371,6 +408,7 @@ export function CallProvider({ children }) {
         cameraOff,
         speakerMuted,
         remoteUsers,
+        participants,
         callerInfo,
       }}
     >

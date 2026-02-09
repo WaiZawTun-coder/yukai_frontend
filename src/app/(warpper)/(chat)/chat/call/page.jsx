@@ -38,6 +38,7 @@ export default function CallPage() {
     cameraOff,
     speakerMuted,
     remoteUsers,
+    participants,
     playRemoteVideo,
     callerInfo,
   } = useCall();
@@ -112,27 +113,42 @@ export default function CallPage() {
 
   /* ---------------- Actions ---------------- */
   const handleEnd = () => {
-    endCall(); // broadcast end
+    if (callerInfo?.user_id) {
+      endCall(callerInfo.user_id);
+    }
     stopCall();
     router.back();
   };
 
   if (!inCall) return null;
 
-  const remoteUserList = Object.values(remoteUsers);
-  const showAvatar = callType === "audio" || remoteUserList.length === 0;
+  const remoteUids = Object.keys(remoteUsers);
+  const showAvatar = callType === "audio";
 
   return (
     <div className="call-root">
       <div className="video-stage grid">
         {!showAvatar &&
-          remoteUserList.map((user) => (
-            <div
-              key={user.uid}
-              className="remote-video"
-              ref={(el) => el && playRemoteVideo(user.uid, el)}
-            />
-          ))}
+          remoteUids.map((uid) => {
+            const profile = participants[uid];
+
+            return (
+              <div key={uid} className="remote-tile">
+                <div
+                  className="remote-video"
+                  ref={(el) => el && playRemoteVideo(uid, el)}
+                />
+
+                <div className="remote-user-info">
+                  <Avatar
+                    src={profile?.profile}
+                    sx={{ width: 36, height: 36 }}
+                  />
+                  <span>{profile?.username || "Connecting…"}</span>
+                </div>
+              </div>
+            );
+          })}
 
         {showAvatar && <AudioAvatar caller={callerInfo} callType={callType} />}
 
