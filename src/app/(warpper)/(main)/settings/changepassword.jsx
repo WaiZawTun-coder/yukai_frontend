@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 const ChangePassword = ({ onBack }) => {
   const [passwordData, setPasswordData] = useState({
@@ -185,8 +186,7 @@ const ChangePassword = ({ onBack }) => {
           className="back-button"
           disabled={isLoading}
         >
-          <i className="fas fa-arrow-left"></i>
-          <span>Back to Settings</span>
+           <ArrowBackIosIcon fontSize="small" />
         </button>
 
         <div className="profile-header">
@@ -200,9 +200,7 @@ const ChangePassword = ({ onBack }) => {
         <div className="profile-card">
           <div className="card-header">
             <h2 className="card-title">Change Your Password</h2>
-            <p className="card-description">
-              Enter your current password and set a new one
-            </p>
+            
           </div>
 
           <div className="card-content">

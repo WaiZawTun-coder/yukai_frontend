@@ -1,16 +1,18 @@
-/* Edit Profile CSS */
+/* Edit Profile CSS - Full Screen Width */
 .edit-profile-container {
   min-height: 100vh;
-  background-color: #0d1b2a;
-  padding: 2rem 0;
+  background-color: var(--primary-color, #0d1b2a);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: #ffffff; /* Set default text color to white */
+  color: var(--text-primary, #ffffff);
+  width: 100%;
 }
 
 .edit-profile-wrapper {
-  max-width: 48rem;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
 }
 
 /* Back Button */
@@ -20,16 +22,17 @@
   gap: 0.5rem;
   background: none;
   border: none;
-  color: #e2e8f0;
+  color: var(--text-secondary, #e2e8f0);
   font-size: 0.875rem;
   padding: 0.5rem 0;
   cursor: pointer;
   transition: color 0.2s;
   margin-bottom: 1.5rem;
+  width: fit-content;
 }
 
 .back-button:hover {
-  color: #ffffff;
+  color: var(--text-primary, #ffffff);
 }
 
 .back-button i {
@@ -39,52 +42,59 @@
 /* Header */
 .profile-header {
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .profile-title {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary, #ffffff);
   margin: 0;
 }
 
 .profile-subtitle {
-  color: #e2e8f0;
+  color: var(--text-secondary, #e2e8f0);
   margin-top: 0.25rem;
   font-size: 0.875rem;
 }
 
-/* Cards */
+/* Cards - Full Width */
 .profile-card,
 .preview-card {
-  background-color: #1e293b;
-  border-radius: 0.75rem;
+  background-color: var(--card-bg, #1e293b);
+  border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   margin-bottom: 1.5rem;
-  border: 1px solid #334155;
-  color: #ffffff;
+  border: 1px solid var(--border-soft, #334155);
+  color: var(--text-primary, #ffffff);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .card-header {
   padding: 1.5rem 1.5rem 0.5rem;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid var(--border-soft, #334155);
 }
 
 .card-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary, #ffffff);
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .card-description {
-  color: #e2e8f0;
+  color: var(--text-secondary, #e2e8f0);
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
 
 .card-content {
   padding: 1.5rem;
+  width: 100%;
 }
 
 /* Profile Photo Section */
@@ -94,13 +104,15 @@
   align-items: center;
   gap: 1rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #334155;
-  color: #ffffff;
+  border-bottom: 1px solid var(--border-soft, #334155);
+  color: var(--text-primary, #ffffff);
+  width: 100%;
 }
 
 .avatar-container {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .avatar {
@@ -109,8 +121,8 @@
   border-radius: 9999px;
   overflow: hidden;
   position: relative;
-  border: 3px solid #475569;
-  background-color: #334155;
+  border: 3px solid var(--border-color, #475569);
+  background-color: var(--avatar-bg, #334155);
 }
 
 .avatar-image {
@@ -136,6 +148,7 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
 }
 
 .photo-button {
@@ -143,35 +156,39 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid transparent;
-  color: #ffffff;
+  color: var(--text-primary, #ffffff);
+  background: var(--btn-secondary-bg, rgba(255, 255, 255, 0.1));
+  border-color: var(--border-soft, rgba(255, 255, 255, 0.2));
 }
 
 .photo-button.primary {
-  background-color: #3b82f6;
-  border-color: #2563eb;
-  color: #ffffff;
+  background: var(--accent-color, #3b82f6);
+  border-color: var(--accent-color, #3b82f6);
+  color: white;
 }
 
 .photo-button.primary:hover {
-  background-color: #2563eb;
-  border-color: #1d4ed8;
+  background: var(--accent-hover, #2563eb);
+  border-color: var(--accent-hover, #2563eb);
+  transform: translateY(-1px);
 }
 
 .photo-button.delete {
-  background-color: #ef4444;
+  background: #ef4444;
   border-color: #dc2626;
-  color: #ffffff;
+  color: white;
 }
 
 .photo-button.delete:hover {
-  background-color: #dc2626;
+  background: #dc2626;
   border-color: #b91c1c;
+  transform: translateY(-1px);
 }
 
 .photo-button i {
@@ -179,23 +196,26 @@
 }
 
 .photo-hint {
-  color: #cbd5e1;
+  color: var(--text-muted, #cbd5e1);
   font-size: 0.75rem;
   text-align: center;
   margin: 0;
+  width: 100%;
 }
 
 /* Form Fields */
 .form-field {
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .form-label {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--text-primary, #ffffff);
   margin-bottom: 0.5rem;
+  width: 100%;
 }
 
 .required {
@@ -206,50 +226,51 @@
 .form-textarea {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  background-color: #0f172a;
-  border: 1px solid #475569;
-  border-radius: 0.375rem;
+  background: var(--input-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.15));
+  border-radius: 6px;
   font-size: 0.875rem;
-  color: #ffffff !important; /* Force white text with !important */
+  color: var(--text-primary, #ffffff) !important;
   transition: all 0.2s;
   box-sizing: border-box;
+  outline: none;
 }
 
 /* Force white text for input and textarea */
 input.form-input,
 textarea.form-textarea {
-  color: #ffffff !important;
+  color: var(--text-primary, #ffffff) !important;
 }
 
 .form-input:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
-  background-color: #1e293b;
-  color: #ffffff !important;
+  border-color: var(--accent-color, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  background: var(--input-focus-bg, rgba(255, 255, 255, 0.08));
 }
 
 .form-input::placeholder,
 .form-textarea::placeholder {
-  color: #94a3b8;
+  color: var(--text-muted, #94a3b8);
   opacity: 0.8;
 }
 
 .form-textarea {
   resize: vertical;
   min-height: 5rem;
-  background-color: #0f172a;
-  color: #ffffff !important;
+  background: var(--input-bg, rgba(255, 255, 255, 0.05));
+  color: var(--text-primary, #ffffff) !important;
+  width: 100%;
 }
 
 .form-textarea:focus {
-  background-color: #1e293b;
-  color: #ffffff !important;
+  background: var(--input-focus-bg, rgba(255, 255, 255, 0.08));
 }
 
 .input-with-prefix {
   position: relative;
+  width: 100%;
 }
 
 .input-prefix {
@@ -257,7 +278,7 @@ textarea.form-textarea {
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: var(--text-muted, #94a3b8);
   font-size: 0.875rem;
 }
 
@@ -266,39 +287,32 @@ textarea.form-textarea {
 }
 
 .input-hint {
-  color: #cbd5e1;
+  color: var(--text-muted, #cbd5e1);
   font-size: 0.75rem;
   margin-top: 0.25rem;
   margin-bottom: 0;
+  width: 100%;
 }
 
 .character-count {
   display: flex;
   justify-content: flex-end;
   margin-top: 0.25rem;
+  width: 100%;
 }
 
 .character-count span {
-  color: #94a3b8;
+  color: var(--text-muted, #94a3b8);
   font-size: 0.75rem;
 }
 
-/* Action Buttons */
+/* Action Buttons - Full Width on mobile */
 .edit-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
-  transition: opacity 0.3s;
-}
-
-.edit-buttons.visible {
-  opacity: 1;
-}
-
-.edit-buttons.hidden {
-  opacity: 0.5;
-  pointer-events: none;
+  width: 100%;
 }
 
 .edit-button {
@@ -306,13 +320,13 @@ textarea.form-textarea {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
-  border-radius: 0.375rem;
+  border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid transparent;
-  color: #ffffff;
+  color: var(--text-primary, #ffffff);
 }
 
 .edit-button:disabled {
@@ -321,24 +335,25 @@ textarea.form-textarea {
 }
 
 .edit-button.cancel {
-  background-color: #475569;
-  border-color: #64748b;
-  color: #ffffff;
+  background: var(--btn-secondary-bg, rgba(255, 255, 255, 0.1));
+  border-color: var(--border-soft, rgba(255, 255, 255, 0.2));
+  color: var(--text-primary, #ffffff);
 }
 
 .edit-button.cancel:hover:not(:disabled) {
-  background-color: #64748b;
-  border-color: #94a3b8;
+  background: var(--btn-secondary-hover, rgba(255, 255, 255, 0.15));
+  border-color: var(--border-soft, rgba(255, 255, 255, 0.3));
 }
 
 .edit-button.save {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  border-color: transparent;
-  color: #ffffff;
+  background: var(--accent-color, #3b82f6);
+  border-color: var(--accent-color, #3b82f6);
+  color: white;
 }
 
 .edit-button.save:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: var(--accent-hover, #2563eb);
+  border-color: var(--accent-hover, #2563eb);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
@@ -353,9 +368,11 @@ textarea.form-textarea {
   align-items: flex-start;
   gap: 1rem;
   padding: 1.5rem;
-  background-color: #1e293b;
-  border-radius: 0.5rem;
-  color: #ffffff;
+  background-color: var(--card-bg, #1e293b);
+  border-radius: 6px;
+  color: var(--text-primary, #ffffff);
+  width: 100%;
+  border: 1px solid var(--border-soft, #334155);
 }
 
 .preview-avatar {
@@ -364,8 +381,8 @@ textarea.form-textarea {
   border-radius: 9999px;
   overflow: hidden;
   flex-shrink: 0;
-  border: 2px solid #475569;
-  background-color: #334155;
+  border: 2px solid var(--border-color, #475569);
+  background-color: var(--avatar-bg, #334155);
 }
 
 .preview-avatar-image {
@@ -394,29 +411,21 @@ textarea.form-textarea {
 .preview-name {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary, #ffffff);
   margin: 0 0 0.125rem 0;
 }
 
 .preview-username {
-  color: #cbd5e1;
+  color: var(--text-secondary, #cbd5e1);
   font-size: 0.875rem;
   margin: 0 0 0.5rem 0;
 }
 
 .preview-bio {
-  color: #e2e8f0;
+  color: var(--text-secondary, #e2e8f0);
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
-}
-
-/* Add some visual improvements */
-.form-input,
-.form-textarea,
-.photo-button,
-.action-button {
-  transition: all 0.2s ease-in-out;
 }
 
 /* Focus states for better accessibility */
@@ -426,9 +435,9 @@ textarea.form-textarea {
 }
 
 /* Responsive Design */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .edit-profile-wrapper {
-    padding: 0 0.5rem;
+    padding: 1.5rem 1rem;
   }
   
   .profile-title {
@@ -450,13 +459,15 @@ textarea.form-textarea {
     justify-content: center;
   }
   
-  .action-buttons {
+  .edit-buttons {
     flex-direction: column;
+    gap: 0.5rem;
   }
   
-  .action-button {
+  .edit-button {
     width: 100%;
     justify-content: center;
+    padding: 0.75rem 1.5rem;
   }
   
   .preview-content {
@@ -468,70 +479,61 @@ textarea.form-textarea {
   .preview-avatar {
     margin-bottom: 1rem;
   }
+  
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .card-header {
+    padding: 1rem 1rem 0.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .edit-profile-wrapper {
+    max-width: 1200px;
+    padding: 2rem 2rem;
+  }
+  
+  .profile-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }
 
 /* Additional improvements for dark theme */
 .form-input:disabled,
 .form-textarea:disabled {
-  background-color: #2d3748;
-  color: #94a3b8 !important; /* Gray for disabled state */
+  background: var(--input-disabled-bg, rgba(255, 255, 255, 0.02));
+  color: var(--text-muted, #94a3b8) !important;
   cursor: not-allowed;
+  border-color: var(--border-soft, rgba(255, 255, 255, 0.1));
 }
 
-/* Add subtle hover effects to interactive elements */
-.setting-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* Improve readability for small text */
-small,
-.text-sm {
-  color: #cbd5e1;
-}
-
-/* Fixed selector: Make all text white except specific elements */
-.profile-card,
-.preview-card {
-  color: #ffffff;
-}
-
-.profile-card *,
-.preview-card * {
-  color: inherit; /* Inherit white color */
-}
-
-/* Ensure input and textarea text is white */
-.profile-card input,
-.profile-card textarea,
-.preview-card input,
-.preview-card textarea {
-  color: #ffffff !important;
-}
-
-/* Specific exceptions that should not be white */
-.form-input::placeholder,
-.form-textarea::placeholder,
-.input-prefix,
-.character-count span,
-.photo-hint,
-.input-hint,
-small,
-.text-sm,
-.preview-username,
-.preview-bio {
-  color: #cbd5e1 !important;
-}
-
-/* Make all buttons have white text */
-button:not(:disabled) {
-  color: #ffffff;
+/* CSS Variables for consistency */
+:root {
+  --primary-color: #0d1b2a;
+  --secondary-color: #1e293b;
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b8c1;
+  --text-muted: #8e9fb1;
+  --border-soft: rgba(255, 255, 255, 0.1);
+  --border-color: #475569;
+  --hover-bg: rgba(255, 255, 255, 0.08);
+  --card-bg: #1e293b;
+  --avatar-bg: #334155;
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-focus-bg: rgba(255, 255, 255, 0.08);
+  --input-disabled-bg: rgba(255, 255, 255, 0.02);
+  --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+  --btn-secondary-hover: rgba(255, 255, 255, 0.15);
 }
 
 /* Make sure all text is visible */
-.edit-profile-container {
-  --text-color: #ffffff;
-}
-
+.edit-profile-container,
 .edit-profile-container h1,
 .edit-profile-container h2,
 .edit-profile-container h3,
@@ -542,11 +544,25 @@ button:not(:disabled) {
 .edit-profile-container span,
 .edit-profile-container label,
 .edit-profile-container div {
-  color: var(--text-color);
+  color: var(--text-primary);
 }
 
-/* Force specific elements to have white text */
-.edit-profile-container .form-input,
-.edit-profile-container .form-textarea {
-  color: #ffffff !important;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color, #3b82f6);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover, #2563eb);
 }

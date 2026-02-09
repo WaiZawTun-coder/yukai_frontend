@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import "../../../css/edit-profile.css";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function ProfileSettings({ onBack }) {
   const [profileData, setProfileData] = useState({
@@ -71,8 +72,7 @@ export default function ProfileSettings({ onBack }) {
         {/* Back Button */}
         {onBack && (
           <button onClick={onBack} className="back-button">
-            <i className="fas fa-arrow-left"></i>
-            Back to Settings
+             <ArrowBackIosIcon fontSize="small" />
           </button>
         )}
 

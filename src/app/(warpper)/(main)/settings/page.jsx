@@ -3,8 +3,15 @@
 
 import React, { useState } from 'react';
 import ProfileSettings from './editprofile';
-import ChangeEmail from './changeemail'; // Import the new component
+import ChangeEmail from './changeemail'; 
 import ChangePassword from './changepassword';
+import SwitchAccount from './switchaccount';
+import WhoCanSeePosts from './whocanseeposts'; 
+import PhoneNumberandBirthday from './phoneandnumbers';
+import DeleteAccount from './deleteacccount';
+import DeactivateAccount from './deactivateaccount';
+import LogoutSettings from './logout';
+
 
 import '../../../css/settings.css';
 
@@ -23,20 +30,31 @@ const SettingSidebar = () => {
       setActivePage('changeEmail');
     } else if (name === 'Change Password') {
       setActivePage('changePassword');
-      
+    } else if (name === 'Switch Account') {
+      setActivePage('switchAccount');
+    } else if (name === 'Who can see my posts') {
+      setActivePage('whoCanSeePosts'); 
+    } else if (name === 'Phone number & Birthday') {
+      setActivePage('phoneNumberandBirthday'); 
+    } else if (name === 'Two-factor authentication') {
+      console.log('Two-factor authentication clicked');
+    } else if (name === 'Account health') {
+      console.log('Account health clicked');
+    } else if (name === 'Login activity') {
+      console.log('Login activity clicked');
+    } else if (name === 'Appearance') {
+      console.log('Appearance clicked');
     } else if (name === 'Deactivate Account') {
-      if (confirm('Are you sure you want to deactivate your account?')) {
-        console.log('Account deactivation requested');
-      }
+      setActivePage('DeactivateAccount');
     } else if (name === 'Delete Account') {
-      if (confirm('⚠️ WARNING: This will permanently delete your account. This action cannot be undone. Are you sure?')) {
-        console.log('Account deletion requested');
+      setActivePage('DeleteAccount');
+    } else if (name === 'Logout from all devices') {
+      if (confirm('Are you sure you want to logout from all devices?')) {
+        console.log('Logout from all devices requested');
       }
     } else if (name === 'Logout') {
-      if (confirm('Are you sure you want to logout?')) {
-        console.log('User logged out');
-        // Add your logout logic here
-      }
+      setActivePage('LogoutSettings');
+      
     } else {
       console.log(`Clicked: ${name}`);
     }
@@ -47,9 +65,7 @@ const SettingSidebar = () => {
       title: 'Account Setting',
       icon: 'fa-user-gear',
       items: [
-        {
-          name: 'Edit Profile',
-        },
+        { name: 'Edit Profile' },
         { name: 'Change Email' },
         { name: 'Change Password' },
         { name: 'Switch Account' }
@@ -60,47 +76,15 @@ const SettingSidebar = () => {
       title: 'Privacy Setting',
       icon: 'fa-user-shield',
       items: [
-        {
-          name: 'Account Privacy',
-          subItems: ['Public', 'Private'],
-        },
-        {
-          name: 'Who can see my posts',
-          subItems: ['Public', 'Friends', 'Only me'],
-        },
-        {
-          name: 'Phone number & Birthday',
-          subItems: ['Public', 'Friends', 'Only me'],
-        }
+        { name: 'Who can see my posts' },
+        { name: 'Phone number & Birthday' } 
       ],
     },    
-    // {
-    //   title: 'Notification Setting',
-    //   icon: 'fa-bell',
-    //   items: [
-    //     { name: 'Post notification' },
-    //     { name: 'Message notification' },
-    //     { name: 'Friend request notification' },
-    //   ],
-    // },
-    // {
-    //   title: 'Chat Setting',
-    //   icon: 'fa-comments',
-    //   items: [
-    //     { name: 'Message request' },
-    //     { name: 'Block unknown users' },
-    //     { name: 'Delete chat history' },
-    //   ],
-    // },
     {
       title: 'App Setting',
       icon: 'fa-palette',
       items: [
-        { name: 'Appearance'},
-        // {
-        //   name: 'Language',
-        //   subItems: ['Myanmar', 'English'],
-        // }    
+        { name: 'Appearance' },
       ],
     },
     {
@@ -134,9 +118,38 @@ const SettingSidebar = () => {
   if (activePage === 'changeEmail') {
     return <ChangeEmail onBack={() => setActivePage('settings')} />;
   }
-  //Render ChangeEmail component when activePage is 'changeEmail'
+
+  // Render ChangePassword component when activePage is 'changePassword'
   if (activePage === 'changePassword') {
     return <ChangePassword onBack={() => setActivePage('settings')} />;
+  }
+
+  // Render SwitchAccount component when activePage is 'switchAccount'
+  if (activePage === 'switchAccount') {
+    return <SwitchAccount onBack={() => setActivePage('settings')} />;
+  }
+
+  // Render WhoCanSeePosts component when activePage is 'whoCanSeePosts'
+  if (activePage === 'whoCanSeePosts') {
+    return <WhoCanSeePosts onBack={() => setActivePage('settings')} />;
+  }
+
+  // Render PhoneNumberandBirthday component when activePage is 'phoneNumberandBirthday'
+  if (activePage === 'phoneNumberandBirthday') {
+    return <PhoneNumberandBirthday onBack={() => setActivePage('settings')} />;
+  }
+
+  // Render PhoneNumberandBirthday component when activePage is 'Delete Account'
+  if (activePage === 'DeleteAccount') {
+    return <DeleteAccount onBack={() => setActivePage('settings')} />;
+  }
+   // Render PhoneNumberandBirthday component when activePage is 'Deactivate Account'
+  if (activePage === 'DeactivateAccount') {
+    return <DeactivateAccount onBack={() => setActivePage('settings')} />;
+  }
+  // Render PhoneNumberandBirthday component when activePage is 'Deactivate Account'
+  if (activePage === 'LogoutSettings') {
+    return <LogoutSettings onBack={() => setActivePage('settings')} />;
   }
   // Render settings sidebar
   return (
@@ -164,19 +177,11 @@ const SettingSidebar = () => {
                     <React.Fragment key={idx}>
                       <li
                         className="setting-item"
-                        onClick={() => {
-                          if (item.subItems) {
-                            toggleDropdown(item.name);
-                          } else {
-                            handleMenuItemClick(item.name);
-                          }
-                        }}
+                        onClick={() => handleMenuItemClick(item.name)} // ✅ Always call handleMenuItemClick
                         style={{ cursor: 'pointer' }}
                       >
                         <span>{item.name}</span>
-                        {item.subItems && (
-                          <i className={`fa-solid fa-chevron-right chevron-icon ${openDropdown === item.name ? 'rotate' : ''}`}></i>
-                        )}
+                        <i className={`fa-solid fa-chevron-right chevron-icon`}></i> {/* ✅ Always show chevron */}
                       </li>
 
                       {openDropdown === item.name && item.subItems && (

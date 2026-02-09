@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import "../../../css/change-email.css";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 const ChangeEmail = ({ onBack }) => {
   const [emailData, setEmailData] = useState({
@@ -100,8 +101,7 @@ const ChangeEmail = ({ onBack }) => {
               className="back-button"
               disabled={isLoading}
             >
-              <i className="fas fa-arrow-left"></i>
-              <span>Back to Settings</span>
+               <ArrowBackIosIcon fontSize="small" />
             </button>
           )}
 
@@ -120,7 +120,7 @@ const ChangeEmail = ({ onBack }) => {
             {/* Current Email Section */}
             <div className="form-section current-email-section">
               <h3 className="section-title">
-                <i className="fas fa-envelope section-icon"></i>
+                {/* <i className="fas fa-envelope section-icon"></i> */}
                 Current Email Address
               </h3>
               <div className="current-email-display">
@@ -139,7 +139,7 @@ const ChangeEmail = ({ onBack }) => {
             {/* New Email Section */}
             <div className="form-section new-email-section">
               <h3 className="section-title">
-                <i className="fas fa-envelope-open-text section-icon"></i>
+                {/* <i className="fas fa-envelope-open-text section-icon"></i> */}
                 New Email Address
               </h3>
 
@@ -193,7 +193,7 @@ const ChangeEmail = ({ onBack }) => {
             {/* Security Verification */}
             <div className="form-section security-section">
               <h3 className="section-title">
-                <i className="fas fa-shield-alt section-icon"></i>
+                {/* <i className="fas fa-shield-alt section-icon"></i> */}
                 Security Verification
               </h3>
 
