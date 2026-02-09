@@ -29,7 +29,11 @@ const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID;
 
 export function CallProvider({ children }) {
   const AgoraRTCRef = useRef(null);
+  const clientRef = useRef(null);
   const localTracks = useRef({ audio: null, video: null });
+
+  const ringtoneRef = useRef(null);
+  const snackbarIdRef = useRef(null);
 
   const { showSnackbar, removeSnackbar } = useSnackbar();
   const router = useRouter();
@@ -39,18 +43,16 @@ export function CallProvider({ children }) {
   const [minimized, setMinimized] = useState(false);
   const [channel, setChannel] = useState(null);
   const [callType, setCallType] = useState(null);
-  const [remoteUserInfo, setRemoteUser] = useState(null);
+
+  const [callerInfo, setCallerInfo] = useState(null); // UI metadata
+  const [remoteUsers, setRemoteUsers] = useState({}); // Agora users
 
   const [micMuted, setMicMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(false);
   const [speakerMuted, setSpeakerMuted] = useState(false);
 
-  const clientRef = useRef(null);
-  const snackbarIdRef = useRef(null);
-  const ringtoneRef = useRef(null); // FIX: useRef instead of useState
-
   // -------------------
-  // Load Agora Client
+  // Load Agora SDK
   // -------------------
   useEffect(() => {
     let mounted = true;
@@ -60,11 +62,11 @@ export function CallProvider({ children }) {
 
       const AgoraRTC = (await import("agora-rtc-sdk-ng")).default;
       AgoraRTC.setLogLevel(AgoraRTC.LOG_LEVEL_NONE);
+      AgoraRTC.disableLogUpload();
 
       if (!mounted) return;
 
       AgoraRTCRef.current = AgoraRTC;
-      AgoraRTC.disableLogUpload();
       clientRef.current = AgoraRTC.createClient({
         mode: "rtc",
         codec: "vp8",
@@ -78,17 +80,54 @@ export function CallProvider({ children }) {
   }, []);
 
   // -------------------
-  // Stop ringtone + snackbar
+  // Agora Remote Users
+  // -------------------
+  useEffect(() => {
+    const client = clientRef.current;
+    if (!client) return;
+
+    const handleUserPublished = async (user, mediaType) => {
+      await client.subscribe(user, mediaType);
+
+      setRemoteUsers((prev) => ({
+        ...prev,
+        [user.uid]: user,
+      }));
+
+      if (mediaType === "audio") {
+        user.audioTrack?.play();
+      }
+    };
+
+    const removeUser = (user) => {
+      setRemoteUsers((prev) => {
+        const copy = { ...prev };
+        delete copy[user.uid];
+        return copy;
+      });
+    };
+
+    client.on("user-published", handleUserPublished);
+    client.on("user-unpublished", removeUser);
+    client.on("user-left", removeUser);
+
+    return () => {
+      client.off("user-published", handleUserPublished);
+      client.off("user-unpublished", removeUser);
+      client.off("user-left", removeUser);
+    };
+  }, []);
+
+  // -------------------
+  // Stop Incoming UI
   // -------------------
   const stopIncomingUI = useCallback(() => {
-    // stop ringtone safely
     if (ringtoneRef.current) {
       ringtoneRef.current.pause();
       ringtoneRef.current.currentTime = 0;
       ringtoneRef.current = null;
     }
 
-    // remove snackbar safely
     if (snackbarIdRef.current) {
       removeSnackbar(snackbarIdRef.current);
       snackbarIdRef.current = null;
@@ -100,18 +139,17 @@ export function CallProvider({ children }) {
   // -------------------
   const startCall = useCallback(
     async (userInfo, roomId, type = "video") => {
-      stopIncomingUI();
-
       const client = clientRef.current;
       if (!client || inCall) return;
 
-      setRemoteUser(userInfo);
+      stopIncomingUI();
+      setCallerInfo(userInfo);
 
       try {
         const res = await fetch(`/api/agora-token?channel=${roomId}`);
-        const data = await res.json();
+        const { token, uid } = await res.json();
 
-        await client.join(APP_ID, roomId, data.token, data.uid);
+        await client.join(APP_ID, roomId, token, uid);
         setCallType(type);
 
         const AgoraRTC = AgoraRTCRef.current;
@@ -119,17 +157,14 @@ export function CallProvider({ children }) {
         if (type === "audio") {
           const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
           localTracks.current.audio = audioTrack;
-          await client.publish([audioTrack]);
+          await client.publish(audioTrack);
           setCameraOff(true);
-        }
-
-        if (type === "video") {
+        } else {
           const [audioTrack, videoTrack] =
             await AgoraRTC.createMicrophoneAndCameraTracks();
 
           localTracks.current.audio = audioTrack;
           localTracks.current.video = videoTrack;
-
           await client.publish([audioTrack, videoTrack]);
           setCameraOff(false);
         }
@@ -137,20 +172,8 @@ export function CallProvider({ children }) {
         setChannel(roomId);
         setInCall(true);
         setMinimized(false);
-
-        onRejectedCall(() => {
-          stopCall();
-          router.back();
-        });
-
-        return () => {
-          offRejectCall(() => {
-            stopCall();
-            router.back();
-          });
-        };
       } catch (err) {
-        console.error("Failed to start call:", err);
+        console.error("Failed to start call", err);
       }
     },
     [inCall, stopIncomingUI]
@@ -169,130 +192,118 @@ export function CallProvider({ children }) {
       localTracks.current.video?.stop();
       localTracks.current.video?.close();
       await client.leave();
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     } finally {
-      localTracks.current.audio = null;
-      localTracks.current.video = null;
+      localTracks.current = { audio: null, video: null };
+      setRemoteUsers({});
+      setCallerInfo(null);
       setCallType(null);
+      setChannel(null);
       setInCall(false);
       setMinimized(false);
-      setChannel(null);
     }
   }, []);
 
   // -------------------
-  // Play Local Video
+  // Play Videos
   // -------------------
   const playLocalVideo = useCallback((container) => {
-    const videoTrack = localTracks.current.video;
-    if (!videoTrack || !container) return;
+    const track = localTracks.current.video;
+    if (!track || !container) return;
 
     container.innerHTML = "";
-    videoTrack.stop();
-    videoTrack.play(container);
+    track.play(container);
   }, []);
 
-  // -------------------
-  // Answer Call
-  // -------------------
-  const answerCall = useCallback(
-    async (callData) => {
-      if (inCall) return;
+  const playRemoteVideo = useCallback(
+    (uid, container) => {
+      const user = remoteUsers[uid];
+      if (!user || !user.videoTrack || !container) return;
 
-      stopIncomingUI();
-
-      const userInfo = {
-        user_id: callData.caller.user_id,
-        username: callData.caller.display_name,
-        profile: callData.caller.profile_image,
-        gender: callData.caller.gender,
-      };
-
-      await startCall(
-        userInfo,
-        callData.roomId,
-        callData.type || callData.callType
-      );
-
-      emitAnswerCall(callData.callId, callData.caller.user_id);
-
-      if (pathname !== "/chat/call") {
-        router.push("/chat/call");
-      }
+      container.innerHTML = "";
+      user.videoTrack.play(container);
     },
-    [inCall, router, startCall, pathname, stopIncomingUI]
+    [remoteUsers]
   );
 
   // -------------------
-  // Reject Call
+  // Toggles
   // -------------------
-  const rejectCall = useCallback(
-    (callData) => {
-      stopIncomingUI();
+  const toggleMic = useCallback(() => {
+    const track = localTracks.current.audio;
+    if (!track) return;
 
-      emitRejectCall(callData.callId, callData.caller.user_id);
+    track.setEnabled(micMuted);
+    setMicMuted((p) => !p);
+  }, [micMuted]);
 
-      // socket.emit("reject-call", {
-      //   callId: callData.callId,
-      //   toUserId: callData.caller.user_id,
-      // });
-    },
-    [stopIncomingUI]
-  );
+  const toggleCamera = useCallback(async () => {
+    const client = clientRef.current;
+    const AgoraRTC = AgoraRTCRef.current;
+    if (!client || !AgoraRTC) return;
+
+    if (localTracks.current.video) {
+      await client.unpublish(localTracks.current.video);
+      localTracks.current.video.stop();
+      localTracks.current.video.close();
+      localTracks.current.video = null;
+      setCameraOff(true);
+    } else {
+      const videoTrack = await AgoraRTC.createCameraVideoTrack();
+      localTracks.current.video = videoTrack;
+      await client.publish(videoTrack);
+      setCameraOff(false);
+    }
+  }, []);
+
+  const toggleSpeaker = useCallback(() => {
+    Object.values(remoteUsers).forEach((user) => {
+      user.audioTrack?.setVolume(speakerMuted ? 100 : 0);
+    });
+    setSpeakerMuted((p) => !p);
+  }, [remoteUsers, speakerMuted]);
 
   // -------------------
-  // Incoming Call Listener
+  // Incoming Call UI
   // -------------------
   useEffect(() => {
     const handleIncomingCall = (callData) => {
-      // stop previous ringtone if exists
-      if (ringtoneRef.current) {
-        ringtoneRef.current.pause();
-        ringtoneRef.current.currentTime = 0;
-      }
-
-      // create new ringtone
       const audio = new Audio("/sounds/ringtone.mp3");
       audio.loop = true;
       audio.play().catch(() => {});
       ringtoneRef.current = audio;
 
-      const profileImage = callData.caller.profile_image?.trim()
-        ? `/api/images?url=${encodeURIComponent(callData.caller.profile_image)}`
-        : "/Images/default-profiles/male.jpg";
-
       snackbarIdRef.current = showSnackbar({
         title: "Incoming Call",
+        persist: true,
+        variant: "call",
         message: (
           <div className="call-notification">
             <Image
-              src={profileImage}
-              alt={callData.caller.display_name}
+              src={
+                callData.caller.profile_image
+                  ? `/api/images?url=${encodeURIComponent(
+                      callData.caller.profile_image
+                    )}`
+                  : "/Images/default-profiles/male.jpg"
+              }
               width={50}
               height={50}
-              className="call-avatar"
+              alt=""
             />
-            <div className="call-body">
-              <div className="call-username">
-                {callData.caller.display_name}
-              </div>
-              <div className="call-text">
+            <div>
+              <div>{callData.caller.display_name}</div>
+              <div>
                 {callData.type === "video" ? "Video Call" : "Audio Call"}
               </div>
             </div>
           </div>
         ),
-        variant: "call",
-        persist: true,
         actions: (
           <>
-            <button className="btn-accept" onClick={() => answerCall(callData)}>
-              Accept
-            </button>
-            <button className="btn-reject" onClick={() => rejectCall(callData)}>
-              Reject
-            </button>
+            <button onClick={() => answerCall(callData)}>Accept</button>
+            <button onClick={() => rejectCall(callData)}>Reject</button>
           </>
         ),
       });
@@ -304,66 +315,38 @@ export function CallProvider({ children }) {
     onStopRinging(stopUI);
     onRejectedCall(stopUI);
     onEndCall(stopUI);
+
     return () => {
       offIncomingCall(handleIncomingCall);
       offStopRinging(stopUI);
       offRejectCall(stopUI);
       offEndCall(stopUI);
     };
-  }, [showSnackbar, answerCall, rejectCall, stopIncomingUI]);
+  }, [showSnackbar, stopIncomingUI]);
 
   // -------------------
-  // Toggle Mic
+  // Answer / Reject
   // -------------------
-  const toggleMic = useCallback(() => {
-    const audioTrack = localTracks.current.audio;
-    if (!audioTrack) return;
+  const answerCall = async (callData) => {
+    stopIncomingUI();
 
-    audioTrack.setEnabled(micMuted);
-    setMicMuted((prev) => !prev);
-  }, [micMuted]);
+    await startCall(
+      callData.caller,
+      callData.roomId,
+      callData.type || callData.callType
+    );
 
-  // -------------------
-  // Toggle Camera
-  // -------------------
-  const toggleCamera = useCallback(async () => {
-    const client = clientRef.current;
-    if (!client) return;
+    emitAnswerCall(callData.callId, callData.caller.user_id);
 
-    const videoTrack = localTracks.current.video;
-
-    if (videoTrack) {
-      await client.unpublish(videoTrack);
-      videoTrack.stop();
-      videoTrack.close();
-      localTracks.current.video = null;
-      setCameraOff(true);
-      return;
+    if (pathname !== "/chat/call") {
+      router.push("/chat/call");
     }
+  };
 
-    const AgoraRTC = AgoraRTCRef.current;
-    const newVideoTrack = await AgoraRTC.createCameraVideoTrack();
-
-    localTracks.current.video = newVideoTrack;
-    await client.publish(newVideoTrack);
-    setCameraOff(false);
-  }, []);
-
-  // -------------------
-  // Toggle Speaker
-  // -------------------
-  const toggleSpeaker = useCallback(() => {
-    const client = clientRef.current;
-    if (!client) return;
-
-    client.remoteUsers.forEach((user) => {
-      if (user.audioTrack) {
-        user.audioTrack.setVolume(speakerMuted ? 100 : 0);
-      }
-    });
-
-    setSpeakerMuted((prev) => !prev);
-  }, [speakerMuted]);
+  const rejectCall = (callData) => {
+    stopIncomingUI();
+    emitRejectCall(callData.callId, callData.caller.user_id);
+  };
 
   return (
     <CallContext.Provider
@@ -377,6 +360,7 @@ export function CallProvider({ children }) {
         stopCall,
         channel,
         playLocalVideo,
+        playRemoteVideo,
         callType,
         answerCall,
         rejectCall,
@@ -386,7 +370,8 @@ export function CallProvider({ children }) {
         micMuted,
         cameraOff,
         speakerMuted,
-        remoteUserInfo,
+        remoteUsers,
+        callerInfo,
       }}
     >
       {children}
