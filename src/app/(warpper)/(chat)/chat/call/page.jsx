@@ -64,19 +64,18 @@ export default function CallPage() {
 
   /* ---------------- Local video ---------------- */
   useEffect(() => {
-    if (!inCall || callType !== "video" || cameraOff) return;
     const el = localVideoRef.current;
     const track = localTracks.current?.video;
-    if (!el || !track) return;
+
+    if (!inCall || !track || !el) return;
 
     el.innerHTML = "";
     track.play(el, { fit: "cover" });
 
     return () => {
-      track.stop();
       el.innerHTML = "";
     };
-  }, [inCall, callType, cameraOff, localTracks]);
+  }, [inCall, cameraOff, localTracks]);
 
   /* ---------------- Call sounds ---------------- */
   useEffect(() => {
@@ -190,6 +189,31 @@ function RemoteTile({ uid, user, profile, playRemoteVideo }) {
       containerRef.current.innerHTML = "";
       user.videoTrack.play(containerRef.current);
     }
+  }, [user?.videoTrack]);
+
+  useEffect(() => {
+    const track = user?.videoTrack;
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Clear if track is removed
+    if (!track) {
+      container.innerHTML = "";
+      return;
+    }
+
+    container.innerHTML = "";
+    track.play(container);
+
+    const handleState = () => {
+      if (container) track.play(container);
+    };
+
+    track.on("track-updated", handleState);
+
+    return () => {
+      track?.off("track-updated", handleState);
+    };
   }, [user?.videoTrack]);
 
   useEffect(() => {

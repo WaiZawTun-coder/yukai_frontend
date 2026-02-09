@@ -379,22 +379,33 @@ export function CallProvider({ children }) {
           const AgoraRTC = AgoraRTCRef.current;
           if (!client || !AgoraRTC) return;
 
-          if (localTracks.current.video) {
-            await client.unpublish(localTracks.current.video);
-            localTracks.current.video.stop();
-            localTracks.current.video.close();
-            localTracks.current.video = null;
-            setCameraOff(true);
-          } else {
-            if (!localTracks.current.video) {
+          try {
+            // TURN CAMERA OFF
+            if (localTracks.current.video) {
+              await client.unpublish(localTracks.current.video);
+              localTracks.current.video.stop();
+              localTracks.current.video.close();
+              localTracks.current.video = null;
+              setCameraOff(true);
+            }
+            // TURN CAMERA ON
+            else {
               const videoTrack = await AgoraRTC.createCameraVideoTrack();
               localTracks.current.video = videoTrack;
+
+              // Play local preview if needed
+              const localContainer = document.querySelector(".local-video");
+              if (localContainer) {
+                videoTrack.play(localContainer, { fit: "cover" });
+              }
+
               await client.publish(videoTrack);
               setCameraOff(false);
             }
+          } catch (err) {
+            console.error("Toggle camera error:", err);
           }
         },
-
         toggleSpeaker: () => {
           Object.values(remoteUsers).forEach((user) => {
             if (!user.prevVolume) user.prevVolume = 100;
