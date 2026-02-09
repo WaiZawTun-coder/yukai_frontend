@@ -197,6 +197,8 @@ export default function PostActions({
                 style={{
                   color: data.color,
                   transitionDelay: `${index * 50}ms`,
+                  padding: "0px",
+                  maxWidth: "40px",
                 }}
                 aria-label={data.label}
               >

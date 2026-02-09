@@ -775,18 +775,21 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
 
     await startCall(userInfo, roomId, "video");
 
-    makeCall({
-      toUserId: chatData.other_user_id,
-      fromUserId: user.user_id,
-      callType: "video",
-      caller: {
-        user_id: user.user_id,
-        username: user.username,
-        profile_image: user.profile_image,
-        gender: user.gender,
-        display_name: user.display_name,
-      },
-      roomId,
+    chatParticipants.forEach((p) => {
+      if (user.user_id != p.user_id)
+        makeCall({
+          toUserId: p.user_id,
+          fromUserId: user.user_id,
+          callType: "video",
+          caller: {
+            user_id: user.user_id,
+            username: user.username,
+            profile_image: user.profile_image,
+            gender: user.gender,
+            display_name: user.display_name,
+          },
+          roomId,
+        });
     });
 
     onEndCall(() => {
