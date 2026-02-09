@@ -37,6 +37,7 @@ export function CallProvider({ children }) {
   const AgoraRTCRef = useRef(null);
   const clientRef = useRef(null);
   const localTracks = useRef({ audio: null, video: null });
+  const localUidRef = useRef(null);
 
   const ringtoneRef = useRef(null);
   const snackbarIdRef = useRef(null);
@@ -46,18 +47,19 @@ export function CallProvider({ children }) {
   const pathname = usePathname();
 
   const [inCall, setInCall] = useState(false);
+
+  const [roomId, setRoomId] = useState(null);
   const [minimized, setMinimized] = useState(false);
   const [channel, setChannel] = useState(null);
   const [callType, setCallType] = useState(null);
 
-  const [callerInfo, setCallerInfo] = useState(null); // UI metadata
-  const [remoteUsers, setRemoteUsers] = useState({}); // Agora users
+  const [callerInfo, setCallerInfo] = useState(null);
+  const [remoteUsers, setRemoteUsers] = useState({});
+  const [participants, setParticipants] = useState({});
 
   const [micMuted, setMicMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(false);
   const [speakerMuted, setSpeakerMuted] = useState(false);
-
-  const [participants, setParticipants] = useState({}); // { [agoraUid]: { userId, username, profile } }
 
   // -------------------
   // Load Agora SDK
@@ -75,10 +77,7 @@ export function CallProvider({ children }) {
       if (!mounted) return;
 
       AgoraRTCRef.current = AgoraRTC;
-      clientRef.current = AgoraRTC.createClient({
-        mode: "rtc",
-        codec: "vp8",
-      });
+      clientRef.current = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     })();
 
     return () => {
@@ -88,7 +87,7 @@ export function CallProvider({ children }) {
   }, []);
 
   // -------------------
-  // Agora Remote Users
+  // Remote users subscription
   // -------------------
   useEffect(() => {
     const client = clientRef.current;
@@ -99,7 +98,12 @@ export function CallProvider({ children }) {
 
       setRemoteUsers((prev) => ({
         ...prev,
-        [user.uid]: user,
+        [user.uid]: {
+          ...(prev[user.uid] || {}),
+          uid: user.uid,
+          audioTrack: user.audioTrack || prev[user.uid]?.audioTrack,
+          videoTrack: user.videoTrack || prev[user.uid]?.videoTrack,
+        },
       }));
 
       if (mediaType === "audio") {
@@ -107,8 +111,14 @@ export function CallProvider({ children }) {
       }
     };
 
-    const removeUser = (user) => {
+    const handleUserLeft = (user) => {
       setRemoteUsers((prev) => {
+        const copy = { ...prev };
+        delete copy[user.uid];
+        return copy;
+      });
+
+      setParticipants((prev) => {
         const copy = { ...prev };
         delete copy[user.uid];
         return copy;
@@ -116,18 +126,22 @@ export function CallProvider({ children }) {
     };
 
     client.on("user-published", handleUserPublished);
-    client.on("user-unpublished", removeUser);
-    client.on("user-left", removeUser);
+    client.on("user-left", handleUserLeft);
+
+    // Subscribe to any already published users
+    client.remoteUsers.forEach(async (user) => {
+      if (user.audioTrack) await handleUserPublished(user, "audio");
+      if (user.videoTrack) await handleUserPublished(user, "video");
+    });
 
     return () => {
       client.off("user-published", handleUserPublished);
-      client.off("user-unpublished", removeUser);
-      client.off("user-left", removeUser);
+      client.off("user-left", handleUserLeft);
     };
-  }, []);
+  }, [participants]); // ✅ participants dependency is fine
 
   // -------------------
-  // Stop Incoming UI
+  // Incoming call UI
   // -------------------
   const stopIncomingUI = useCallback(() => {
     if (ringtoneRef.current) {
@@ -135,16 +149,12 @@ export function CallProvider({ children }) {
       ringtoneRef.current.currentTime = 0;
       ringtoneRef.current = null;
     }
-
     if (snackbarIdRef.current) {
       removeSnackbar(snackbarIdRef.current);
       snackbarIdRef.current = null;
     }
   }, [removeSnackbar]);
 
-  // -------------------
-  // Start Call
-  // -------------------
   const startCall = useCallback(
     async (userInfo, roomId, type = "video") => {
       const client = clientRef.current;
@@ -153,13 +163,14 @@ export function CallProvider({ children }) {
       stopIncomingUI();
       setCallerInfo(userInfo);
 
+      setRoomId(roomId);
+
       try {
         const res = await fetch(`/api/agora-token?channel=${roomId}`);
         const { token, uid } = await res.json();
+        localUidRef.current = uid;
 
         await client.join(APP_ID, roomId, token, uid);
-        setCallType(type);
-        emitUserJoin({ agoraUid: uid, user: userInfo });
 
         const AgoraRTC = AgoraRTCRef.current;
 
@@ -171,16 +182,17 @@ export function CallProvider({ children }) {
         } else {
           const [audioTrack, videoTrack] =
             await AgoraRTC.createMicrophoneAndCameraTracks();
-
           localTracks.current.audio = audioTrack;
           localTracks.current.video = videoTrack;
           await client.publish([audioTrack, videoTrack]);
           setCameraOff(false);
         }
 
+        emitUserJoin({ agoraUid: uid, user: userInfo, roomId });
+
+        setCallType(type);
         setChannel(roomId);
         setInCall(true);
-        setMinimized(false);
       } catch (err) {
         console.error("Failed to start call", err);
       }
@@ -188,46 +200,20 @@ export function CallProvider({ children }) {
     [inCall, stopIncomingUI]
   );
 
-  useEffect(() => {
-    const handleUserJoin = ({ agoraUid, user }) => {
-      setParticipants((prev) => ({
-        ...prev,
-        [agoraUid]: user,
-      }));
-    };
-
-    const handleUserLeft = ({ agoraUid }) => {
-      setParticipants((prev) => {
-        const copy = { ...prev };
-        delete copy[agoraUid];
-        return copy;
-      });
-    };
-
-    onCallUserJoin(handleUserJoin);
-    onCallUserLeft(handleUserLeft);
-
-    return () => {
-      offCallUserJoin(handleUserJoin);
-      offCallUserLeft(handleUserLeft);
-    };
-  }, []);
-
-  // -------------------
-  // Stop Call
-  // -------------------
   const stopCall = useCallback(async () => {
     const client = clientRef.current;
     if (!client) return;
 
     try {
-      localTracks.current.audio?.stop();
-      localTracks.current.audio?.close();
-      localTracks.current.video?.stop();
-      localTracks.current.video?.close();
+      ["audio", "video"].forEach((type) => {
+        localTracks.current[type]?.stop?.();
+        localTracks.current[type]?.close?.();
+      });
+
       await client.leave();
+
       emitUserleft({
-        agoraUid: client.uid,
+        agoraUid: localUidRef.current,
         user: callerInfo,
       });
     } catch (e) {
@@ -235,21 +221,18 @@ export function CallProvider({ children }) {
     } finally {
       localTracks.current = { audio: null, video: null };
       setRemoteUsers({});
+      setParticipants({});
       setCallerInfo(null);
       setCallType(null);
       setChannel(null);
       setInCall(false);
       setMinimized(false);
     }
-  }, []);
+  }, [callerInfo]);
 
-  // -------------------
-  // Play Videos
-  // -------------------
   const playLocalVideo = useCallback((container) => {
     const track = localTracks.current.video;
     if (!track || !container) return;
-
     container.innerHTML = "";
     track.play(container);
   }, []);
@@ -258,52 +241,18 @@ export function CallProvider({ children }) {
     (uid, container) => {
       const user = remoteUsers[uid];
       if (!user || !user.videoTrack || !container) return;
-
       container.innerHTML = "";
       user.videoTrack.play(container);
     },
     [remoteUsers]
   );
 
-  // -------------------
-  // Toggles
-  // -------------------
-  const toggleMic = useCallback(() => {
-    const track = localTracks.current.audio;
-    if (!track) return;
-
-    track.setEnabled(micMuted);
-    setMicMuted((p) => !p);
-  }, [micMuted]);
-
-  const toggleCamera = useCallback(async () => {
-    const client = clientRef.current;
-    const AgoraRTC = AgoraRTCRef.current;
-    if (!client || !AgoraRTC) return;
-
-    if (localTracks.current.video) {
-      await client.unpublish(localTracks.current.video);
-      localTracks.current.video.stop();
-      localTracks.current.video.close();
-      localTracks.current.video = null;
-      setCameraOff(true);
-    } else {
-      const videoTrack = await AgoraRTC.createCameraVideoTrack();
-      localTracks.current.video = videoTrack;
-      await client.publish(videoTrack);
-      setCameraOff(false);
-    }
-  }, []);
-
-  const toggleSpeaker = useCallback(() => {
-    Object.values(remoteUsers).forEach((user) => {
-      user.audioTrack?.setVolume(speakerMuted ? 100 : 0);
-    });
-    setSpeakerMuted((p) => !p);
-  }, [remoteUsers, speakerMuted]);
+  useEffect(() => {
+    console.log({ remoteUsers });
+  }, [remoteUsers]);
 
   // -------------------
-  // Incoming Call UI
+  // Incoming Call socket
   // -------------------
   useEffect(() => {
     const handleIncomingCall = (callData) => {
@@ -362,29 +311,46 @@ export function CallProvider({ children }) {
     };
   }, [showSnackbar, stopIncomingUI]);
 
-  // -------------------
-  // Answer / Reject
-  // -------------------
   const answerCall = async (callData) => {
     stopIncomingUI();
-
     await startCall(
       callData.caller,
       callData.roomId,
       callData.type || callData.callType
     );
-
     emitAnswerCall(callData.callId, callData.caller.user_id);
 
-    if (pathname !== "/chat/call") {
-      router.push("/chat/call");
-    }
+    if (pathname !== "/chat/call") router.push("/chat/call");
   };
 
   const rejectCall = (callData) => {
     stopIncomingUI();
     emitRejectCall(callData.callId, callData.caller.user_id);
   };
+
+  // -------------------
+  // Participants socket
+  // -------------------
+  useEffect(() => {
+    const handleJoin = ({ agoraUid, user }) => {
+      setParticipants((prev) => ({ ...prev, [agoraUid]: user }));
+    };
+    const handleLeft = ({ agoraUid }) => {
+      setParticipants((prev) => {
+        const copy = { ...prev };
+        delete copy[agoraUid];
+        return copy;
+      });
+    };
+
+    onCallUserJoin(handleJoin);
+    onCallUserLeft(handleLeft);
+
+    return () => {
+      offCallUserJoin(handleJoin);
+      offCallUserLeft(handleLeft);
+    };
+  }, []);
 
   return (
     <CallContext.Provider
@@ -402,9 +368,41 @@ export function CallProvider({ children }) {
         callType,
         answerCall,
         rejectCall,
-        toggleMic,
-        toggleCamera,
-        toggleSpeaker,
+        toggleMic: () => {
+          const track = localTracks.current.audio;
+          if (!track) return;
+          track.setEnabled(micMuted);
+          setMicMuted((p) => !p);
+        },
+        toggleCamera: async () => {
+          const client = clientRef.current;
+          const AgoraRTC = AgoraRTCRef.current;
+          if (!client || !AgoraRTC) return;
+
+          if (localTracks.current.video) {
+            await client.unpublish(localTracks.current.video);
+            localTracks.current.video.stop();
+            localTracks.current.video.close();
+            localTracks.current.video = null;
+            setCameraOff(true);
+          } else {
+            if (!localTracks.current.video) {
+              const videoTrack = await AgoraRTC.createCameraVideoTrack();
+              localTracks.current.video = videoTrack;
+              await client.publish(videoTrack);
+              setCameraOff(false);
+            }
+          }
+        },
+
+        toggleSpeaker: () => {
+          Object.values(remoteUsers).forEach((user) => {
+            if (!user.prevVolume) user.prevVolume = 100;
+            const newVol = speakerMuted ? user.prevVolume : 0;
+            user.audioTrack?.setVolume(newVol);
+          });
+          setSpeakerMuted((p) => !p);
+        },
         micMuted,
         cameraOff,
         speakerMuted,

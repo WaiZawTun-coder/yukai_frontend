@@ -260,14 +260,14 @@ export const emitRejectCall = (callId, toUserId) => {
   });
 };
 
-export const emitUserJoin = ({ agoraUid, user }) => {
+export const emitUserJoin = ({ agoraUid, user, roomId }) => {
   if (!agoraUid || !user) return;
-  socket.emit("call-user-joined", { agoraUid, user });
+  socket.emit("call-user-joined", { agoraUid, user, roomId });
 };
 
-export const emitUserleft = ({ agoraUid, user }) => {
+export const emitUserleft = ({ agoraUid, user, roomId }) => {
   if (!agoraUid || !user) return;
-  socket.emit("call-user-left", { agoraUid, user });
+  socket.emit("call-user-left", { agoraUid, user, roomId });
 };
 
 export const endCall = (toUserId) => {

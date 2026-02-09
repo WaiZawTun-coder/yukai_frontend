@@ -39,8 +39,8 @@ export default function CallPage() {
     speakerMuted,
     remoteUsers,
     participants,
-    playRemoteVideo,
     callerInfo,
+    playRemoteVideo,
   } = useCall();
 
   const router = useRouter();
@@ -52,18 +52,19 @@ export default function CallPage() {
   /* ---------------- End Call from socket ---------------- */
   useEffect(() => {
     const handleEnd = () => {
-      stopCall();
-      router.back();
+      if (callType !== "group") {
+        stopCall();
+        router.back();
+      }
     };
 
     onEndCall(handleEnd);
     return () => offEndCall(handleEnd);
-  }, [stopCall, router]);
+  }, [stopCall, router, callType]);
 
   /* ---------------- Local video ---------------- */
   useEffect(() => {
     if (!inCall || callType !== "video" || cameraOff) return;
-
     const el = localVideoRef.current;
     const track = localTracks.current?.video;
     if (!el || !track) return;
@@ -75,7 +76,7 @@ export default function CallPage() {
       track.stop();
       el.innerHTML = "";
     };
-  }, [inCall, callType, cameraOff]);
+  }, [inCall, callType, cameraOff, localTracks]);
 
   /* ---------------- Call sounds ---------------- */
   useEffect(() => {
@@ -95,20 +96,13 @@ export default function CallPage() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener("mousemove", resetInactivityTimer);
-    window.addEventListener("mousedown", resetInactivityTimer);
-    window.addEventListener("touchstart", resetInactivityTimer);
-    window.addEventListener("keydown", resetInactivityTimer);
-
+    const events = ["mousemove", "mousedown", "touchstart", "keydown"];
+    events.forEach((e) => window.addEventListener(e, resetInactivityTimer));
     resetInactivityTimer();
-
-    return () => {
-      window.removeEventListener("mousemove", resetInactivityTimer);
-      window.removeEventListener("mousedown", resetInactivityTimer);
-      window.removeEventListener("touchstart", resetInactivityTimer);
-      window.removeEventListener("keydown", resetInactivityTimer);
-      clearTimeout(inactivityTimerRef.current);
-    };
+    return () =>
+      events.forEach((e) =>
+        window.removeEventListener(e, resetInactivityTimer)
+      );
   }, [resetInactivityTimer]);
 
   /* ---------------- Actions ---------------- */
@@ -125,34 +119,35 @@ export default function CallPage() {
   const remoteUids = Object.keys(remoteUsers);
   const showAvatar = callType === "audio";
 
+  const totalParticipants =
+    callType === "video"
+      ? Object.keys(remoteUsers).length // include local
+      : 1;
+
+  const columns = Math.ceil(Math.sqrt(totalParticipants));
+
   return (
     <div className="call-root">
-      <div className="video-stage grid">
+      <div
+        className="video-stage grid"
+        style={{
+          gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        }}
+      >
         {!showAvatar &&
-          remoteUids.map((uid) => {
-            const profile = participants[uid];
-
-            return (
-              <div key={uid} className="remote-tile">
-                <div
-                  className="remote-video"
-                  ref={(el) => el && playRemoteVideo(uid, el)}
-                />
-
-                <div className="remote-user-info">
-                  <Avatar
-                    src={profile?.profile}
-                    sx={{ width: 36, height: 36 }}
-                  />
-                  <span>{profile?.username || "Connecting…"}</span>
-                </div>
-              </div>
-            );
-          })}
+          remoteUids.map((uid) => (
+            <RemoteTile
+              key={uid}
+              uid={uid}
+              user={remoteUsers[uid]}
+              profile={participants[uid]}
+              playRemoteVideo={playRemoteVideo}
+            />
+          ))}
 
         {showAvatar && <AudioAvatar caller={callerInfo} callType={callType} />}
 
-        {callType === "video" && !cameraOff && (
+        {callType === "video" && (
           <div className="local-pip">
             <div ref={localVideoRef} className="local-video" />
           </div>
@@ -165,17 +160,14 @@ export default function CallPage() {
         <IconButton onClick={toggleMic}>
           {micMuted ? <MicOffIcon /> : <MicIcon />}
         </IconButton>
-
         {callType === "video" && (
           <IconButton onClick={toggleCamera}>
             {cameraOff ? <VideocamOffIcon /> : <VideocamIcon />}
           </IconButton>
         )}
-
         <IconButton onClick={toggleSpeaker}>
           {speakerMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
         </IconButton>
-
         <IconButton
           onClick={handleEnd}
           sx={{ backgroundColor: "#e53935", color: "#fff" }}
@@ -184,6 +176,32 @@ export default function CallPage() {
         </IconButton>
       </div>
     </div>
+  );
+}
+
+/* ---------------- Remote Video Tile ---------------- */
+function RemoteTile({ uid, user, profile, playRemoteVideo }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    if (user?.videoTrack) {
+      containerRef.current.innerHTML = "";
+      user.videoTrack.play(containerRef.current);
+    }
+  }, [user?.videoTrack]);
+
+  useEffect(() => {
+    user?.audioTrack?.play();
+  }, [user?.audioTrack]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="remote-video"
+      style={{ width: "100%", height: "100%" }}
+    />
   );
 }
 
