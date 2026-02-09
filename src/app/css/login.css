@@ -51,7 +51,7 @@
 .login-right {
   width: 50%;
   background: var(--secondary-color);
-  color: var(--text-primary);
+  color: var(--text-color);
   padding: 50px 42px;
   position: relative;
 
@@ -91,7 +91,7 @@
   border-radius: 10px;
   padding: 12px 14px;
 
-  color: var(--text-primary);
+  color: var(--text-color);
   outline: none;
 
   transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -111,7 +111,7 @@
 .forgot {
   text-align: right;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-color);
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -153,7 +153,7 @@
   text-align: center;
   font-size: 13px;
   margin-top: 24px;
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .signup span {

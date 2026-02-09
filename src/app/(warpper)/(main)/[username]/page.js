@@ -201,9 +201,8 @@ const Profile = () => {
           res.data.forEach((post) => {
             if (existingIds.has(post.post_id)) return;
 
-            if (post.attachments.length === 0) {
-              nextTextPosts.push(post);
-            } else {
+            nextTextPosts.push(post);
+            if (post.attachments.length > 0) {
               nextImagePosts.push(post);
             }
           });
@@ -309,9 +308,8 @@ const Profile = () => {
         res.data.forEach((post) => {
           if (existingIds.has(post.post_id)) return;
 
-          if (post.attachments.length === 0) {
-            nextTextPosts.push(post);
-          } else {
+          nextTextPosts.push(post);
+          if (post.attachments.length > 0) {
             nextImagePosts.push(post);
           }
         });
@@ -354,10 +352,12 @@ const Profile = () => {
     setPosts((prev) => {
       const isContainImage = post.attachments.length > 0;
       if (isContainImage) {
-        return { ...prev, posts: [...prev.posts, post] };
-      } else {
-        return { ...prev, textPosts: [...prev.textPosts, post] };
+        return {
+          textPosts: [...prev.textPosts, post],
+          posts: [...prev.posts, post],
+        };
       }
+      return { ...prev, textPosts: [...prev.textPosts, post] };
     });
   };
 

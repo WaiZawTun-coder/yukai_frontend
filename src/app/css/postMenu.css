@@ -13,12 +13,12 @@
   cursor: pointer;
   color: var(--text-muted);
   padding: 4px 8px;
-  border-radius: 8px;
+  border-radius: 50%;
 }
 
 .post-menu-btn:hover {
-  background: var(--hover-overlay);
-  color: var(--text-primary);
+  background: var(--accent-color);
+  color: var(--text-color);
 }
 
 .post-menu-dropdown {
@@ -27,7 +27,7 @@
   right: 0;
   min-width: 160px;
 
-  background: var(--surface-1);
+  background: var(--secondary-color);
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   box-shadow: var(--shadow-medium);
@@ -45,13 +45,18 @@
   text-align: left;
   font-size: 14px;
   cursor: pointer;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .post-menu-dropdown button:hover {
-  background: var(--hover-overlay);
+  background: rgba(255, 255, 255, 0.45);
 }
 
 .post-menu-dropdown button.danger {
   color: #ef4444;
+}
+
+.post-menu-dropdown button.danger:hover {
+  background-color: #ef444480;
+  color: var(--text-color);
 }

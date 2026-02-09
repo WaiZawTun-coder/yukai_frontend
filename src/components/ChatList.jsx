@@ -199,13 +199,21 @@ const ChatList = ({ onSelectChat }) => {
     else onSelectChat(username, chat.type, chat.chat_id);
   };
 
-  const formatTime = (time) =>
-    !time
-      ? ""
-      : new Date(time).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+  const formatTime = (time, { utc = false } = {}) => {
+    if (!time) return "";
+
+    // Normalize "YYYY-MM-DD HH:mm:ss" → ISO
+    const iso = time.replace(" ", "T");
+
+    const date = utc
+      ? new Date(iso + "Z") // force UTC
+      : new Date(iso); // local time
+
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <div className="main-container-chat">
@@ -283,7 +291,7 @@ const ChatList = ({ onSelectChat }) => {
                     {chat.type === "group" ? chat.chat_name : user.display_name}
                   </span>
                   <span className="chat-time">
-                    {formatTime(chat.last_message_time)}
+                    {formatTime(chat.last_message_time, { utc: true })}
                   </span>
                 </div>
                 <div className="chat-bottom">

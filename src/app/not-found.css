@@ -106,7 +106,7 @@
 /* Ghost button */
 .btn.ghost {
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-color);
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 

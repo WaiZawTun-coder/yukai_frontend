@@ -30,6 +30,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import ThemeToggle from "./ThemeToggle";
 
 const menuList = [
   {
@@ -148,7 +149,8 @@ const Sidebar = () => {
       </div>
 
       <div className="toggle">
-        <DarkModeRoundedIcon />
+        {/* <DarkModeRoundedIcon /> */}
+        <ThemeToggle />
       </div>
     </div>
   );

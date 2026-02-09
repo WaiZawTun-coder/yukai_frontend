@@ -161,23 +161,23 @@ export const offReceiptUpdate = (cb) => {
 ============================================================ */
 
 export const makeCall = ({
-  toUserId,
+  toUsers,
   fromUserId,
   callType = "video",
   caller,
   roomId,
 }) => {
-  if (!toUserId || !fromUserId || !caller || !roomId) return;
+  if (!Array.isArray(toUsers) || !fromUserId || !caller || !roomId) return;
 
   socket.emit("call-user", {
-    toUserId: String(toUserId),
+    toUsers,
     fromUserId: String(fromUserId),
     callType,
     caller,
     roomId,
   });
 
-  console.log(`📞 Calling ${toUserId} (${callType})`);
+  console.log(`📞 Calling ${toUsers} (${callType})`);
 };
 
 export const onIncomingCall = (cb) => {
@@ -197,7 +197,6 @@ export const offRejectCall = (cb) => {
 };
 
 export const onEndCall = (cb) => {
-  console.log("CALL ENDED - SOCKET");
   socket.on("call-ended", cb);
 };
 

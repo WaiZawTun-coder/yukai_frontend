@@ -56,28 +56,31 @@
 /* =====================================================
    DESIGN SYSTEM / VARIABLES
 ===================================================== */
-:root {
+:root,
+html[data-theme="light"] {
   /* BRAND COLORS */
   --primary-color: #628ecb;
-  --secondary-color: #8aaeed;
+  /* --secondary-color: #8aaeed; */
+  --secondary-color: #d5deef;
   --accent-color: #b1c9ef;
   --danger-color: #ffeded;
 
   /* BACKGROUNDS */
-  --background-color: #d5deef;
+  /* --background-color: #d5deef; */
+  --background-color: #4a6590;
   --bg-primary: #0b2a3f;
   --bg-secondary: #e6f7fb;
   --surface-1: rgba(11, 42, 63, 0.95);
-  --surface-2: rgba(11, 42, 63, 0.85);
-  --surface-3: rgba(11, 42, 63, 0.75);
+  --surface-2: #4a6590;
+  --surface-3: #11111111;
 
   /* TEXT */
   --text-primary: #ffffff;
   --text-secondary: #b1c9ef;
   --text-placeholder: #9fb3c2;
-  --text-muted: #7f94a8;
-  --text-inverse: #0d0e0f;
-  --text-color: #0d0e0f;
+  --text-muted: #606d7a;
+  --text-inverse: #f0f0f0;
+  --text-color: #333435;
 
   /* BORDERS */
   --border-default: #4c6a80;
@@ -86,7 +89,7 @@
   --divider: rgba(255, 255, 255, 0.06);
 
   /* BUTTONS */
-  --btn-primary: #3d5afe;
+  --btn-primary: #628ecb;
   --btn-primary-hover: #304ffe;
   --btn-secondary: #8aaeed;
   --btn-secondary-hover: #628ecb;
@@ -111,7 +114,7 @@
   --status-info: #3b82f6;
   --status-info-bg: #eff6ff;
   --status-info-border: #93c5fd;
-  --status-info-text: #1e40af;
+  --status-info-text: #c0c2c8;
 
   --status-neutral: #6b7280;
   --status-neutral-bg: #f9fafb;
@@ -124,7 +127,7 @@
   --shadow-strong: 0 12px 32px rgba(0, 0, 0, 0.25);
 
   /* EFFECTS */
-  --hover-overlay: rgba(177, 201, 239, 0.08);
+  --hover-overlay: rgba(131, 128, 128, 0.06);
   --active-overlay: rgba(177, 201, 239, 0.18);
   --focus-ring: rgba(110, 193, 228, 0.6);
 
@@ -139,9 +142,6 @@
     rgba(11, 42, 63, 0.98),
     rgba(11, 42, 63, 0.9)
   );
-
-  /* SIDEBAR */
-  --sidebar-width: 350px;
 }
 
 @media (max-width: 1200px) {
@@ -156,7 +156,8 @@
 
 /* DARK MODE */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root,
+  html[data-theme="dark"] {
     /* Brand */
     --primary-color: #2563eb; /* Blue-600 (main action color) */
     --secondary-color: #1e293b; /* Dark slate background surfaces */
@@ -166,6 +167,7 @@
     --background-color: #020617; /* Deep navy (page background) */
     --surface-1: #020617;
     --surface-2: #020617;
+    --surface-3: #b1c9ef2e;
 
     /* Text */
     --text-primary: #f9fafb; /* Almost white */
@@ -180,6 +182,13 @@
     /* Shadows */
     --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
     --shadow-medium: 0 16px 48px rgba(0, 0, 0, 0.45);
+
+    /* BUTTONS */
+    --btn-primary: #3d5afe;
+    --btn-primary-hover: #304ffe;
+    --btn-secondary: #8aaeed;
+    --btn-secondary-hover: #628ecb;
+    --btn-ghost-hover: rgba(177, 201, 239, 0.12);
 
     /* Interaction */
     --hover-overlay: rgba(255, 255, 255, 0.06);
@@ -196,6 +205,11 @@
   max-width: 100vw;
   scrollbar-width: thin; /* auto | thin | none */
   scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  /* transition: all 300ms ease; */
+}
+
+::placeholder {
+  color: var(--text-placeholder);
 }
 
 input,

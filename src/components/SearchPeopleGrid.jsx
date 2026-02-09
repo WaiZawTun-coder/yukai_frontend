@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, forwardRef } from "react";
 import Image from "next/image";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import Button from "./ui/Button";
@@ -9,12 +9,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { emitAccountRequest } from "@/utilities/socket";
 
+/* ----------------- Action Config ----------------- */
 const ACTION_CONFIG = {
-  friends: {
-    primary: null,
-    secondary: null,
-    menu: [],
-  },
+  friends: { primary: null, secondary: null, menu: [] },
   "add-more": {
     primary: {
       label: {
@@ -27,50 +24,43 @@ const ACTION_CONFIG = {
     secondary: null,
     menu: ["block"],
   },
-
   requests: {
     primary: {
-      label: {
-        default: "Accept",
-        pending: "Accepting...",
-        done: "Friends",
-      },
+      label: { default: "Accept", pending: "Accepting...", done: "Friends" },
       action: "accept_request",
     },
     secondary: {
-      label: {
-        default: "Reject",
-        pending: "Rejecting...",
-      },
+      label: { default: "Reject", pending: "Rejecting..." },
       action: "reject_request",
     },
     menu: ["block"],
   },
-
   following: {
     primary: {
-      label: {
-        default: "Unfollow",
-        pending: "Unfollowing...",
-        done: "Follow",
-      },
+      label: { default: "Unfollow", pending: "Unfollowing...", done: "Follow" },
       action: "unfollow",
     },
     secondary: {
-      label: {
-        default: "View Profile",
-      },
+      label: { default: "View Profile" },
       action: "view",
     },
     menu: ["block"],
   },
 };
 
-/* ---------------- GRID ---------------- */
+/* ----------------- Determine User Type ----------------- */
+const getUserActionType = (person, currentUser) => {
+  if (person.user_id === currentUser.user_id) return "self";
+  if (person.isFriend) return "friends";
+  if (person.requestSent) return "add-more";
+  if (person.requestReceived) return "requests";
+  if (person.following) return "following";
+  return "add-more";
+};
 
-export default function PeopleGrid({
+/* ----------------- People Grid ----------------- */
+export default function SearchPeopleGrid({
   people,
-  type,
   onLoadMore,
   hasMore,
   loading,
@@ -79,29 +69,18 @@ export default function PeopleGrid({
   const [list, setList] = useState(people);
   const observerRef = useRef(null);
 
-  /* ---------------- Sync external updates ---------------- */
-  useEffect(() => {
-    setList(people);
-  }, [people]);
+  useEffect(() => setList(people), [people]);
 
-  /* ---------------- Infinite scroll observer ---------------- */
   const lastItemRef = useCallback(
     (node) => {
       if (loading || !hasMore) return;
-
       if (observerRef.current) observerRef.current.disconnect();
 
       observerRef.current = new IntersectionObserver(
         (entries) => {
-          if (entries[0].isIntersecting) {
-            onLoadMore?.();
-          }
+          if (entries[0].isIntersecting) onLoadMore?.();
         },
-        {
-          root: null,
-          rootMargin: "200px",
-          threshold: 0,
-        }
+        { root: null, rootMargin: "200px", threshold: 0 }
       );
 
       if (node) observerRef.current.observe(node);
@@ -116,84 +95,68 @@ export default function PeopleGrid({
 
         return (
           <PeopleCard
+            key={person.user_id}
             person={person}
-            type={type}
             removeCard={() =>
               setList((prev) =>
                 prev.filter((p) => p.user_id !== person.user_id)
               )
             }
-            setOpenMenuId={() => {}}
-            key={person.user_id}
             ref={isLast ? lastItemRef : null}
           />
         );
       })}
 
-      <div
-        style={{
-          textAlign: "center",
-          padding: "12px",
-          opacity: 0.6,
-        }}
-        className="people-grid-end"
-      >
-        {showEnd &&
-          (loading
+      {showEnd && (
+        <div
+          style={{ textAlign: "center", padding: "12px", opacity: 0.6 }}
+          className="people-end"
+        >
+          {loading
             ? "Loading more..."
             : hasMore
             ? "Scroll to load more"
-            : `End of ${type.split("-").join(" ")}`)}
-      </div>
+            : "End of results"}
+        </div>
+      )}
     </div>
   );
 }
 
-/* ---------------- CARD ---------------- */
-
-export function PeopleCard({
-  person,
-  type,
-  openMenuId,
-  setOpenMenuId,
-  removeCard,
-}) {
+/* ----------------- People Card ----------------- */
+export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
   const apiFetch = useApi();
   const router = useRouter();
-  const menuRef = useRef(null);
   const { user } = useAuth();
+  const menuRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
 
-  const config = ACTION_CONFIG[type];
+  const personType = getUserActionType(person, user);
+  const config = ACTION_CONFIG[personType];
+
+  if (!config || personType === "self") return null; // hide buttons for self
 
   /* -------- Close menu on outside click -------- */
   useEffect(() => {
     const close = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpenMenuId(null);
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target))
+        setOpenMenu(false);
     };
-
-    if (openMenuId === person.user_id) {
-      document.addEventListener("mousedown", close);
-    }
-
+    if (openMenu) document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
-  }, [openMenuId, person.user_id, setOpenMenuId]);
+  }, [openMenu]);
 
-  /* -------- API HANDLER -------- */
+  /* -------- API Action Handler -------- */
   const runAction = async (action) => {
     setLoading(true);
 
-    if (action === "reject_request" || action === "block") {
-      removeCard();
-    }
+    if (action === "reject_request" || action === "block") removeCard();
 
     try {
-      let payload;
-      let notifRes;
+      let payload, notifRes;
       switch (action) {
         case "send_request":
           await apiFetch("/api/send-request", {
@@ -207,21 +170,16 @@ export function PeopleCard({
             message: `${user.display_name} sent a friend request to you.`,
             target_user_id: [person.user_id],
           };
-
-          if (person.user_id == user.user_id) return;
-
-          notifRes = await apiFetch(`/api/add-notification`, {
+          notifRes = await apiFetch("/api/add-notification", {
             method: "POST",
             body: payload,
           });
-
           payload.id = notifRes.data.event_id;
           payload.sender_id = user.user_id;
           payload.sender_name = user.user_display_name;
           payload.profile_image = user.profile_image;
           payload.gender = user.gender;
           payload.read = false;
-
           emitAccountRequest(payload);
           break;
 
@@ -239,28 +197,6 @@ export function PeopleCard({
             body: { user_id: person.user_id, status: "accepted" },
           });
           setCompleted(true);
-          payload = {
-            type: "request",
-            referenceId: user.user_id,
-            message: `${user.display_name} accepted your friend request`,
-            target_user_id: [person.user_id],
-          };
-
-          if (person.user_id == user.user_id) return;
-
-          notifRes = await apiFetch(`/api/add-notification`, {
-            method: "POST",
-            body: payload,
-          });
-
-          payload.id = notifRes.data.event_id;
-          payload.sender_id = user.user_id;
-          payload.sender_name = user.user_display_name;
-          payload.profile_image = user.profile_image;
-          payload.gender = user.gender;
-          payload.read = false;
-
-          emitAccountRequest(payload);
           break;
 
         case "reject_request":
@@ -275,28 +211,6 @@ export function PeopleCard({
             method: "POST",
             body: { user_id: person.user_id },
           });
-          payload = {
-            type: "request",
-            referenceId: user.user_id,
-            message: `${user.display_name} started to follow you.`,
-            target_user_id: [person.user_id],
-          };
-
-          if (person.user_id == user.user_id) return;
-
-          notifRes = await apiFetch(`/api/add-notification`, {
-            method: "POST",
-            body: payload,
-          });
-
-          payload.id = notifRes.data.event_id;
-          payload.sender_id = user.user_id;
-          payload.sender_name = user.user_display_name;
-          payload.profile_image = user.profile_image;
-          payload.gender = user.gender;
-          payload.read = false;
-
-          emitAccountRequest(payload);
           break;
 
         case "unfollow":
@@ -321,35 +235,25 @@ export function PeopleCard({
       console.error(err);
     } finally {
       setLoading(false);
-      setOpenMenuId(null);
+      setOpenMenu(false);
     }
   };
 
-  if (!config) return null;
-
   return (
-    <div
-      className="people-card"
-      onClick={() => {
-        router.replace(`/${person.username}`);
-      }}
-    >
+    <div className="people-card" ref={ref}>
       {/* MENU */}
       {config.menu.length > 0 && (
         <button
           className="menu-btn"
           onClick={(e) => {
             e.stopPropagation();
-            setOpenMenuId(
-              openMenuId === person.user_id ? null : person.user_id
-            );
+            setOpenMenu((prev) => !prev);
           }}
         >
           <MoreHorizRoundedIcon />
         </button>
       )}
-
-      {openMenuId === person.user_id && (
+      {openMenu && (
         <div ref={menuRef} className="card-menu">
           {config.menu.includes("block") && (
             <button className="danger" onClick={() => runAction("block")}>
@@ -358,7 +262,6 @@ export function PeopleCard({
           )}
         </div>
       )}
-
       {/* AVATAR */}
       <div className="avatar-wrapper">
         <Image
@@ -373,41 +276,78 @@ export function PeopleCard({
           style={{ borderRadius: "50%", objectFit: "cover" }}
         />
       </div>
-
       {/* INFO */}
       <div className="user-text">
         <span className="display-name">{person.display_name}</span>
         <span className="username">@{person.username}</span>
         {person.location && <span className="location">{person.location}</span>}
       </div>
-
-      {/* ACTION BUTTONS */}
+      {/* BUTTONS */}
       <div className="card-buttons">
-        {config.primary && (
-          <Button
-            disabled={loading}
-            onClick={() =>
-              runAction(completed ? "cancel_request" : config.primary.action)
-            }
-          >
-            {
-              config.primary.label[
-                loading ? "pending" : completed ? "done" : "default"
-              ]
-            }
+        {/* FRIENDSHIP BUTTON */}
+        {person.friendship_status === "none" && (
+          <Button disabled={loading} onClick={() => runAction("send_request")}>
+            {loading ? "Requesting..." : "Add Friend"}
           </Button>
         )}
 
-        {config.secondary && (
+        {person.friendship_status === "request_sent" && (
           <Button
-            variant="outlined"
             disabled={loading}
-            onClick={() => runAction(config.secondary.action)}
+            onClick={() => runAction("cancel_request")}
           >
-            {config.secondary.label.default}
+            {loading ? "Cancelling..." : "Cancel Request"}
+          </Button>
+        )}
+
+        {person.friendship_status === "request_received" && (
+          <>
+            <Button
+              disabled={loading}
+              onClick={() => runAction("accept_request")}
+            >
+              {loading ? "Accepting..." : "Accept"}
+            </Button>
+
+            <Button
+              variant="outlined"
+              disabled={loading}
+              onClick={() => runAction("reject_request")}
+            >
+              {loading ? "Rejecting..." : "Reject"}
+            </Button>
+          </>
+        )}
+
+        {person.friendship_status === "friends" && (
+          <Button disabled={loading} onClick={() => runAction("unfriend")}>
+            {loading ? "Processing..." : "Friends"}
+          </Button>
+        )}
+
+        {/* FOLLOW BUTTON */}
+        {person.following_status === "not_following" && (
+          <Button
+            disabled={loading}
+            onClick={() => runAction("follow")}
+            variant="outlined"
+          >
+            {loading ? "Following..." : "Follow"}
+          </Button>
+        )}
+
+        {person.following_status === "following" && (
+          <Button
+            disabled={loading}
+            onClick={() => runAction("unfollow")}
+            variant="outlined"
+          >
+            {loading ? "Unfollowing..." : "Following"}
           </Button>
         )}
       </div>
     </div>
   );
-}
+});
+
+PeopleCard.displayName = "PeopleCard";

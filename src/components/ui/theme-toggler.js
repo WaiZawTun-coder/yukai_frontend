@@ -34,7 +34,7 @@ const ThemeToggleSwitch = ({
             },
 
             "& + .MuiSwitch-track": {
-              backgroundColor: "var(--secondary-color)",
+              backgroundColor: "var(--accent-color)",
               opacity: 1,
             },
           },

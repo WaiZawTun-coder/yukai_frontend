@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // icons
 import { useAuth } from "@/context/AuthContext";
@@ -12,6 +12,7 @@ import SentimentDissatisfiedRoundedIcon from "@mui/icons-material/SentimentDissa
 import SentimentVeryDissatisfiedRoundedIcon from "@mui/icons-material/SentimentVeryDissatisfiedRounded";
 import ShareIcon from "@mui/icons-material/Share";
 import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded";
+import Button from "../ui/Button";
 
 // need to change the reacton type from emoji to svg icons
 const reactionTypes = {
@@ -64,6 +65,9 @@ export default function PostActions({
   const [showPicker, setShowPicker] = useState(false);
   const [pressTimer, setPressTimer] = useState(null);
   const [copied, setCopied] = useState(false);
+  const pickerRef = useRef(null);
+
+  const LONG_PRESS_MS = 450;
 
   const handleReact = async (type) => {
     if (currentReaction === type) {
@@ -82,7 +86,7 @@ export default function PostActions({
         target_user_id: [creatorId],
       };
 
-      if (creatorId == user.user_id) return;
+      if (creatorId === user.user_id) return;
 
       const notifRes = await apiFetch(`/api/add-notification`, {
         method: "POST",
@@ -101,51 +105,53 @@ export default function PostActions({
     setShowPicker(false);
   };
 
-  const LONG_PRESS_MS = 450;
-
-  const onTouchStart = () => {
-    setPressTimer(
-      setTimeout(() => {
-        setShowPicker(true);
-      }, LONG_PRESS_MS)
-    );
+  // --- TOUCH HANDLERS ---
+  const onTouchStart = (e) => {
+    e.stopPropagation();
+    const timer = setTimeout(() => setShowPicker(true), LONG_PRESS_MS);
+    setPressTimer(timer);
   };
 
-  const onTouchEnd = () => {
+  const onTouchMove = (e) => {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      setPressTimer(null);
+    }
+  };
+
+  const onTouchEnd = (e) => {
+    e.stopPropagation();
     clearTimeout(pressTimer);
     setPressTimer(null);
+    if (!showPicker) handleReact("like"); // tap = like
   };
 
-  const onClick = () => {
-    handleReact("like");
-  };
+  // Prevent picker from closing when touching inside
+  const stopPropagation = (e) => e.stopPropagation();
 
+  // Close picker on outside touches
   useEffect(() => {
-    const close = () => setShowPicker(false);
-    document.addEventListener("touchstart", close);
-    return () => document.removeEventListener("touchstart", close);
+    const closePicker = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+        setShowPicker(false);
+      }
+    };
+    document.addEventListener("touchstart", closePicker);
+    return () => document.removeEventListener("touchstart", closePicker);
   }, []);
 
   const handleShare = async () => {
     const postUrl = `${window.location.origin}/post?post_id=${postId}`;
-
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: "Check out this post",
-          url: postUrl,
-        });
-      } catch (err) {
-        console.error("Share cancelled or failed:", err);
-      }
+        await navigator.share({ title: "Check out this post", url: postUrl });
+      } catch {}
     } else {
       try {
         await navigator.clipboard.writeText(postUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error("Failed to copy link:", err);
-      }
+      } catch {}
     }
   };
 
@@ -153,10 +159,11 @@ export default function PostActions({
     <div className="post-actions">
       <div
         className="reaction-button-wrapper"
-        onMouseEnter={() => setShowPicker(true)}
-        onMouseLeave={() => setShowPicker(false)}
+        onMouseEnter={() => !("ontouchstart" in window) && setShowPicker(true)}
+        onMouseLeave={() => !("ontouchstart" in window) && setShowPicker(false)}
       >
-        <button
+        <Button
+          variant="outlined"
           className={`reaction-button ${currentReaction ? "active" : ""}`}
           style={
             currentReaction
@@ -164,8 +171,8 @@ export default function PostActions({
               : {}
           }
           onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          onClick={onClick}
         >
           <span className="reaction-main action-content">
             {currentReaction
@@ -173,54 +180,50 @@ export default function PostActions({
               : reactionTypes.like.icon}
             {reactionCount}
           </span>
-        </button>
+        </Button>
 
         {showPicker && (
           <div
             className="reaction-picker"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            ref={pickerRef}
+            onTouchStart={stopPropagation}
           >
             {Object.entries(reactionTypes).map(([type, data], index) => (
-              <button
+              <Button
+                variant="text"
                 key={type}
                 onClick={() => handleReact(type)}
                 className="reaction-emoji"
                 style={{
                   color: data.color,
                   transitionDelay: `${index * 50}ms`,
+                  padding: "0px",
+                  maxWidth: "40px",
                 }}
                 aria-label={data.label}
               >
                 {data.icon}
-              </button>
+              </Button>
             ))}
           </div>
         )}
       </div>
 
-      <button className="comment-button" onClick={onComment}>
+      <Button variant="outlined" className="comment-button" onClick={onComment}>
         <span className="action-content">
           <ChatBubbleIcon /> {comments}
         </span>
-      </button>
+      </Button>
 
-      <button
-        className="share-button"
-        onClick={() => {
-          handleShare();
-        }}
-      >
+      <Button variant="outlined" className="share-button" onClick={handleShare}>
         {copied ? (
           <span className="action-content">Link Copied</span>
         ) : (
           <span className="action-content">
-            <ShareIcon />
-            Share
+            <ShareIcon /> Share
           </span>
         )}
-      </button>
+      </Button>
     </div>
   );
 }

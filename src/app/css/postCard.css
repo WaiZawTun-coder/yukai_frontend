@@ -7,7 +7,14 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  animation: fadeIn 0.8s forwards;
+  animation-delay: 0.3s;
 }
+
+/* .post-container * {
+  animation: fadeIn 0.8s forwards;
+  animation-delay: 0.3s;
+} */
 
 /* ======================================================
    POST CARD
@@ -21,7 +28,7 @@
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
 
-  color: var(--text-primary);
+  color: var(--text-color);
 
   display: flex;
   flex-direction: column;
@@ -58,7 +65,7 @@
   font-size: 15px;
   margin: 0;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .post-user span {
@@ -122,7 +129,7 @@
    CONTENT
 ====================================================== */
 .post-content {
-  color: var(--text-secondary);
+  color: var(--text-color);
   line-height: 1.65;
   font-size: 15px;
   white-space: pre-wrap;
@@ -219,7 +226,7 @@
   flex: 1;
   outline: none;
   border: 1px solid var(--border-soft);
-  color: var(--text-secondary);
+  color: var(--text-color);
   background: var(--secondary-color);
   align-items: center;
   justify-content: center;
@@ -233,7 +240,7 @@
 
 .post-action:hover {
   background: var(--hover-overlay);
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .post-action:active {
@@ -262,7 +269,7 @@
   padding: 5px 12px;
   border-radius: 8px;
   border: 1px solid var(--border-soft);
-  color: var(--text-secondary);
+  color: var(--text-color);
   background: var(--secondary-color);
   font-weight: 500;
   cursor: pointer;
@@ -271,11 +278,12 @@
 
 .reaction-button.active {
   border: 1px solid var(--primary-color);
-  color: var(--text-secondary);
+  color: var(--text-color);
   /* background: var(--primary-color); */
 }
 
 .reaction-picker {
+  height: 48px;
   position: absolute;
   bottom: 100%;
   left: 0%;
@@ -294,6 +302,10 @@
 .reaction-emoji svg,
 .reaction-main svg {
   font-size: 22px;
+}
+
+.reaction-picker .reaction-button:hover svg {
+  transform: scale(1.5);
 }
 
 @media (max-width: 640px) {
@@ -317,7 +329,7 @@
 }
 
 .reaction-button svg {
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .reaction-button.active svg {
@@ -330,7 +342,7 @@
   padding: 5px 12px;
   border-radius: 8px;
   border: 1px solid var(--border-soft);
-  color: var(--text-secondary);
+  color: var(--text-color) !important;
   background: var(--secondary-color);
   cursor: pointer;
   font-weight: 500;
@@ -359,7 +371,7 @@
    META INFO
 ====================================================== */
 .post-author {
-  color: var(--text-primary);
+  color: var(--text-color);
   font-weight: 600;
   cursor: pointer;
 }
@@ -474,11 +486,12 @@
   bottom: 0;
   display: flex;
   gap: 10px;
-  padding: 12px 16px;
+  padding: 0px 16px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   /* background: rgba(0, 0, 0); */
-  background: var(--background-color);
+  background: var(--secondary-color);
   border-radius: 16px;
+  align-items: center;
 }
 
 .comment-input {
@@ -489,8 +502,10 @@
   border: none;
   outline: none;
   background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-medium);
   color: #ffffff;
   font-size: 13px;
+  margin: 12px 0;
 }
 
 .comment-input::placeholder {
@@ -498,11 +513,13 @@
 }
 
 .comment-submit {
+  height: 100%;
+  max-height: 46px;
   padding: 0 16px;
   border-radius: 20px;
   border: none;
-  background: #2563eb;
-  color: white;
+  background: var(--surface-3);
+  color: var(--btn-primary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -511,6 +528,7 @@
 
 .comment-submit:hover {
   background: #1d4ed8;
+  color: var(--text-color);
 }
 
 .comment-submit:active {
