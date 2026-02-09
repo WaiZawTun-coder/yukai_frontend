@@ -339,11 +339,21 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const scrollToBottom = () =>
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
-  const formatTime = (time) =>
-    new Date(time).toLocaleTimeString([], {
+  const formatTime = (time, { utc = false } = {}) => {
+    if (!time) return "";
+
+    // Normalize "YYYY-MM-DD HH:mm:ss" → ISO
+    const iso = time.replace(" ", "T");
+
+    const date = utc
+      ? new Date(iso + "Z") // force UTC
+      : new Date(iso); // local time
+
+    return date.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
 
   const markMessageDelivered = (messageId) => {
     setMessages((prev) =>
