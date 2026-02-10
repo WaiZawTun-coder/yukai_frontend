@@ -61,6 +61,8 @@ export function CallProvider({ children }) {
   const [cameraOff, setCameraOff] = useState(false);
   const [speakerMuted, setSpeakerMuted] = useState(false);
 
+  const [clientReady, setClientReady] = useState(false);
+
   // -------------------
   // Load Agora SDK
   // -------------------
@@ -78,6 +80,7 @@ export function CallProvider({ children }) {
 
       AgoraRTCRef.current = AgoraRTC;
       clientRef.current = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+      setClientReady(true);
     })();
 
     return () => {
@@ -90,6 +93,8 @@ export function CallProvider({ children }) {
   // Remote users subscription
   // -------------------
   useEffect(() => {
+    if (!clientReady) return;
+
     const client = clientRef.current;
     if (!client) return;
 
@@ -138,7 +143,7 @@ export function CallProvider({ children }) {
       client.off("user-published", handleUserPublished);
       client.off("user-left", handleUserLeft);
     };
-  }, [remoteUsers]);
+  }, [clientReady]);
 
   // -------------------
   // Incoming call UI
