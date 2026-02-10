@@ -123,8 +123,6 @@ const ForgetPassword = () => {
     try {
       setLoading(true);
 
-      console.log({ email, otp, password });
-
       const res = await apiFetch("/auth/reset-password", {
         method: "POST",
         body: {
