@@ -138,7 +138,7 @@ export function CallProvider({ children }) {
       client.off("user-published", handleUserPublished);
       client.off("user-left", handleUserLeft);
     };
-  }, [participants]); // ✅ participants dependency is fine
+  }, [remoteUsers]);
 
   // -------------------
   // Incoming call UI
