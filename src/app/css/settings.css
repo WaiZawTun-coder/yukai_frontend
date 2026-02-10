@@ -38,28 +38,6 @@
   position: sticky;
   top: 0;
   background-color: var(--primary-color, #0d1b2a);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Keep the page-label styling but adjust if needed */
-.page-label {
-  font-size: 20px;
-  font-weight: 500;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Optional: If you want the gear icon smaller */
-.page-label i {
-  font-size: 18px;
-  color: var(--accent-color, #3b82f6);
-}
-.setting-page-wrapper {
-  background-color: var(--secondary-color, #0d1b2a);
   min-height: 100vh;
   color: var(--text-primary, #ffffff);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
