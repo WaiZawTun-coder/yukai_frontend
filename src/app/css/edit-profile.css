@@ -52,7 +52,7 @@
 }
 
 .profile-title {
-  font-size: 32px; /* Match settings page */
+  font-size: 32px;
   font-weight: 700;
   color: var(--text-primary, #ffffff);
   margin: 0 0 0.5rem 0;
@@ -283,6 +283,13 @@
   padding-left: 2rem;
 }
 
+/* Readonly input */
+.form-input.readonly {
+  background-color: rgba(255, 255, 255, 0.02);
+  cursor: not-allowed;
+  color: var(--text-secondary, #e2e8f0);
+}
+
 .input-hint {
   color: var(--text-muted, #cbd5e1);
   font-size: 0.75rem;
@@ -360,24 +367,75 @@
   font-size: 0.75rem;
 }
 
-/* Preview Card */
-.preview-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.5rem;
+/* ===== FIXED PREVIEW CARD SECTION ===== */
+.preview-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Cover image section */
+.cover-photo-section {
+  margin-bottom: 30px;
+}
+
+.cover-container {
   width: 100%;
-  box-sizing: border-box;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Preview Card Layout */
+.preview-content {
+  position: relative;
+  width: 100%;
+  padding: 0;
+}
+
+.preview-cover {
+  width: 100%;
+  height: 160px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.preview-cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-avatar-container {
+  position: relative;
+  padding: 0 1.5rem 1.5rem;
 }
 
 .preview-avatar {
-  width: 4rem;
-  height: 4rem;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
-  flex-shrink: 0;
-  border: 2px solid var(--border-color, #475569);
+  position: absolute;
+  top: -50px;
+  left: 1.5rem;
+  border: 4px solid var(--card-bg, #1e293b);
   background-color: var(--avatar-bg, #334155);
+  z-index: 2;
 }
 
 .preview-avatar-image {
@@ -394,33 +452,76 @@
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 0.875rem;
+  font-size: 2rem;
   font-weight: 600;
 }
 
 .preview-details {
-  flex: 1;
-  min-width: 0;
+  padding: 60px 1.5rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .preview-name {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--text-primary, #ffffff);
-  margin: 0 0 0.125rem 0;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.2;
 }
 
 .preview-username {
   color: var(--text-secondary, #cbd5e1);
-  font-size: 0.875rem;
-  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
+  font-weight: 500;
 }
 
 .preview-bio {
   color: var(--text-secondary, #e2e8f0);
-  font-size: 0.875rem;
-  margin: 0;
+  font-size: 0.95rem;
+  margin: 0 0 1rem 0;
   line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.preview-email,
+.preview-phone {
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary, #e2e8f0);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  gap: 0.5rem;
+}
+
+.preview-email i,
+.preview-phone i {
+  color: var(--accent-color, #3b82f6);
+  font-size: 0.875rem;
+  min-width: 16px;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: var(--text-secondary, #e2e8f0);
+}
+
+.loading-spinner i {
+  font-size: 40px;
+  margin-bottom: 20px;
+  color: var(--accent-color, #3b82f6);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Responsive Design */
@@ -430,7 +531,7 @@
   }
   
   .profile-title {
-    font-size: 26px; /* Adjusted for mobile */
+    font-size: 26px;
   }
   
   .avatar {
@@ -459,14 +560,14 @@
     padding: 0.75rem 1.5rem;
   }
   
-  .preview-content {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  .preview-avatar {
+    width: 80px;
+    height: 80px;
+    top: -40px;
   }
   
-  .preview-avatar {
-    margin-bottom: 1rem;
+  .preview-details {
+    padding-top: 50px;
   }
   
   .card-content {
@@ -481,6 +582,17 @@
 @media (max-width: 480px) {
   .profile-title {
     font-size: 22px;
+  }
+  
+  .preview-avatar {
+    width: 70px;
+    height: 70px;
+    top: -35px;
+    left: 1rem;
+  }
+  
+  .preview-details {
+    padding: 45px 1rem 1rem;
   }
 }
 

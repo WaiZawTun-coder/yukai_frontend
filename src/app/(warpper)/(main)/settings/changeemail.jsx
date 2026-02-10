@@ -1,12 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useApi } from "@/utilities/api";
 import "../../../css/change-email.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 const ChangeEmail = ({ onBack }) => {
+  const { user: authUser, updateUser } = useAuth();
+  const { showSnackbar } = useSnackbar();
+  const apiFetch = useApi();
+  
   const [emailData, setEmailData] = useState({
-    currentEmail: "john.doe@example.com",
+    currentEmail: authUser?.email || "",
     newEmail: "",
     confirmEmail: "",
     password: "",
@@ -62,16 +69,34 @@ const ChangeEmail = ({ onBack }) => {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await apiFetch("/api/edit-user", {
+        method: "POST",
+        body: {
+          user_id: authUser?.user_id,
+          email: emailData.newEmail,
+        },
+      });
 
-      alert(
-        "✅ Email change request submitted! Please check your current email for verification."
-      );
+      if (!res.status) {
+        throw new Error(res.message || "Failed to update email");
+      }
 
-      // Reset form
+      // Show success message
+      showSnackbar({
+        title: "Success!",
+        message: "Email updated successfully",
+        variant: "success",
+        duration: 3000,
+      });
+
+      // Update local user state
+      if (updateUser) {
+        updateUser({ email: emailData.newEmail });
+      }
+
+      // Update current email display and reset form
       setEmailData({
-        currentEmail: emailData.newEmail, // Update current email to new one
+        currentEmail: emailData.newEmail,
         newEmail: "",
         confirmEmail: "",
         password: "",
@@ -82,9 +107,16 @@ const ChangeEmail = ({ onBack }) => {
       if (onBack) {
         setTimeout(() => onBack(), 1500);
       }
+
     } catch (error) {
       console.error("Error changing email:", error);
-      alert("❌ Failed to change email. Please try again.");
+      
+      let errorMessage = error.message;
+      showSnackbar({
+        title: "Error",
+        message: errorMessage || "Failed to update email. Please try again.",
+        variant: "error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -101,15 +133,14 @@ const ChangeEmail = ({ onBack }) => {
               className="back-button"
               disabled={isLoading}
             >
-               <ArrowBackIosIcon fontSize="small" />
+              <ArrowBackIosIcon fontSize="small" />
             </button>
           )}
 
           <div className="header-content">
             <h1 className="page-title">Change Email Address</h1>
             <p className="page-subtitle">
-              Update your email address. You'll receive verification links on
-              both emails.
+              Update your email address in your profile.
             </p>
           </div>
         </div>
@@ -264,19 +295,18 @@ const ChangeEmail = ({ onBack }) => {
                 disabled={
                   isLoading ||
                   !emailData.newEmail ||
-                  !emailData.confirmEmail ||
-                  !emailData.password
+                  !emailData.confirmEmail
                 }
               >
                 {isLoading ? (
                   <>
                     <i className="fas fa-spinner fa-spin"></i>
-                    Processing...
+                    Updating...
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-paper-plane"></i>
-                    Submit Change Request
+                    <i className="fas fa-save"></i>
+                    Update Email
                   </>
                 )}
               </button>

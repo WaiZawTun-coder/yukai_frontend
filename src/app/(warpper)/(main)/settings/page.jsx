@@ -30,9 +30,10 @@ const SettingSidebar = () => {
       setActivePage('changeEmail');
     } else if (name === 'Change Password') {
       setActivePage('changePassword');
-    } else if (name === 'Switch Account') {
-      setActivePage('switchAccount');
-    } else if (name === 'Who can see my posts') {
+    // } else if (name === 'Switch Account') {
+    //   setActivePage('switchAccount');
+    // }
+    }else if (name === 'Who can see my posts') {
       setActivePage('whoCanSeePosts'); 
     } else if (name === 'Phone number & Birthday') {
       setActivePage('phoneNumberandBirthday'); 
@@ -67,8 +68,8 @@ const SettingSidebar = () => {
       items: [
         { name: 'Edit Profile' },
         { name: 'Change Email' },
-        { name: 'Change Password' },
-        { name: 'Switch Account' }
+        { name: 'Change Password' }
+        // { name: 'Switch Account' }
        
       ],
     },
@@ -124,10 +125,10 @@ const SettingSidebar = () => {
     return <ChangePassword onBack={() => setActivePage('settings')} />;
   }
 
-  // Render SwitchAccount component when activePage is 'switchAccount'
-  if (activePage === 'switchAccount') {
-    return <SwitchAccount onBack={() => setActivePage('settings')} />;
-  }
+  // // Render SwitchAccount component when activePage is 'switchAccount'
+  // if (activePage === 'switchAccount') {
+  //   return <SwitchAccount onBack={() => setActivePage('settings')} />;
+  // }
 
   // Render WhoCanSeePosts component when activePage is 'whoCanSeePosts'
   if (activePage === 'whoCanSeePosts') {

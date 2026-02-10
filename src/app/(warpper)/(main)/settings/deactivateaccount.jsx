@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useApi } from "@/utilities/api";
 import "../../../css/deactivate-account.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function DeactivateAccount({ onBack }) {
+  const { user: authUser, logout } = useAuth();
+  const { showSnackbar } = useSnackbar();
+  const apiFetch = useApi();
+  
   const [isDeleting, setIsDeleting] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -12,57 +19,52 @@ export default function DeactivateAccount({ onBack }) {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const handlePasswordChange = (value) => {
-    setPassword(value);
-    if (passwordError) setPasswordError("");
-    if (deleteError) setDeleteError("");
-  };
-
-  const validateForm = () => {
-    if (!password.trim()) {
-      setPasswordError("Password is required");
-      return false;
-    }
-    
-    return true;
-  };
-
-  const handleDeactivateAccount = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    // Show confirmation modal
-    setShowConfirmation(true);
-  };
-
-  const confirmDeactivate = async () => {
+  const handleDeactivateAccount = async () => {
     setIsDeleting(true);
     setDeleteError("");
     setShowConfirmation(false);
 
     try {
-      // Simulate account deactivation process
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      // Show success
-      setDeleteSuccess(true);
-      
-      // Reset form and go back after delay
-      setTimeout(() => {
-        setPassword("");
-        setDeleteSuccess(false);
-        if (onBack) {
-          onBack();
-        }
-      }, 3000);
+      // Call the deactivate API
+      const res = await apiFetch("/api/deactivate-user", {
+        method: "POST",
+        body: {
+          user_id: authUser?.user_id,
+          deactivate: 1 // 1 means deactivate
+        },
+      });
+
+      if (res.status) {
+        // Show success message
+        setDeleteSuccess(true);
+        showSnackbar({
+          title: "Account Deactivated",
+          message: "Your account has been deactivated successfully",
+          variant: "success",
+          duration: 5000,
+        });
+
+        // Logout user after successful deactivation
+        setTimeout(() => {
+          logout();
+          // If there's a callback to go back, call it
+          if (onBack) {
+            onBack();
+          }
+        }, 3000);
+        
+      } else {
+        throw new Error(res.message || "Failed to deactivate account");
+      }
       
     } catch (error) {
       console.error("Error deactivating account:", error);
-      setPasswordError("Invalid password. Please try again.");
-      setDeleteError("Failed to deactivate account. Please check your password.");
+      setDeleteError(error.message);
+      showSnackbar({
+        title: "Deactivation Failed",
+        message: error.message || "Failed to deactivate account",
+        variant: "error",
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -76,13 +78,7 @@ export default function DeactivateAccount({ onBack }) {
     "Your profile will be hidden from other users",
     "You won't be able to access your account",
     "Your data will be preserved for 30 days",
-    "You can reactivate your account within 30 days"
-  ];
-
-  const alternatives = [
-    { icon: "fa-ban", title: "Take a Break", description: "Log out and take some time away" },
-    { icon: "fa-sliders-h", title: "Adjust Privacy", description: "Change your privacy settings instead" },
-    { icon: "fa-headset", title: "Contact Support", description: "Our team can help with any issues" }
+    "You can reactivate your account within 30 days by contacting support"
   ];
 
   return (
@@ -108,7 +104,7 @@ export default function DeactivateAccount({ onBack }) {
         {deleteSuccess && (
           <div className="success-message">
             <i className="fas fa-check-circle"></i>
-            <span>Your account has been deactivated!</span>
+            <span>Your account has been deactivated! You will be logged out shortly.</span>
           </div>
         )}
         
@@ -163,81 +159,50 @@ export default function DeactivateAccount({ onBack }) {
             </p>
           </div>
           <div className="card-content">
-            <form onSubmit={handleDeactivateAccount}>
-              {/* Password Verification */}
-              <div className="form-field">
-                <label className="form-label">
-                  Password <span className="required">*</span>
-                </label>
-                <div className="input-with-prefix">
-                  <span className="input-prefix">
-                    <i className="fas fa-lock"></i>
-                  </span>
-                  <input
-                    type="password"
-                    className="form-input with-prefix"
-                    placeholder="Enter your password to confirm"
-                    value={password}
-                    onChange={(e) => handlePasswordChange(e.target.value)}
-                    disabled={isDeleting || deleteSuccess}
-                    required
-                  />
-                </div>
-                {passwordError && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#ef4444", fontSize: "0.75rem", marginTop: "0.25rem" }}>
-                    <i className="fas fa-exclamation-circle"></i>
-                    {passwordError}
-                  </div>
-                )}
-                <p className="input-hint">
-                  You must enter your current password to deactivate your account
-                </p>
-              </div>
-
-              {/* Final Warning */}
-              <div style={{ 
-                backgroundColor: "#0f172a", 
-                borderLeft: "3px solid #f59e0b",
-                padding: "1rem",
-                marginBottom: "1.5rem",
-                borderRadius: "0 0.375rem 0.375rem 0"
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                  <i className="fas fa-exclamation-triangle" style={{ color: "#f59e0b" }}></i>
-                  <div>
-                    <div style={{ color: "#ffffff", fontWeight: "600", fontSize: "0.875rem" }}>Important Notice</div>
-                    <div style={{ color: "#cbd5e1", fontSize: "0.75rem", marginTop: "0.125rem" }}>
-                      You can reactivate your account within 30 days by logging in
-                    </div>
+            {/* Final Warning */}
+            <div style={{ 
+              backgroundColor: "#0f172a", 
+              borderLeft: "3px solid #f59e0b",
+              padding: "1rem",
+              marginBottom: "1.5rem",
+              borderRadius: "0 0.375rem 0.375rem 0"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <i className="fas fa-exclamation-triangle" style={{ color: "#f59e0b" }}></i>
+                <div>
+                  <div style={{ color: "#ffffff", fontWeight: "600", fontSize: "0.875rem" }}>Important Notice</div>
+                  <div style={{ color: "#cbd5e1", fontSize: "0.75rem", marginTop: "0.125rem" }}>
+                    You can reactivate your account within 30 days by contacting support
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="edit-buttons visible">
-                <button
-                  type="button"
-                  className="edit-button cancel"
-                  onClick={onBack}
-                  disabled={isDeleting || deleteSuccess}
-                >
-                  <i className="fas fa-arrow-left"></i>
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="edit-button save"
-                  disabled={isDeleting || deleteSuccess || !password.trim()}
-                  style={{ 
-                    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                    borderColor: "transparent"
-                  }}
-                >
-                  <i className="fas fa-user-slash"></i>
-                  Deactivate Account
-                </button>
-              </div>
-            </form>
+            {/* Action Buttons */}
+            <div className="edit-buttons visible">
+              <button
+                type="button"
+                className="edit-button cancel"
+                onClick={onBack}
+                disabled={isDeleting || deleteSuccess}
+              >
+                <i className="fas fa-arrow-left"></i>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="edit-button save"
+                onClick={() => setShowConfirmation(true)}
+                disabled={isDeleting || deleteSuccess}
+                style={{ 
+                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                  borderColor: "transparent"
+                }}
+              >
+                <i className="fas fa-user-slash"></i>
+                Deactivate Account
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -256,7 +221,7 @@ export default function DeactivateAccount({ onBack }) {
               </p>
             </div>
             <div className="card-content">
-              <div className="warning-section" style={{ 
+              <div style={{ 
                 backgroundColor: "#1e293b", 
                 border: "1px solid #f59e0b", 
                 borderRadius: "0.5rem",
@@ -267,7 +232,7 @@ export default function DeactivateAccount({ onBack }) {
                   Your account will be temporarily disabled
                 </p>
                 <p style={{ color: "#f59e0b", textAlign: "center", fontSize: "0.875rem" }}>
-                  You can reactivate within 30 days by logging in
+                  You will be logged out immediately after deactivation
                 </p>
               </div>
 
@@ -285,7 +250,7 @@ export default function DeactivateAccount({ onBack }) {
                 <button
                   type="button"
                   className="edit-button save"
-                  onClick={confirmDeactivate}
+                  onClick={handleDeactivateAccount}
                   disabled={isDeleting}
                   style={{ 
                     flex: 1,
