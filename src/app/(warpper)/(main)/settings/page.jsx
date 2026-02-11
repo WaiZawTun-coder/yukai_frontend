@@ -11,7 +11,7 @@ import PhoneNumberandBirthday from './phoneandnumbers';
 import DeleteAccount from './deleteacccount';
 import DeactivateAccount from './deactivateaccount';
 import LogoutSettings from './logout';
-
+import ChangePhoneNumber from './changephoneno';
 
 import '../../../css/settings.css';
 
@@ -30,10 +30,9 @@ const SettingSidebar = () => {
       setActivePage('changeEmail');
     } else if (name === 'Change Password') {
       setActivePage('changePassword');
-    // } else if (name === 'Switch Account') {
-    //   setActivePage('switchAccount');
-    // }
-    }else if (name === 'Who can see my posts') {
+    } else if (name === 'Change Phone Number') {
+      setActivePage('ChangePhoneNumber');
+    } else if (name === 'Who can see my posts') {
       setActivePage('whoCanSeePosts'); 
     } else if (name === 'Phone number & Birthday') {
       setActivePage('phoneNumberandBirthday'); 
@@ -55,9 +54,44 @@ const SettingSidebar = () => {
       }
     } else if (name === 'Logout') {
       setActivePage('LogoutSettings');
-      
     } else {
       console.log(`Clicked: ${name}`);
+    }
+  };
+
+  // Get icon for each menu item
+  const getMenuItemIcon = (name) => {
+    switch(name) {
+      case 'Edit Profile':
+        return 'fa-user-pen';
+      case 'Change Email':
+        return 'fa-envelope';
+      case 'Change Password':
+        return 'fa-key';
+      case 'Change Phone Number':
+        return 'fa-phone';
+      case 'Who can see my posts':
+        return 'fa-eye';
+      case 'Phone number & Birthday':
+        return 'fa-calendar-day';
+      case 'Two-factor authentication':
+        return 'fa-shield-alt';
+      case 'Account health':
+        return 'fa-heart-pulse';
+      case 'Login activity':
+        return 'fa-clock-rotate-left';
+      case 'Appearance':
+        return 'fa-palette';
+      case 'Delete Account':
+        return 'fa-trash';
+      case 'Deactivate Account':
+        return 'fa-user-slash';
+      case 'Logout from all devices':
+        return 'fa-sign-out-alt';
+      case 'Logout':
+        return 'fa-right-from-bracket';
+      default:
+        return 'fa-cog';
     }
   };
 
@@ -68,9 +102,8 @@ const SettingSidebar = () => {
       items: [
         { name: 'Edit Profile' },
         { name: 'Change Email' },
-        { name: 'Change Password' }
-        // { name: 'Switch Account' }
-       
+        { name: 'Change Password' },
+        { name: 'Change Phone Number' }
       ],
     },
     {
@@ -107,7 +140,6 @@ const SettingSidebar = () => {
         { name: 'Logout' },
       ],
     }
-    
   ];
 
   // Render ProfileSettings component when activePage is 'editProfile'
@@ -125,10 +157,10 @@ const SettingSidebar = () => {
     return <ChangePassword onBack={() => setActivePage('settings')} />;
   }
 
-  // // Render SwitchAccount component when activePage is 'switchAccount'
-  // if (activePage === 'switchAccount') {
-  //   return <SwitchAccount onBack={() => setActivePage('settings')} />;
-  // }
+  // Render ChangePhoneNumber component when activePage is 'ChangePhoneNumber'
+  if (activePage === 'ChangePhoneNumber') {
+    return <ChangePhoneNumber onBack={() => setActivePage('settings')} />;
+  }
 
   // Render WhoCanSeePosts component when activePage is 'whoCanSeePosts'
   if (activePage === 'whoCanSeePosts') {
@@ -140,18 +172,21 @@ const SettingSidebar = () => {
     return <PhoneNumberandBirthday onBack={() => setActivePage('settings')} />;
   }
 
-  // Render PhoneNumberandBirthday component when activePage is 'Delete Account'
+  // Render DeleteAccount component when activePage is 'Delete Account'
   if (activePage === 'DeleteAccount') {
     return <DeleteAccount onBack={() => setActivePage('settings')} />;
   }
-   // Render PhoneNumberandBirthday component when activePage is 'Deactivate Account'
+
+  // Render DeactivateAccount component when activePage is 'Deactivate Account'
   if (activePage === 'DeactivateAccount') {
     return <DeactivateAccount onBack={() => setActivePage('settings')} />;
   }
-  // Render PhoneNumberandBirthday component when activePage is 'Deactivate Account'
+
+  // Render LogoutSettings component when activePage is 'LogoutSettings'
   if (activePage === 'LogoutSettings') {
     return <LogoutSettings onBack={() => setActivePage('settings')} />;
   }
+
   // Render settings sidebar
   return (
     <div className="card">
@@ -159,7 +194,7 @@ const SettingSidebar = () => {
         <header className="setting-container">
           <div className="setting-header">
             <h2 className="page-label">
-              Setting <i className="fa-solid fa-gear"></i>
+              <i className="fa-solid fa-gear"></i> Setting 
             </h2>
           </div>
         </header>
@@ -178,11 +213,17 @@ const SettingSidebar = () => {
                     <React.Fragment key={idx}>
                       <li
                         className="setting-item"
-                        onClick={() => handleMenuItemClick(item.name)} // ✅ Always call handleMenuItemClick
+                        onClick={() => handleMenuItemClick(item.name)}
                         style={{ cursor: 'pointer' }}
                       >
-                        <span>{item.name}</span>
-                        <i className={`fa-solid fa-chevron-right chevron-icon`}></i> {/* ✅ Always show chevron */}
+                        {/* Icon before the name */}
+                        <div className="setting-item-content">
+                          <i className={`fa-solid ${getMenuItemIcon(item.name)} setting-item-icon`}></i>
+                          <span className="setting-item-text">{item.name}</span>
+                        </div>
+                        
+                        {/* Chevron icon on the right */}
+                        <i className={`fa-solid fa-chevron-right chevron-icon`}></i>
                       </li>
 
                       {openDropdown === item.name && item.subItems && (

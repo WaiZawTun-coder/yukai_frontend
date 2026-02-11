@@ -370,3 +370,43 @@
 html {
   box-sizing: border-box;
 }
+/* page.css or settings.css */
+/* Add these new styles */
+
+/* Setting Item Content Container */
+.setting-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Icon before the text */
+.setting-item-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  color: var(--text-muted, #8e9fb1);
+  transition: all 0.2s ease;
+}
+
+.setting-item:hover .setting-item-icon {
+  color: var(--text-primary, #ffffff);
+}
+
+/* Text styling */
+.setting-item-text {
+  flex: 1;
+}
+
+/* Chevron icon stays on the right */
+.setting-item i.fa-chevron-right {
+  font-size: 13px;
+  color: var(--text-muted, #8e9fb1);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.setting-item:hover i.fa-chevron-right {
+  color: var(--text-primary, #ffffff);
+}

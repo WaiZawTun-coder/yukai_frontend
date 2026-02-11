@@ -42,7 +42,7 @@ export default function ProfileSettings({ onBack }) {
             bio: res.data.bio || "",
             profileImage: res.data.profile_image || null,
             coverImage: res.data.cover_image || null,
-            phoneNumber: res.data.phone_number || "",
+            // phoneNumber: res.data.phone_number || "",
             email: res.data.email || ""
           };
           
@@ -131,12 +131,12 @@ export default function ProfileSettings({ onBack }) {
           !profileData.coverImage.startsWith('blob:')) {
         updateData.cover_image = profileData.coverImage;
       }
-      if (profileData.phoneNumber !== originalData.phoneNumber) {
-        updateData.phone_number = profileData.phoneNumber;
-      }
-      if (profileData.email !== originalData.email) {
-        updateData.email = profileData.email;
-      }
+      // if (profileData.phoneNumber !== originalData.phoneNumber) {
+      //   updateData.phone_number = profileData.phoneNumber;
+      // }
+      // if (profileData.email !== originalData.email) {
+      //   updateData.email = profileData.email;
+      // }
 
       // Check if there are any fields to update
       if (Object.keys(updateData).length <= 1) { // Only user_id is present
@@ -158,7 +158,7 @@ export default function ProfileSettings({ onBack }) {
         if (updateUser) {
           updateUser({
             display_name: profileData.name,
-            email: profileData.email,
+            // email: profileData.email,
             profile_image: profileData.profileImage,
             cover_image: profileData.coverImage,
             bio: profileData.bio,
@@ -350,7 +350,7 @@ export default function ProfileSettings({ onBack }) {
             </div>
 
             {/* Email Field */}
-            <div className="form-field">
+            {/* <div className="form-field">
               <label htmlFor="email" className="form-label">
                 Email Address <span className="required">*</span>
               </label>
@@ -363,10 +363,10 @@ export default function ProfileSettings({ onBack }) {
                 className="form-input"
                 disabled={isLoading}
               />
-            </div>
+            </div> */}
 
             {/* Phone Number Field */}
-            <div className="form-field">
+            {/* <div className="form-field">
               <label htmlFor="phoneNumber" className="form-label">
                 Phone Number
               </label>
@@ -379,7 +379,7 @@ export default function ProfileSettings({ onBack }) {
                 className="form-input"
                 disabled={isLoading}
               />
-            </div>
+            </div> */}
 
             {/* Bio Field */}
             <div className="form-field">
