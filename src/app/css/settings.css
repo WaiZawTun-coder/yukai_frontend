@@ -1,14 +1,11 @@
 /* Settings Page - Clean and Fixed Version */
 .setting-container {
   background: var(--card-bg, rgba(255, 255, 255, 0.02));
-  /* min-height: 100vh; */
   color: var(--text-primary, #ffffff);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   width: 100%;
-  
   padding: 5px;
   padding-left: 20px;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,22 +65,22 @@
   cursor: not-allowed;
 }
 
-/* Page Name - Made LARGER */
+/* Page Name */
 .page-label {
-  font-size: 32px; /* Increased from 24px */
-  font-weight: 700; /* Increased from 600 */
+  font-size: 32px;
+  font-weight: 700;
   color: var(--text-primary, #ffffff);
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 15px; /* Increased gap */
+  gap: 15px;
   margin: 0;
-  letter-spacing: -0.5px; /* Slightly tighter letter spacing */
+  letter-spacing: -0.5px;
 }
 
 .page-label i {
   color: var(--accent-color, #3b82f6);
-  font-size: 28px; /* Increased from 20px */
+  font-size: 28px;
   flex-shrink: 0;
 }
 
@@ -94,34 +91,35 @@
 
 /* Setting Sections */
 .setting-section {
-  background: var(--section-bg, rgba(255, 255, 255, 0.03));
   border-radius: 12px;
   border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.1));
   overflow: hidden;
   margin-bottom: 20px;
 }
 
+/* Section Header - Icon BEFORE title */
 .section-header {
   padding: 18px 20px;
-  background: var(--section-header-bg, rgba(0, 0, 0, 0.2));
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px; /* Space between icon and title */
   margin: 0;
 }
 
-.section-title {
-  font-size: 18px; /* Slightly larger section titles */
-  font-weight: 600;
-  color: var(--text-primary, #ffffff);
-  margin: 0;
-}
-
+/* Section Icon - now BEFORE title */
 .section-icon {
   font-size: 16px;
   color: var(--accent-color, #3b82f6);
   opacity: 0.8;
   flex-shrink: 0;
+}
+
+/* Section Title */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary, #ffffff);
+  margin: 0;
 }
 
 /* Setting Card */
@@ -136,15 +134,16 @@
   width: 100%;
 }
 
+/* Setting Item */
 .setting-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 16px 20px;
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--text-secondary, #b0b8c1);
-  font-size: 15px; /* Slightly larger text */
+  font-size: 15px;
   width: 100%;
   box-sizing: border-box;
   border-bottom: 1px solid var(--border-soft, rgba(255, 255, 255, 0.05));
@@ -159,26 +158,46 @@
 .setting-item:hover {
   background: var(--hover-bg, rgba(255, 255, 255, 0.08));
   color: var(--text-primary, #ffffff);
-  padding-left: 24px;
 }
 
-.setting-item i {
-  font-size: 13px; /* Slightly larger chevron */
+/* Menu Item Icon Styling (NO background) */
+.menu-item-icon {
+  font-size: 16px;
+  color: var(--text-muted, #8e9fb1);
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.setting-item:hover .menu-item-icon {
+  color: var(--text-primary, #ffffff);
+}
+
+/* Menu Item Text */
+.menu-item-text {
+  flex: 1;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+/* Chevron icon stays on the right */
+.setting-item .chevron-icon {
+  margin-left: auto;
+  font-size: 13px;
   color: var(--text-muted, #8e9fb1);
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
-.setting-item:hover i {
+.setting-item:hover .chevron-icon {
   color: var(--text-primary, #ffffff);
 }
 
-.chevron-icon {
-  transition: transform 0.2s ease;
-}
-
-.fa-chevron-right.rotate {
-  transform: rotate(90deg);
+/* Remove any existing background from icons */
+.setting-item i {
+  background: none !important;
 }
 
 /* Sub Menu */
@@ -205,7 +224,7 @@
 
 .sub-item {
   padding: 14px 20px 14px 40px;
-  font-size: 14px; /* Slightly larger sub-item text */
+  font-size: 14px;
   color: var(--text-secondary, #8e9fb1);
   border-bottom: 1px solid var(--border-soft, rgba(255, 255, 255, 0.05));
   cursor: pointer;
@@ -247,7 +266,7 @@
   }
   
   .page-label {
-    font-size: 26px; /* Adjusted for mobile */
+    font-size: 26px;
     gap: 12px;
   }
   
@@ -255,21 +274,27 @@
     font-size: 22px;
   }
   
+  .section-header {
+    padding: 16px 18px;
+    gap: 10px;
+  }
+  
+  .section-icon {
+    font-size: 15px;
+  }
+  
+  .section-title {
+    font-size: 16px;
+  }
+  
   .setting-item {
     padding: 14px 16px;
     font-size: 14px;
   }
   
-  .setting-item:hover {
-    padding-left: 20px;
-  }
-  
-  .section-header {
-    padding: 16px 18px;
-  }
-  
-  .section-title {
-    font-size: 16px;
+  .menu-item-icon {
+    font-size: 14px;
+    margin-right: 10px;
   }
   
   .sub-item {
@@ -281,7 +306,6 @@
     padding-left: 34px;
   }
 }
-
 
 @media (max-width: 480px) {
   .setting-container {
@@ -302,17 +326,27 @@
     font-size: 20px;
   }
   
+  .section-header {
+    padding: 14px 16px;
+    gap: 8px;
+  }
+  
+  .section-icon {
+    font-size: 14px;
+  }
+  
+  .section-title {
+    font-size: 15px;
+  }
+  
   .setting-item {
     padding: 12px 14px;
     font-size: 13px;
   }
   
-  .section-header {
-    padding: 14px 16px;
-  }
-  
-  .section-title {
-    font-size: 15px;
+  .menu-item-icon {
+    font-size: 13px;
+    margin-right: 8px;
   }
   
   .sub-item {
@@ -369,44 +403,4 @@
 
 html {
   box-sizing: border-box;
-}
-/* page.css or settings.css */
-/* Add these new styles */
-
-/* Setting Item Content Container */
-.setting-item-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-}
-
-/* Icon before the text */
-.setting-item-icon {
-  font-size: 16px;
-  width: 20px;
-  text-align: center;
-  color: var(--text-muted, #8e9fb1);
-  transition: all 0.2s ease;
-}
-
-.setting-item:hover .setting-item-icon {
-  color: var(--text-primary, #ffffff);
-}
-
-/* Text styling */
-.setting-item-text {
-  flex: 1;
-}
-
-/* Chevron icon stays on the right */
-.setting-item i.fa-chevron-right {
-  font-size: 13px;
-  color: var(--text-muted, #8e9fb1);
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.setting-item:hover i.fa-chevron-right {
-  color: var(--text-primary, #ffffff);
 }

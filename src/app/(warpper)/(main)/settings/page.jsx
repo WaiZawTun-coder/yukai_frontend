@@ -194,7 +194,8 @@ const SettingSidebar = () => {
         <header className="setting-container">
           <div className="setting-header">
             <h2 className="page-label">
-              <i className="fa-solid fa-gear"></i> Setting 
+              <i className="fa-solid fa-gear"></i>
+              Setting 
             </h2>
           </div>
         </header>
@@ -203,8 +204,9 @@ const SettingSidebar = () => {
           {settingsData.map((section, index) => (
             <section key={index} className="setting-section">
               <div className="section-header">
-                <h3 className="section-title">{section.title}</h3>
+                {/* Icon moved BEFORE the title */}
                 <i className={`fa-solid ${section.icon} section-icon`}></i>
+                <h3 className="section-title">{section.title}</h3>
               </div>
 
               <div className="setting-card">
@@ -216,11 +218,11 @@ const SettingSidebar = () => {
                         onClick={() => handleMenuItemClick(item.name)}
                         style={{ cursor: 'pointer' }}
                       >
-                        {/* Icon before the name */}
-                        <div className="setting-item-content">
-                          <i className={`fa-solid ${getMenuItemIcon(item.name)} setting-item-icon`}></i>
-                          <span className="setting-item-text">{item.name}</span>
-                        </div>
+                        {/* Icon before the text - NO background */}
+                        <i className={`fa-solid ${getMenuItemIcon(item.name)} menu-item-icon`}></i>
+                        
+                        {/* Text */}
+                        <span className="menu-item-text">{item.name}</span>
                         
                         {/* Chevron icon on the right */}
                         <i className={`fa-solid fa-chevron-right chevron-icon`}></i>
