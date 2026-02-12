@@ -110,7 +110,7 @@ export const MessageNotifications = () => {
 
       timersRef.current.push(timer);
     });
-  }, [messages, showSnackbar, removeMessage, router, pathname]);
+  }, [messages, showSnackbar, removeMessage, router, pathname, apiFetch, decryptPayload, hideMessage]);
 
   useEffect(() => {
     return () => {
