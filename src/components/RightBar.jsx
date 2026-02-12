@@ -197,6 +197,7 @@ const RightBar = () => {
                       alt={user.username}
                       width={45}
                       height={45}
+                      style={{ objectFit: "cover" }}
                     />
                     <div className={`status-dot ${user.status}`} />
                   </div>

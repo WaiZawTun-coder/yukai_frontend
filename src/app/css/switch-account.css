@@ -1,13 +1,13 @@
 /* switch-account.css - Full Width Styling */
 .switch-account-page {
   min-height: 100vh;
-  width:50%;
-  
+  width: 50%;
+
   padding: 5px;
   border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.2));
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text-primary, #ffffff);
-  
+
 }
 
 .switch-account-container {
@@ -30,8 +30,10 @@
 
 /* Page Title - Made LARGER to match settings page */
 .page-title {
-  font-size: 32px; /* Increased from 1.875rem (30px) */
-  font-weight: 700; /* Made bolder */
+  font-size: 32px;
+  /* Increased from 1.875rem (30px) */
+  font-weight: 700;
+  /* Made bolder */
   margin: 0 0 0.5rem 0;
   color: var(--text-primary, #ffffff);
   letter-spacing: -0.5px;
@@ -42,7 +44,8 @@
 
 .page-title i {
   color: var(--accent-color, #3b82f6);
-  font-size: 28px; /* Increased icon size */
+  font-size: 28px;
+  /* Increased icon size */
   flex-shrink: 0;
 }
 
@@ -69,7 +72,6 @@
 
 /* Form Sections */
 .form-section {
-  background-color: var(--card-bg, #1e293b);
   border-radius: 12px;
   border: 1px solid var(--border-soft, #334155);
   overflow: hidden;
@@ -280,36 +282,6 @@
   color: #ef4444;
 }
 
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--input-bg, rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.15));
-  border-radius: 6px;
-  font-size: 0.875rem;
-  color: var(--text-primary, #ffffff);
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-  outline: none;
-}
-
-.form-input:focus {
-  border-color: var(--accent-color, #3b82f6);
-  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
-  background: var(--input-focus-bg, rgba(255, 255, 255, 0.08));
-}
-
-.form-input.error {
-  border-color: #ef4444;
-}
-
-.form-input:disabled {
-  background: var(--input-disabled-bg, rgba(255, 255, 255, 0.02));
-  color: var(--text-muted, #94a3b8) !important;
-  cursor: not-allowed;
-  border-color: var(--border-soft, rgba(255, 255, 255, 0.1));
-}
-
 .form-hint {
   color: var(--text-muted, #cbd5e1);
   font-size: 0.75rem;
@@ -400,6 +372,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -411,6 +384,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -446,45 +420,46 @@
   .switch-account-container {
     padding: 1.5rem 1rem;
   }
-  
+
   .page-title {
-    font-size: 26px; /* Adjusted for mobile */
+    font-size: 26px;
+    /* Adjusted for mobile */
     gap: 12px;
   }
-  
+
   .page-title i {
     font-size: 22px;
   }
-  
+
   .account-info.active {
     flex-direction: column;
     text-align: center;
     gap: 0.75rem;
   }
-  
+
   .account-details {
     text-align: center;
   }
-  
+
   .accounts-list {
     padding: 1rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
     padding: 1rem;
   }
-  
+
   .cancel-button,
   .switch-button {
     width: 100%;
     min-width: auto;
   }
-  
+
   .form-group {
     padding: 0 1rem;
   }
-  
+
   .current-account-display {
     padding: 1rem;
   }
@@ -495,11 +470,11 @@
     font-size: 22px;
     gap: 10px;
   }
-  
+
   .page-title i {
     font-size: 20px;
   }
-  
+
   .form-section {
     border-radius: 10px;
   }

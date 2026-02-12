@@ -1,9 +1,6 @@
-/* change-email.css - Match Delete Account Size */
 .change-email-page {
   min-height: 100vh;
-  background-color: #0d1b2a;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: #ffffff;
   width: 100%;
   display: flex;
   align-items: center;
@@ -13,12 +10,8 @@
 
 .change-email-container {
   width: 100%;
-  max-width: 48rem; /* Match delete-account size (768px) */
+  max-width: 720px;
   margin: 0 auto;
-  background-color: #1e293b;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #334155;
   overflow: hidden;
 }
 
@@ -37,15 +30,14 @@
   font-size: 1.875rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .page-subtitle {
   font-size: 0.875rem;
-  color: #cbd5e1;
   margin: 0;
   line-height: 1.5;
-  color: var(--text-secondary, #e2e8f0);
+  color: var(--text-color, #e2e8f0);
 }
 
 /* Form Container */
@@ -55,12 +47,11 @@
 
 /* Form Sections */
 .form-section {
-  background-color: var(--card-bg, #1e293b);
+  background-color: var(--secondary-color);
   border-radius: 12px;
   border: 1px solid var(--border-soft, #334155);
   margin-bottom: 1.5rem;
   padding: 1.5rem;
-  border-bottom: 1px solid #334155;
 }
 
 .form-section:last-child {
@@ -69,7 +60,7 @@
 
 /* Current Email Display */
 .current-email-display {
-  background-color: #0f172a;
+  background-color: var(--primary-color);
   border: 1px solid #334155;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -100,7 +91,7 @@
 
 .email-label {
   font-size: 0.75rem;
-  color: #cbd5e1;
+  color: var(--text-color);
   margin: 0 0 0.25rem 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -109,7 +100,7 @@
 .email-value {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-color);
   margin: 0;
 }
 
@@ -123,7 +114,7 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--text-color);
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -131,7 +122,7 @@
 }
 
 .required {
-  color: #f87171;
+  color: var(--danger-color);
 }
 
 .form-input {
@@ -141,16 +132,10 @@
   border: 1px solid #475569;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: #ffffff !important;
+  color: var(--text-color);
   transition: all 0.2s ease;
   box-sizing: border-box;
   outline: none;
-}
-
-.form-input:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
-  background: #1e293b;
 }
 
 .form-input.error {
@@ -169,7 +154,7 @@
 }
 
 .form-input::placeholder {
-  color: #94a3b8;
+  color: var(--text-color);
   opacity: 0.8;
 }
 
@@ -221,7 +206,7 @@
 }
 
 .notice-title {
-  color: #ffffff;
+  color: var(--text-color);
   font-size: 0.875rem;
   font-weight: 600;
   margin: 0 0 0.75rem 0;
@@ -271,13 +256,13 @@
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid transparent;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .cancel-button {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .cancel-button:hover:not(:disabled) {
@@ -340,6 +325,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -351,35 +337,35 @@
   .change-email-page {
     padding: 1rem;
   }
-  
+
   .change-email-container {
     border-radius: 0.5rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .form-section {
     padding: 1rem;
   }
-  
+
   .security-notice {
     margin: 1rem;
     flex-direction: column;
     margin: 1rem 0;
   }
-  
+
   .form-edit {
     flex-direction: column;
     padding: 1rem;
   }
-  
+
   .edit-button {
     width: 100%;
     min-width: auto;
   }
-  
+
   .email-info {
     flex-direction: column;
     text-align: center;
@@ -418,6 +404,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -435,15 +422,5 @@
 .change-email-container h4,
 .change-email-container h5,
 .change-email-container h6 {
-  color: #ffffff;
-}
-
-/* Exceptions for non-white text */
-.form-input::placeholder,
-.form-hint,
-.error-message,
-.email-label,
-.notice-list li,
-.page-subtitle {
-  color: #cbd5e1 !important;
+  color: var(--text-color);
 }

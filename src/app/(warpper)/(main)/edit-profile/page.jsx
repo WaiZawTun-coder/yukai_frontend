@@ -379,7 +379,7 @@ export default function ProfileSettings() {
                                 placeholder="Tell us about yourself..."
                                 rows={4}
                                 maxLength={250}
-                                className="form-textarea"
+                                className="form-input"
                                 disabled={isLoading}
                             />
                             <div className="character-count">

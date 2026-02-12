@@ -1,0 +1,296 @@
+"use client";
+
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useApi } from "@/utilities/api";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import AlternateEmailOutlinedIcon from '@mui/icons-material/AlternateEmailOutlined';
+import { useRouter } from "next/navigation";
+
+const ChangeEmail = ({ onBack }) => {
+    const { user: authUser, updateUser } = useAuth();
+    const { showSnackbar } = useSnackbar();
+    const apiFetch = useApi();
+    const router = useRouter();
+
+    const [emailData, setEmailData] = useState({
+        currentEmail: authUser?.email || "",
+        newEmail: "",
+        confirmEmail: "",
+        password: "",
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const handleInputChange = (field, value) => {
+        setEmailData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+
+        // Clear error when user starts typing
+        if (errors[field]) {
+            setErrors((prev) => ({ ...prev, [field]: "" }));
+        }
+    };
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!emailData.newEmail) {
+            newErrors.newEmail = "New email is required";
+        } else if (!/\S+@\S+\.\S+/.test(emailData.newEmail)) {
+            newErrors.newEmail = "Please enter a valid email address";
+        }
+
+        if (!emailData.confirmEmail) {
+            newErrors.confirmEmail = "Please confirm your new email";
+        } else if (emailData.newEmail !== emailData.confirmEmail) {
+            newErrors.confirmEmail = "Emails do not match";
+        }
+
+        if (!emailData.password) {
+            newErrors.password = "Password is required";
+        } else if (emailData.password.length < 6) {
+            newErrors.password = "Password must be at least 6 characters";
+        }
+
+        return newErrors;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const res = await apiFetch("/api/edit-user", {
+                method: "POST",
+                body: {
+                    user_id: authUser?.user_id,
+                    email: emailData.newEmail,
+                },
+            });
+
+            if (!res.status) {
+                throw new Error(res.message || "Failed to update email");
+            }
+
+            // Show success message
+            showSnackbar({
+                title: "Success!",
+                message: "Email updated successfully",
+                variant: "success",
+                duration: 3000,
+            });
+
+            // Update local user state
+            if (updateUser) {
+                updateUser({ email: emailData.newEmail });
+            }
+
+            // Update current email display and reset form
+            setEmailData({
+                currentEmail: emailData.newEmail,
+                newEmail: "",
+                confirmEmail: "",
+                password: "",
+            });
+            setErrors({});
+
+            // Optionally go back to settings
+            if (onBack) {
+                setTimeout(() => onBack(), 1500);
+            }
+
+        } catch (error) {
+            console.error("Error changing email:", error);
+
+            let errorMessage = error.message;
+            showSnackbar({
+                title: "Error",
+                message: errorMessage || "Failed to update email. Please try again.",
+                variant: "error",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="change-email-container">
+            {/* Header with Back Button */}
+            <div className="page-header">
+                <button
+                    onClick={router.back}
+                    className="back-button"
+                    disabled={isLoading}
+                >
+                    <ArrowBackIosIcon fontSize="small" />
+                </button>
+
+                <span className="page-name">Change Email Address</span>
+            </div>
+
+            {/* Main Form */}
+            <div className="email-form-container">
+                <form onSubmit={handleSubmit} className="email-form">
+                    {/* Current Email Section */}
+                    <div className="form-section current-email-section">
+                        <h3 className="section-title">
+                            {/* <i className="fas fa-envelope section-icon"></i> */}
+                            Current Email Address
+                        </h3>
+                        <div className="current-email-display">
+                            <div className="email-info">
+                                <div className="email-icon">
+                                    <AlternateEmailOutlinedIcon />
+                                </div>
+                                <div className="email-details">
+                                    <p className="email-label">Your current email</p>
+                                    <p className="email-value">{emailData.currentEmail}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* New Email Section */}
+                    <div className="form-section new-email-section">
+                        <h3 className="section-title">
+                            {/* <i className="fas fa-envelope-open-text section-icon"></i> */}
+                            New Email Address
+                        </h3>
+
+                        <div className="form-group">
+                            <label htmlFor="newEmail" className="form-label">
+                                New Email Address <span className="required">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                id="newEmail"
+                                value={emailData.newEmail}
+                                onChange={(e) =>
+                                    handleInputChange("newEmail", e.target.value)
+                                }
+                                placeholder="Enter your new email address"
+                                className={`form-input ${errors.newEmail ? "error" : ""}`}
+                                disabled={isLoading}
+                            />
+                            {errors.newEmail && (
+                                <p className="error-message">
+                                    <i className="fas fa-exclamation-circle"></i>{" "}
+                                    {errors.newEmail}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="confirmEmail" className="form-label">
+                                Confirm New Email <span className="required">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                id="confirmEmail"
+                                value={emailData.confirmEmail}
+                                onChange={(e) =>
+                                    handleInputChange("confirmEmail", e.target.value)
+                                }
+                                placeholder="Re-enter your new email address"
+                                className={`form-input ${errors.confirmEmail ? "error" : ""}`}
+                                disabled={isLoading}
+                            />
+                            {errors.confirmEmail && (
+                                <p className="error-message">
+                                    <i className="fas fa-exclamation-circle"></i>{" "}
+                                    {errors.confirmEmail}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Security Verification */}
+                    <div className="form-section security-section">
+                        <h3 className="section-title">
+                            {/* <i className="fas fa-shield-alt section-icon"></i> */}
+                            Security Verification
+                        </h3>
+
+                        <div className="form-group">
+                            <label htmlFor="password" className="form-label">
+                                Current Password <span className="required">*</span>
+                            </label>
+                            <input
+                                type="password"
+                                id="password"
+                                value={emailData.password}
+                                onChange={(e) =>
+                                    handleInputChange("password", e.target.value)
+                                }
+                                placeholder="Enter your current password"
+                                className={`form-input ${errors.password ? "error" : ""}`}
+                                disabled={isLoading}
+                            />
+                            {errors.password && (
+                                <p className="error-message">
+                                    <i className="fas fa-exclamation-circle"></i>{" "}
+                                    {errors.password}
+                                </p>
+                            )}
+                            <p className="form-hint">
+                                Enter your password to verify your identity
+                            </p>
+                        </div>
+                    </div>
+
+
+
+                    {/* Form Actions */}
+                    <div className="form-edit">
+                        {onBack && (
+                            <button
+                                type="button"
+                                onClick={onBack}
+                                className="edit-button cancel-button"
+                                disabled={isLoading}
+                            >
+                                <i className="fas fa-times"></i>
+                                Cancel
+                            </button>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="edit-button submit-button"
+                            disabled={
+                                isLoading ||
+                                !emailData.newEmail ||
+                                !emailData.confirmEmail
+                            }
+                        >
+                            {isLoading ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    Updating...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-save"></i>
+                                    Update Email
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default ChangeEmail;

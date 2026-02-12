@@ -23,7 +23,7 @@
 .popup-container {
   background: var(--secondary-color);
   border-radius: 16px;
-  width: 100%;
+  width: 95%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -122,6 +122,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  color: var(--text-color);
 }
 
 /* Cancel button */

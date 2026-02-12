@@ -1,11 +1,11 @@
 /* who-can-see-posts.css - Full Screen Styling */
 .who-can-see-posts-page {
   min-height: 100vh;
-  
+
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color: var(--text-primary, #ffffff);
-  width:50%;
-  
+  width: 50%;
+
   padding: 5px;
   border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.2));
 }
@@ -60,7 +60,6 @@
 
 /* Form Sections */
 .form-section {
-  background-color: var(--card-bg, #1e293b);
   border-radius: 12px;
   border: 1px solid var(--border-soft, #334155);
   overflow: hidden;
@@ -391,6 +390,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -402,6 +402,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -416,48 +417,48 @@
   .who-can-see-posts-container {
     padding: 1.5rem 1rem;
   }
-  
+
   .page-header {
     padding: 12px 16px;
   }
-  
+
   .page-name {
     font-size: 16px;
   }
-  
+
   .setting-info {
     flex-direction: column;
     text-align: center;
     gap: 0.75rem;
   }
-  
+
   .setting-details {
     text-align: center;
   }
-  
+
   .privacy-options {
     padding: 1rem;
   }
-  
+
   .privacy-option-content {
     padding: 0.875rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
     padding: 1rem;
   }
-  
+
   .cancel-button,
   .save-button {
     width: 100%;
     min-width: auto;
   }
-  
+
   .current-setting-display {
     padding: 1rem;
   }
-  
+
   .security-notice {
     margin: 1rem;
   }

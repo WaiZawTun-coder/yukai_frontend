@@ -33,11 +33,14 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import ThemeToggle from '@/components/ThemeToggle';
+import Popup from '@/components/ui/Popup';
+import Button from '@/components/ui/Button';
 
 
 const SettingSidebar = () => {
   const { logout } = useAuth();
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [logoutPopupOpen, setLogoutPopupOpen] = useState(false);
   const router = useRouter();
 
   // Get icon for each menu item
@@ -137,7 +140,7 @@ const SettingSidebar = () => {
         { name: 'Delete Account', url: '/delete-account' },
         { name: 'Deactivate Account', url: '/deactivate-account' },
         { name: 'Logout from all devices', url: '/logout-from-all-devices' },
-        { name: 'Logout', action: logout },
+        { name: 'Logout', action: () => setLogoutPopupOpen(true) },
       ],
     }
   ];
@@ -219,6 +222,19 @@ const SettingSidebar = () => {
           </section>
         ))}
       </div>
+
+      <Popup isOpen={logoutPopupOpen} onClose={() => setLogoutPopupOpen(false)} title="Logout" footer={
+        <div className='popup-actions'>
+          <Button variant='text' color="danger" className="popup-btn popup-btn-danger" onClick={logout}>
+            Yes, Logout
+          </Button>
+          <Button className='popup-btn popup-btn-cancel' onClick={() => { setLogoutPopupOpen(false) }}>
+            No, Go back
+          </Button>
+        </div>
+      }>
+        Are you sure to logout from this account?
+      </Popup>
     </div>
   );
 };

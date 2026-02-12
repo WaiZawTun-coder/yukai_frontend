@@ -30,6 +30,7 @@
       opacity: 0;
       transform: translateY(-10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -84,6 +85,7 @@
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -101,20 +103,20 @@
     .delete-account-wrapper {
       padding: 0 0.5rem;
     }
-    
+
     .profile-title {
       font-size: 1.5rem;
     }
-    
+
     .modal-actions {
       flex-direction: column;
     }
-    
+
     .edit-button {
       width: 100%;
       justify-content: center;
     }
-    
+
     .loss-grid {
       grid-template-columns: 1fr !important;
     }
@@ -283,24 +285,6 @@
   .delete-account-container label,
   .delete-account-container div {
     color: #ffffff;
-  }
-
-  /* Specific text colors for descriptions and hints */
-  .card-description,
-  .input-hint,
-  .profile-subtitle {
-    color: #cbd5e1 !important;
-  }
-
-  /* Form inputs */
-  .form-input,
-  .form-textarea {
-    color: #ffffff !important;
-  }
-
-  .form-input::placeholder,
-  .form-textarea::placeholder {
-    color: #94a3b8;
   }
 
   /* Buttons */
