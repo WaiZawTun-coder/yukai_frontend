@@ -35,10 +35,12 @@ export default function MainLayout({ children }) {
   }
 
   return (
-    <div className="main-layout-container">
-      <Sidebar />
-      <main className="main-content">{children}</main>
-      <RightBar />
-    </div>
+    <>
+      <div className="main-layout-container">
+        <Sidebar />
+        <main className="main-content">{children}</main>
+        <RightBar />
+      </div>
+    </>
   );
 }

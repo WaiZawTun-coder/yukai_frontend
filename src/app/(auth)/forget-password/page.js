@@ -63,7 +63,7 @@ const ForgetPassword = () => {
 
     if (hasError) return;
 
-    try {
+    try { 
       setLoading(true);
 
       const res = await apiFetch("/auth/forget-password", {

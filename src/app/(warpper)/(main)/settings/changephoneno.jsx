@@ -7,26 +7,36 @@ import { useApi } from "@/utilities/api";
 import "../../../css/change-email.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
-const ChangeEmail = ({ onBack }) => {
+const ChangePhoneNumber = ({ onBack }) => {
   const { user: authUser, updateUser } = useAuth();
   const { showSnackbar } = useSnackbar();
   const apiFetch = useApi();
   
-  const [emailData, setEmailData] = useState({
-    currentEmail: authUser?.email || "",
-    newEmail: "",
-    confirmEmail: "",
+  const [phoneData, setPhoneData] = useState({
+    currentPhone: authUser?.phone_number || "",
+    newPhone: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (field, value) => {
-    setEmailData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
+    // Only allow numbers for phone field
+    if (field === "newPhone") {
+      // Remove any non-numeric characters
+      const numericValue = value.replace(/\D/g, "");
+      // Limit to 11 digits
+      const limitedValue = numericValue.slice(0, 11);
+      setPhoneData((prev) => ({
+        ...prev,
+        [field]: limitedValue,
+      }));
+    } else {
+      setPhoneData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -36,21 +46,21 @@ const ChangeEmail = ({ onBack }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!emailData.newEmail) {
-      newErrors.newEmail = "New email is required";
-    } else if (!/\S+@\S+\.\S+/.test(emailData.newEmail)) {
-      newErrors.newEmail = "Please enter a valid email address";
+    // Validate phone number format
+    if (!phoneData.newPhone) {
+      newErrors.newPhone = "New phone number is required";
+    } else if (!/^\d{11}$/.test(phoneData.newPhone)) {
+      newErrors.newPhone = "Phone number must be exactly 11 digits";
     }
 
-    if (!emailData.confirmEmail) {
-      newErrors.confirmEmail = "Please confirm your new email";
-    } else if (emailData.newEmail !== emailData.confirmEmail) {
-      newErrors.confirmEmail = "Emails do not match";
+    // Check if new phone is same as current
+    if (phoneData.newPhone === phoneData.currentPhone) {
+      newErrors.newPhone = "New phone number must be different from current";
     }
 
-    if (!emailData.password) {
+    if (!phoneData.password) {
       newErrors.password = "Password is required";
-    } else if (emailData.password.length < 6) {
+    } else if (phoneData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
 
@@ -69,36 +79,36 @@ const ChangeEmail = ({ onBack }) => {
     setIsLoading(true);
 
     try {
+      // Send request with phone_number parameter (not phone)
       const res = await apiFetch("/api/edit-user", {
         method: "POST",
         body: {
           user_id: authUser?.user_id,
-          email: emailData.newEmail,
+          phone_number: phoneData.newPhone, // Changed from 'phone' to 'phone_number'
         },
       });
 
       if (!res.status) {
-        throw new Error(res.message || "Failed to update email");
+        throw new Error(res.message || "Failed to update phone number");
       }
 
       // Show success message
       showSnackbar({
         title: "Success!",
-        message: "Email updated successfully",
+        message: "Phone number updated successfully",
         variant: "success",
         duration: 3000,
       });
 
       // Update local user state
       if (updateUser) {
-        updateUser({ email: emailData.newEmail });
+        updateUser({ phone_number: phoneData.newPhone });
       }
 
-      // Update current email display and reset form
-      setEmailData({
-        currentEmail: emailData.newEmail,
-        newEmail: "",
-        confirmEmail: "",
+      // Update current phone display and reset form
+      setPhoneData({
+        currentPhone: phoneData.newPhone,
+        newPhone: "",
         password: "",
       });
       setErrors({});
@@ -109,12 +119,11 @@ const ChangeEmail = ({ onBack }) => {
       }
 
     } catch (error) {
-      console.error("Error changing email:", error);
+      console.error("Error changing phone number:", error);
       
-      let errorMessage = error.message;
       showSnackbar({
         title: "Error",
-        message: errorMessage || "Failed to update email. Please try again.",
+        message: error.message || "Failed to update phone number. Please try again.",
         variant: "error",
       });
     } finally {
@@ -138,9 +147,9 @@ const ChangeEmail = ({ onBack }) => {
           )}
 
           <div className="header-content">
-            <h1 className="page-title">Change Email Address</h1>
+            <h1 className="page-title">Change Phone Number</h1>
             <p className="page-subtitle">
-              Update your email address in your profile.
+              Update your phone number in your profile.
             </p>
           </div>
         </div>
@@ -148,83 +157,60 @@ const ChangeEmail = ({ onBack }) => {
         {/* Main Form */}
         <div className="email-form-container">
           <form onSubmit={handleSubmit} className="email-form">
-            {/* Current Email Section */}
+            {/* Current Phone Section */}
             <div className="form-section current-email-section">
               <h3 className="section-title">
-                {/* <i className="fas fa-envelope section-icon"></i> */}
-                Current Email Address
+                Current Phone Number
               </h3>
               <div className="current-email-display">
                 <div className="email-info">
                   <div className="email-icon">
-                    <i className="fas fa-user-circle"></i>
+                    <i className="fas fa-phone"></i>
                   </div>
                   <div className="email-details">
-                    <p className="email-label">Your current email</p>
-                    <p className="email-value">{emailData.currentEmail}</p>
+                    <p className="email-label">Your current phone number</p>
+                    <p className="email-value">{phoneData.currentPhone || "Not set"}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* New Email Section */}
+            {/* New Phone Section */}
             <div className="form-section new-email-section">
               <h3 className="section-title">
-                {/* <i className="fas fa-envelope-open-text section-icon"></i> */}
-                New Email Address
+                New Phone Number
               </h3>
 
               <div className="form-group">
-                <label htmlFor="newEmail" className="form-label">
-                  New Email Address <span className="required">*</span>
+                <label htmlFor="newPhone" className="form-label">
+                  New Phone Number <span className="required">*</span>
                 </label>
                 <input
-                  type="email"
-                  id="newEmail"
-                  value={emailData.newEmail}
+                  type="tel"
+                  id="newPhone"
+                  value={phoneData.newPhone}
                   onChange={(e) =>
-                    handleInputChange("newEmail", e.target.value)
+                    handleInputChange("newPhone", e.target.value)
                   }
-                  placeholder="Enter your new email address"
-                  className={`form-input ${errors.newEmail ? "error" : ""}`}
+                  placeholder="Enter your new phone number"
+                  className={`form-input ${errors.newPhone ? "error" : ""}`}
                   disabled={isLoading}
                 />
-                {errors.newEmail && (
+                {errors.newPhone && (
                   <p className="error-message">
                     <i className="fas fa-exclamation-circle"></i>{" "}
-                    {errors.newEmail}
+                    {errors.newPhone}
                   </p>
                 )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="confirmEmail" className="form-label">
-                  Confirm New Email <span className="required">*</span>
-                </label>
-                <input
-                  type="email"
-                  id="confirmEmail"
-                  value={emailData.confirmEmail}
-                  onChange={(e) =>
-                    handleInputChange("confirmEmail", e.target.value)
-                  }
-                  placeholder="Re-enter your new email address"
-                  className={`form-input ${errors.confirmEmail ? "error" : ""}`}
-                  disabled={isLoading}
-                />
-                {errors.confirmEmail && (
-                  <p className="error-message">
-                    <i className="fas fa-exclamation-circle"></i>{" "}
-                    {errors.confirmEmail}
-                  </p>
-                )}
+                <p className="form-hint">
+                  Enter your new phone number
+                </p>
               </div>
             </div>
 
             {/* Security Verification */}
             <div className="form-section security-section">
               <h3 className="section-title">
-                {/* <i className="fas fa-shield-alt section-icon"></i> */}
                 Security Verification
               </h3>
 
@@ -235,7 +221,7 @@ const ChangeEmail = ({ onBack }) => {
                 <input
                   type="password"
                   id="password"
-                  value={emailData.password}
+                  value={phoneData.password}
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
@@ -254,8 +240,6 @@ const ChangeEmail = ({ onBack }) => {
                 </p>
               </div>
             </div>
-
-            
 
             {/* Form Actions */}
             <div className="form-edit">
@@ -276,8 +260,8 @@ const ChangeEmail = ({ onBack }) => {
                 className="edit-button submit-button"
                 disabled={
                   isLoading ||
-                  !emailData.newEmail ||
-                  !emailData.confirmEmail
+                  !phoneData.newPhone ||
+                  !phoneData.password
                 }
               >
                 {isLoading ? (
@@ -288,7 +272,7 @@ const ChangeEmail = ({ onBack }) => {
                 ) : (
                   <>
                     <i className="fas fa-save"></i>
-                    Update Email
+                    Update Phone Number
                   </>
                 )}
               </button>
@@ -300,4 +284,4 @@ const ChangeEmail = ({ onBack }) => {
   );
 };
 
-export default ChangeEmail;
+export default ChangePhoneNumber;

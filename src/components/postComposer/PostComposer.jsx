@@ -316,7 +316,7 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
             width={48}
             height={48}
             onClick={() => router.replace(`/${user.username}`)}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer", objectFit: "cover" }}
           />
 
           <div className="post-input">

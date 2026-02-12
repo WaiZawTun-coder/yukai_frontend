@@ -1,63 +1,203 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { useApi } from "@/utilities/api";
 import "../../../css/edit-profile.css";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 export default function ProfileSettings({ onBack }) {
+  const { user: authUser, updateUser } = useAuth();
+  const { showSnackbar } = useSnackbar();
+  const apiFetch = useApi();
+  
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    username: "johndoe",
-    bio: "Software developer | Tech enthusiast | Coffee lover ☕",
-    profileImage:
-      "https://images.unsplash.com/photo-1683815251677-8df20f826622?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwZXJzb24lMjBwb3J0cmFpdHxlbnwxfHx8fDE3NzAyNzUyODV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    name: "",
+    username: "",
+    bio: "",
+    profileImage: null,
+    coverImage: null,
+    phoneNumber: "",
+    email: ""
   });
 
-  const [originalData, setOriginalData] = useState({ ...profileData });
+  const [originalData, setOriginalData] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+
+  // Fetch user data from backend on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setIsFetching(true);
+        // Fetch user data - adjust endpoint as needed
+        const res = await apiFetch(`/api/get-user?user_id=${authUser?.user_id}`);
+        
+        if (res.status && res.data) {
+          const userData = {
+            name: res.data.display_name || "",
+            username: res.data.username || "",
+            bio: res.data.bio || "",
+            profileImage: res.data.profile_image || null,
+            coverImage: res.data.cover_image || null,
+            // phoneNumber: res.data.phone_number || "",
+            email: res.data.email || ""
+          };
+          
+          setProfileData(userData);
+          setOriginalData(userData);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        showSnackbar({
+          title: "Error",
+          message: "Failed to load user data",
+          variant: "error",
+        });
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    if (authUser?.user_id) {
+      fetchUserData();
+    }
+  }, [authUser?.user_id, apiFetch, showSnackbar]);
+
+  useEffect(() => {
+    // Check if there are changes
+    setHasChanges(JSON.stringify(profileData) !== JSON.stringify(originalData));
+  }, [profileData, originalData]);
 
   const handleInputChange = (field, value) => {
-    const newData = { ...profileData, [field]: value };
-    setProfileData(newData);
-    setHasChanges(JSON.stringify(newData) !== JSON.stringify(originalData));
+    setProfileData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  const handlePhotoUpload = () => {
+  const handlePhotoUpload = (type) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
     input.onchange = (e) => {
       const file = e.target.files?.[0];
       if (file) {
+        // For production, you would upload to server first
+        // For now, create a local URL
         const imageUrl = URL.createObjectURL(file);
-        const newData = { ...profileData, profileImage: imageUrl };
-        setProfileData(newData);
-        setHasChanges(true);
-        alert("Photo uploaded successfully");
+        if (type === 'profile') {
+          setProfileData(prev => ({ ...prev, profileImage: imageUrl }));
+        } else if (type === 'cover') {
+          setProfileData(prev => ({ ...prev, coverImage: imageUrl }));
+        }
       }
     };
     input.click();
   };
 
-  const handlePhotoDelete = () => {
-    const newData = { ...profileData, profileImage: null };
-    setProfileData(newData);
-    setHasChanges(true);
-    alert("Photo deleted");
+  const handlePhotoDelete = (type) => {
+    if (type === 'profile') {
+      setProfileData(prev => ({ ...prev, profileImage: null }));
+    } else if (type === 'cover') {
+      setProfileData(prev => ({ ...prev, coverImage: null }));
+    }
   };
 
-  const handleSave = () => {
-    setOriginalData({ ...profileData });
-    setHasChanges(false);
-    alert("Profile updated successfully");
+  const handleSave = async () => {
+    setIsLoading(true);
+    
+    try {
+      const updateData = {
+        user_id: authUser?.user_id,
+      };
+
+      // Only include fields that have changed
+      if (profileData.name !== originalData.name) {
+        updateData.display_name = profileData.name;
+      }
+      if (profileData.bio !== originalData.bio) {
+        updateData.bio = profileData.bio;
+      }
+      if (profileData.profileImage !== originalData.profileImage && 
+          profileData.profileImage !== null && 
+          !profileData.profileImage.startsWith('blob:')) {
+        updateData.profile_image = profileData.profileImage;
+      }
+      if (profileData.coverImage !== originalData.coverImage && 
+          profileData.coverImage !== null && 
+          !profileData.coverImage.startsWith('blob:')) {
+        updateData.cover_image = profileData.coverImage;
+      }
+      // if (profileData.phoneNumber !== originalData.phoneNumber) {
+      //   updateData.phone_number = profileData.phoneNumber;
+      // }
+      // if (profileData.email !== originalData.email) {
+      //   updateData.email = profileData.email;
+      // }
+
+      // Check if there are any fields to update
+      if (Object.keys(updateData).length <= 1) { // Only user_id is present
+        showSnackbar({
+          title: "Info",
+          message: "No changes to save",
+          variant: "info",
+        });
+        return;
+      }
+
+      const res = await apiFetch("/api/edit-user", {
+        method: "POST",
+        body: updateData,
+      });
+
+      if (res.status) {
+        // Update local auth context
+        if (updateUser) {
+          updateUser({
+            display_name: profileData.name,
+            // email: profileData.email,
+            profile_image: profileData.profileImage,
+            cover_image: profileData.coverImage,
+            bio: profileData.bio,
+            phone_number: profileData.phoneNumber
+          });
+        }
+
+        // Update original data to current state
+        setOriginalData({ ...profileData });
+        setHasChanges(false);
+
+        showSnackbar({
+          title: "Success!",
+          message: "Profile updated successfully",
+          variant: "success",
+          duration: 3000,
+        });
+      } else {
+        throw new Error(res.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      showSnackbar({
+        title: "Error",
+        message: error.message || "Failed to update profile. Please try again.",
+        variant: "error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setProfileData({ ...originalData });
     setHasChanges(false);
-    alert("Changes discarded");
   };
 
   const getInitials = () => {
+    if (!profileData.name) return "U";
     const names = profileData.name.split(" ");
     if (names.length >= 2) {
       return `${names[0][0]}${names[1][0]}`.toUpperCase();
@@ -65,14 +205,26 @@ export default function ProfileSettings({ onBack }) {
     return profileData.name.slice(0, 2).toUpperCase();
   };
 
+  if (isFetching) {
+    return (
+      <div className="edit-profile-container">
+        <div className="edit-profile-wrapper">
+          <div className="loading-spinner">
+            <i className="fas fa-spinner fa-spin"></i>
+            <p>Loading profile data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="edit-profile-container">
       <div className="edit-profile-wrapper">
         {/* Back Button */}
         {onBack && (
           <button onClick={onBack} className="back-button">
-            <i className="fas fa-arrow-left"></i>
-            Back to Settings
+            <ArrowBackIosIcon fontSize="small" />
           </button>
         )}
 
@@ -87,6 +239,39 @@ export default function ProfileSettings({ onBack }) {
           </div>
 
           <div className="card-content">
+            {/* Cover Image Section */}
+            <div className="cover-photo-section">
+              <div className="cover-container">
+                {profileData.coverImage ? (
+                  <img
+                    src={profileData.coverImage}
+                    alt="Cover"
+                    className="cover-image"
+                  />
+                ) : (
+                  <div className="cover-fallback"></div>
+                )}
+              </div>
+              <div className="cover-buttons">
+                <button
+                  className="photo-button primary"
+                  onClick={() => handlePhotoUpload('cover')}
+                >
+                  <i className="fas fa-upload"></i>
+                  {profileData.coverImage ? "Change Cover" : "Upload Cover"}
+                </button>
+                {profileData.coverImage && (
+                  <button
+                    className="photo-button delete"
+                    onClick={() => handlePhotoDelete('cover')}
+                  >
+                    <i className="fas fa-trash"></i>
+                    Delete Cover
+                  </button>
+                )}
+              </div>
+            </div>
+
             {/* Profile Photo Section */}
             <div className="profile-photo-section">
               <div className="avatar-container">
@@ -106,7 +291,7 @@ export default function ProfileSettings({ onBack }) {
               <div className="photo-buttons">
                 <button
                   className="photo-button primary"
-                  onClick={handlePhotoUpload}
+                  onClick={() => handlePhotoUpload('profile')}
                 >
                   <i className="fas fa-upload"></i>
                   {profileData.profileImage ? "Change Photo" : "Upload Photo"}
@@ -115,7 +300,7 @@ export default function ProfileSettings({ onBack }) {
                 {profileData.profileImage && (
                   <button
                     className="photo-button delete"
-                    onClick={handlePhotoDelete}
+                    onClick={() => handlePhotoDelete('profile')}
                   >
                     <i className="fas fa-trash"></i>
                     Delete Photo
@@ -131,22 +316,23 @@ export default function ProfileSettings({ onBack }) {
             {/* Name Field */}
             <div className="form-field">
               <label htmlFor="name" className="form-label">
-                Name <span className="required">*</span>
+                Display Name <span className="required">*</span>
               </label>
               <input
                 type="text"
                 id="name"
                 value={profileData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                placeholder="Enter your full name"
+                placeholder="Enter your display name"
                 className="form-input"
+                disabled={isLoading}
               />
             </div>
 
-            {/* Username Field */}
+            {/* Username Field - Read Only */}
             <div className="form-field">
               <label htmlFor="username" className="form-label">
-                Username <span className="required">*</span>
+                Username
               </label>
               <div className="input-with-prefix">
                 <span className="input-prefix">@</span>
@@ -154,17 +340,46 @@ export default function ProfileSettings({ onBack }) {
                   type="text"
                   id="username"
                   value={profileData.username}
-                  onChange={(e) =>
-                    handleInputChange("username", e.target.value)
-                  }
-                  placeholder="username"
-                  className="form-input with-prefix"
+                  readOnly
+                  className="form-input with-prefix readonly"
                 />
               </div>
               <p className="input-hint">
-                Your unique identifier on the platform
+                Username cannot be changed
               </p>
             </div>
+
+            {/* Email Field */}
+            {/* <div className="form-field">
+              <label htmlFor="email" className="form-label">
+                Email Address <span className="required">*</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={profileData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                placeholder="Enter your email address"
+                className="form-input"
+                disabled={isLoading}
+              />
+            </div> */}
+
+            {/* Phone Number Field */}
+            {/* <div className="form-field">
+              <label htmlFor="phoneNumber" className="form-label">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                value={profileData.phoneNumber}
+                onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                placeholder="Enter your phone number"
+                className="form-input"
+                disabled={isLoading}
+              />
+            </div> */}
 
             {/* Bio Field */}
             <div className="form-field">
@@ -176,9 +391,10 @@ export default function ProfileSettings({ onBack }) {
                 value={profileData.bio}
                 onChange={(e) => handleInputChange("bio", e.target.value)}
                 placeholder="Tell us about yourself..."
-                rows={5}
+                rows={4}
                 maxLength={250}
                 className="form-textarea"
+                disabled={isLoading}
               />
               <div className="character-count">
                 <span>{profileData.bio.length}/250 characters</span>
@@ -188,22 +404,31 @@ export default function ProfileSettings({ onBack }) {
         </div>
 
         {/* Action Buttons */}
-        <div className={`action-buttons ${hasChanges ? "visible" : "hidden"}`}>
+        <div className={`edit-buttons ${hasChanges ? "visible" : "hidden"}`}>
           <button
-            className="action-button cancel"
+            className="edit-button cancel"
             onClick={handleCancel}
-            disabled={!hasChanges}
+            disabled={!hasChanges || isLoading}
           >
             <i className="fas fa-times"></i>
-            Cancel
+            {isLoading ? "Cancelling..." : "Cancel"}
           </button>
           <button
-            className="action-button save"
+            className="edit-button save"
             onClick={handleSave}
-            disabled={!hasChanges}
+            disabled={!hasChanges || isLoading}
           >
-            <i className="fas fa-save"></i>
-            Save Changes
+            {isLoading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i>
+                Saving...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-save"></i>
+                Save Changes
+              </>
+            )}
           </button>
         </div>
 
@@ -217,27 +442,41 @@ export default function ProfileSettings({ onBack }) {
           </div>
 
           <div className="preview-content">
-            <div className="preview-avatar">
-              {profileData.profileImage ? (
+            <div className="preview-cover">
+              {profileData.coverImage ? (
                 <img
-                  src={profileData.profileImage}
-                  alt={profileData.name}
-                  className="preview-avatar-image"
+                  src={profileData.coverImage}
+                  alt="Cover"
+                  className="preview-cover-image"
                 />
               ) : (
-                <div className="preview-avatar-fallback">{getInitials()}</div>
+                <div className="preview-cover-fallback"></div>
               )}
             </div>
+            <div className="preview-avatar-container">
+              <div className="preview-avatar">
+                {profileData.profileImage ? (
+                  <img
+                    src={profileData.profileImage}
+                    alt={profileData.name}
+                    className="preview-avatar-image"
+                  />
+                ) : (
+                  <div className="preview-avatar-fallback">{getInitials()}</div>
+                )}
+              </div>
+            </div>
             <div className="preview-details">
-              <h3 className="preview-name">{profileData.name}</h3>
-              <p className="preview-username">@{profileData.username}</p>
+              <h3 className="preview-name">{profileData.name || "Your Name"}</h3>
+              <p className="preview-username">@{profileData.username || "username"}</p>
               {profileData.bio && (
                 <p className="preview-bio">{profileData.bio}</p>
               )}
+              
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+} 

@@ -3,40 +3,93 @@
 
 import React, { useState } from 'react';
 import ProfileSettings from './editprofile';
-import ChangeEmail from './changeemail'; // Import the new component
-import '../../../css/settings.css';
+import ChangeEmail from './changeemail';
+import ChangePassword from './changepassword';
+import SwitchAccount from './switchaccount';
+import WhoCanSeePosts from './whocanseeposts';
+import PhoneNumberandBirthday from './phoneandnumbers';
+import DeleteAccount from './deleteacccount';
+import DeactivateAccount from './deactivateaccount';
+import LogoutSettings from './logout';
+import ChangePhoneNumber from './changephoneno';
+
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
+import KeyIcon from "@mui/icons-material/Key";
+import PhoneIcon from "@mui/icons-material/Phone";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import SecurityIcon from "@mui/icons-material/Security";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import HistoryIcon from "@mui/icons-material/History";
+import PaletteIcon from "@mui/icons-material/Palette";
+import DeleteIcon from "@mui/icons-material/Delete";
+import BlockIcon from "@mui/icons-material/Block";
+import LogoutIcon from "@mui/icons-material/Logout";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import SettingsIcon from "@mui/icons-material/Settings";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import ThemeToggle from '@/components/ThemeToggle';
+
 
 const SettingSidebar = () => {
+  const { logout } = useAuth();
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [activePage, setActivePage] = useState('settings'); // Track active page
+  const router = useRouter();
 
-  const toggleDropdown = (name) => {
-    setOpenDropdown((prev) => (prev === name ? null : name));
+  // Get icon for each menu item
+  const getMenuItemIcon = (name) => {
+    switch (name) {
+      case "Edit Profile":
+        return <PersonIcon fontSize="small" />;
+      case "Change Email":
+        return <EmailIcon fontSize="small" />;
+      case "Change Password":
+        return <KeyIcon fontSize="small" />;
+      case "Change Phone Number":
+        return <PhoneIcon fontSize="small" />;
+      case "Who can see my posts":
+        return <VisibilityIcon fontSize="small" />;
+      case "Phone number & Birthday":
+        return <CalendarMonthIcon fontSize="small" />;
+      case "Two-factor authentication":
+        return <SecurityIcon fontSize="small" />;
+      case "Account health":
+        return <FavoriteIcon fontSize="small" />;
+      case "Login activity":
+        return <HistoryIcon fontSize="small" />;
+      case "Appearance":
+        return <PaletteIcon fontSize="small" />;
+      case "Delete Account":
+        return <DeleteIcon fontSize="small" />;
+      case "Deactivate Account":
+        return <BlockIcon fontSize="small" />;
+      case "Logout from all devices":
+        return <LogoutIcon fontSize="small" />;
+      case "Logout":
+        return <LogoutIcon fontSize="small" />;
+      default:
+        return <SettingsIcon fontSize="small" />;
+    }
   };
 
-  const handleMenuItemClick = (name) => {
-    if (name === 'Edit Profile') {
-      setActivePage('editProfile');
-    } else if (name === 'Change Email') {
-      setActivePage('changeEmail');
-    } else if (name === 'Change Password') {
-      // You can add change password page similarly
-      console.log('Change Password clicked');
-    } else if (name === 'Deactivate Account') {
-      if (confirm('Are you sure you want to deactivate your account?')) {
-        console.log('Account deactivation requested');
-      }
-    } else if (name === 'Delete Account') {
-      if (confirm('⚠️ WARNING: This will permanently delete your account. This action cannot be undone. Are you sure?')) {
-        console.log('Account deletion requested');
-      }
-    } else if (name === 'Logout') {
-      if (confirm('Are you sure you want to logout?')) {
-        console.log('User logged out');
-        // Add your logout logic here
-      }
-    } else {
-      console.log(`Clicked: ${name}`);
+  const getSectionIcon = (title) => {
+    switch (title) {
+      case "Account Setting":
+        return <PersonIcon fontSize="small" />;
+      case "Privacy Setting":
+        return <AdminPanelSettingsIcon fontSize="small" />;
+      case "App Setting":
+        return <PaletteIcon fontSize="small" />;
+      case "Security":
+        return <SecurityIcon fontSize="small" />;
+      case "Danger Zone":
+        return <DeleteIcon fontSize="small" />;
+      default:
+        return <SettingsIcon fontSize="small" />;
     }
   };
 
@@ -45,147 +98,126 @@ const SettingSidebar = () => {
       title: 'Account Setting',
       icon: 'fa-user-gear',
       items: [
-        {
-          name: 'Edit Profile',
-        },
-        { name: 'Change Email' },
-        { name: 'Change Password' },
-        { name: 'Switch Account' },
-        { name: 'Deactivate Account' },
-        { name: 'Delete Account'},
-        { name: 'Logout' },
+        { name: 'Edit Profile', url: '/edit-profile' },
+        { name: 'Change Email', url: '/change-email' },
+        { name: 'Change Password', url: '/change-password' },
+        { name: 'Change Phone Number', url: 'change-phone-number' }
       ],
     },
     {
       title: 'Privacy Setting',
       icon: 'fa-user-shield',
       items: [
-        {
-          name: 'Account Privacy',
-          subItems: ['Public', 'Private'],
-        },
-        {
-          name: 'Who can see my posts',
-          subItems: ['Public', 'Friends', 'Only me'],
-        },
-        {
-          name: 'Phone number & Birthday',
-          subItems: ['Public', 'Friends', 'Only me'],
-        },
-        {
-          name: 'Active status',
-          subItems: ['Show', 'Hide'],
-        },
-      ],
-    },    
-    {
-      title: 'Notification Setting',
-      icon: 'fa-bell',
-      items: [
-        { name: 'Post notification' },
-        { name: 'Message notification' },
-        { name: 'Friend request notification' },
-      ],
-    },
-    {
-      title: 'Chat Setting',
-      icon: 'fa-comments',
-      items: [
-        { name: 'Message request' },
-        { name: 'Block unknown users' },
-        { name: 'Delete chat history' },
+        { name: 'Who can see my posts', url: "/default-audience" },
+        { name: 'Phone number & Birthday', url: "/personal-info" }
       ],
     },
     {
       title: 'App Setting',
       icon: 'fa-palette',
       items: [
-        { name: 'Appearance'},
         {
-          name: 'Language',
-          subItems: ['Myanmar', 'English'],
-        }    
+          name: 'Appearance', item: <ThemeToggle />
+        },
       ],
     },
     {
       title: 'Security',
       icon: 'fa-shield-halved',
       items: [
-        { name: 'Two-factor authentication' },
-        { name: 'Account health'},
-        { name: 'Login activity' },
-        { name: 'Logout from all devices' },
+        { name: 'Two-factor authentication', url: '/toggle-2fa' },
+        { name: 'Account health', url: '/account-health' },
+        { name: 'Login activity', url: '/login-activity' }
       ],
     },
+    {
+      title: 'Danger Zone',
+      icon: 'fa-shield-halved',
+      items: [
+        { name: 'Delete Account', url: '/delete-account' },
+        { name: 'Deactivate Account', url: '/deactivate-account' },
+        { name: 'Logout from all devices', url: '/logout-from-all-devices' },
+        { name: 'Logout', action: logout },
+      ],
+    }
   ];
-
-  // Render ProfileSettings component when activePage is 'editProfile'
-  if (activePage === 'editProfile') {
-    return <ProfileSettings onBack={() => setActivePage('settings')} />;
-  }
-
-  // Render ChangeEmail component when activePage is 'changeEmail'
-  if (activePage === 'changeEmail') {
-    return <ChangeEmail onBack={() => setActivePage('settings')} />;
-  }
 
   // Render settings sidebar
   return (
-    <div className="card">
-      <div className="setting-page-wrapper">
-        <header className="setting-container">
-          <div className="setting-header">
-            <h2 className="page-label">
-              Setting <i className="fa-solid fa-gear"></i>
-            </h2>
-          </div>
-        </header>
-
-        <div className="setting-content">
-          {settingsData.map((section, index) => (
-            <section key={index} className="setting-section">
-              <div className="section-header">
-                <h3 className="section-title">{section.title}</h3>
-                <i className={`fa-solid ${section.icon} section-icon`}></i>
-              </div>
-
-              <div className="setting-card">
-                <ul className="setting-list">
-                  {section.items.map((item, idx) => (
-                    <React.Fragment key={idx}>
-                      <li
-                        className="setting-item"
-                        onClick={() => {
-                          if (item.subItems) {
-                            toggleDropdown(item.name);
-                          } else {
-                            handleMenuItemClick(item.name);
-                          }
-                        }}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <span>{item.name}</span>
-                        {item.subItems && (
-                          <i className={`fa-solid fa-chevron-right chevron-icon ${openDropdown === item.name ? 'rotate' : ''}`}></i>
-                        )}
-                      </li>
-
-                      {openDropdown === item.name && item.subItems && (
-                        <div className="sub-menu-list">
-                          {item.subItems.map((sub, sIdx) => (
-                            <div key={sIdx} className="sub-item">
-                              {sub}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </ul>
-              </div>
-            </section>
-          ))}
+    <div className="setting-page-wrapper">
+      <header className="setting-container">
+        <div className="page-header">
+          <button
+            className="back-button"
+            onClick={() => {
+              router.back();
+            }}
+          >
+            <ArrowBackIosIcon fontSize="small" />
+          </button>
+          <span className="page-name">
+            Settings
+          </span>
         </div>
+      </header>
+
+      <div className="setting-content">
+        {settingsData.map((section, index) => (
+          <section key={index} className={`setting-section ${section.title === 'Danger Zone' ? "setting-danger" : ""}`}>
+            <div className="section-header">
+              {/* Icon moved BEFORE the title */}
+              <span className="section-icon">
+                {getSectionIcon(section.title)}
+              </span>
+              <h3 className="section-title">{section.title}</h3>
+            </div>
+
+            <div className="setting-card">
+              <ul className="setting-list">
+                {section.items.map((item, idx) => (
+                  <React.Fragment key={idx}>
+                    <li
+                      className="setting-item"
+                      // onClick={() => handleMenuItemClick(item.name)}
+                      onClick={() => {
+                        if (item.url) router.push(item.url);
+                        else if (item.action) item?.action();
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {/* Icon before the text - NO background */}
+                      <span className="menu-item-icon">
+                        {getMenuItemIcon(item.name)}
+                      </span>
+
+
+                      {/* Text */}
+                      <span className="menu-item-text">{item.name}</span>
+
+                      {/* Chevron icon on the right */}
+                      {item.url &&
+                        <ChevronRightIcon className="chevron-icon" fontSize="small" />
+                      }
+
+                      {item.item ? item.item : <></>}
+
+                    </li>
+
+                    {openDropdown === item.name && item.subItems && (
+                      <div className="sub-menu-list">
+                        {item.subItems.map((sub, sIdx) => (
+                          <div key={sIdx} className="sub-item">
+                            {sub}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </ul>
+            </div>
+          </section>
+        ))}
       </div>
     </div>
   );
