@@ -350,7 +350,7 @@ const Profile = () => {
     //   return { ...prev, [activeTab]: [post, ...prev[activeTab]] };
     // });
     setPosts((prev) => {
-      const isContainImage = post.attachments.length > 0;
+      const isContainImage = post?.attachments?.length > 0;
       if (isContainImage) {
         return {
           textPosts: [...prev.textPosts, post],

@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import SavedList from "../SavedList";
 import Modal from "../ui/Modal";
 import Popup from "../ui/Popup";
+import PostComposer from "../postComposer/PostComposer";
 
 export default function PostMenu({ isOwner, postId, handleDelete }) {
   const [open, setOpen] = useState(false);
@@ -15,6 +16,7 @@ export default function PostMenu({ isOwner, postId, handleDelete }) {
 
   const { showSnackbar } = useSnackbar();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPostEditing, setIsPostEditing] = useState(false);
 
   // Close on outside click
   useEffect(() => {
@@ -84,7 +86,7 @@ export default function PostMenu({ isOwner, postId, handleDelete }) {
         <div className="post-menu-dropdown">
           {isOwner ? (
             <>
-              <button>Edit post</button>
+              <button onClick={() => { setIsPostEditing(true) }}>Edit post</button>
               <button>Change privacy</button>
               <button className="danger" onClick={handleDelete}>
                 Delete post
@@ -101,6 +103,9 @@ export default function PostMenu({ isOwner, postId, handleDelete }) {
         </div>
       )}
       {isModalOpen && <ModalSavePost onClose={onClose} savePost={handleSave} />}
+      {isPostEditing && <PostComposer editPostId={postId} isEditing={true} handleCreate={() => {
+        setIsPostEditing(false)
+      }} onClose={() => { setIsPostEditing(false) }} isOpen={true} />}
     </div>
   );
 }

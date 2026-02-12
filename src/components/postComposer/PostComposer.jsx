@@ -24,7 +24,7 @@ const PRIVACY_OPTIONS = [
   { label: "Only Me", value: "private" },
 ];
 
-export default function PostComposer({ handleCreate }) {
+export default function PostComposer({ handleCreate, isEditing = false, editPostId, onClose, isOpen = false }) {
   const apiFetch = useApi();
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
@@ -33,13 +33,17 @@ export default function PostComposer({ handleCreate }) {
   const wrapperRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(isOpen);
+  const [postId, setPostId] = useState(0);
   const [text, setText] = useState("");
   const [images, setImages] = useState([]);
   const [files, setFiles] = useState([]);
   const [showEmoji, setShowEmoji] = useState(false);
   const [privacy, setPrivacy] = useState("public");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const draftLoadedRef = useRef(false);
+  const editPostLoadedRef = useRef(false);
 
   // tag friends
   const [showTagModal, setShowTagModal] = useState(false);
@@ -72,6 +76,14 @@ export default function PostComposer({ handleCreate }) {
     onCancel: () => {
       unlockScroll();
       setOpen(false);
+      setText("");
+      setImages([]);
+      setFiles([]);
+      setTaggedFriends([]);
+      setPostId(0);
+      onClose();
+      draftLoadedRef.current = false;
+
       if (textareaRef.current) textareaRef.current.blur();
     },
   });
@@ -97,7 +109,11 @@ export default function PostComposer({ handleCreate }) {
 
   useEffect(() => {
     return () => {
-      images.forEach((url) => URL.revokeObjectURL(url));
+      images.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
     };
   }, [images]);
 
@@ -110,10 +126,12 @@ export default function PostComposer({ handleCreate }) {
     setIsSubmitting(true);
 
     const formData = new FormData();
-    formData.append("creator_id", user.user_id);
     formData.append("content", text);
     formData.append("privacy", privacy);
     formData.append("is_draft", isDraft ? "1" : "0");
+    if (postId != 0) {
+      formData.append("post_id", postId);
+    }
 
     files.forEach((file) => {
       formData.append("attachments[]", file);
@@ -126,7 +144,7 @@ export default function PostComposer({ handleCreate }) {
       });
 
       if (!data.status) {
-        showSnackbar("Post creation failed", data.message, "error");
+        showSnackbar({ title: "Post creation failed", message: data.message, variant: "error" });
         return;
       }
 
@@ -141,29 +159,34 @@ export default function PostComposer({ handleCreate }) {
       setOpen(false);
       unlockScroll();
 
-      handleCreate(data.data[0]);
+      if (!isDraft) {
+        handleCreate(data.data[0]);
 
-      const res = await apiFetch("/api/get-followers");
+        const res = await apiFetch("/api/get-followers");
 
-      const followers = res.data;
+        const followers = res.data;
 
-      const followerIds = new Set(followers.map((f) => f.user_id));
+        const followerIds = followers.map((f) => f.user_id);
 
-      const payload = {
-        type: "post",
-        referenceId: data.post_id,
-        message: `${user.display_name} added new post.`,
-        target_user_id: followerIds,
-      };
+        console.log({ followerIds })
 
-      const notifRes = await apiFetch(`/api/add-notification`, {
-        method: "POST",
-        body: payload,
-      });
+        const payload = {
+          type: "post",
+          referenceId: data.data[0].post_id,
+          message: `${user.display_name} added new post.`,
+          target_user_id: followerIds,
+        };
 
-      emitPostCreate();
+        await apiFetch(`/api/add-notification`, {
+          method: "POST",
+          body: payload,
+        });
+
+        emitPostCreate();
+      }
     } catch (err) {
-      showSnackbar("Network error", "Please try again", "error");
+      console.log(err)
+      showSnackbar({ title: err.message || "Network error", message: err.error || "Please try again", variant: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -185,11 +208,97 @@ export default function PostComposer({ handleCreate }) {
         if (res.status) {
           setFriends(res.data);
         }
-      } catch {}
+      } catch { }
     }
 
     loadFriends();
   }, []);
+
+  useEffect(() => {
+    async function loadDraft() {
+      try {
+        const res = await apiFetch("/api/get-draft-post");
+
+        if (!res.status || !res.data || res.data.length === 0) {
+          draftLoadedRef.current = true;
+          return;
+        }
+
+        const draft = res.data[0];
+
+        setText(draft.content || "");
+        setPrivacy(draft.privacy || "public");
+        setPostId(draft.post_id);
+
+        if (draft.attachments?.length > 0) {
+          const imageUrls = draft.attachments.map(
+            (file) => `/api/images?url=${file.file_path}`
+          );
+          setImages(imageUrls);
+        }
+
+        if (draft.tagged_friends) {
+          setTaggedFriends(draft.tagged_friends);
+        }
+
+        showSnackbar({
+          title: "Draft restored",
+          variant: "info",
+        });
+
+      } catch (err) {
+        console.error("Failed to load draft", err);
+      } finally {
+        draftLoadedRef.current = true;
+      }
+    }
+
+    if (open && !draftLoadedRef.current && !isEditing) {
+      loadDraft();
+    }
+  }, [apiFetch, open]);
+
+
+  useEffect(() => {
+    async function loadOldPost() {
+      try {
+        const res = await apiFetch(`/api/get-post?post_id=${editPostId}`);
+
+        if (!res.status || !res.data || res.data.length === 0) {
+          draftLoadedRef.current = true;
+          return;
+        }
+
+        const draft = res.data[0];
+
+        setText(draft.content || "");
+        setPrivacy(draft.privacy || "public");
+        setPostId(draft.post_id);
+
+        if (draft.attachments?.length > 0) {
+          const imageUrls = draft.attachments.map(
+            (file) => `/api/images?url=${file.file_path}`
+          );
+          setImages(imageUrls);
+        }
+
+        if (draft.tagged_friends) {
+          setTaggedFriends(draft.tagged_friends);
+        }
+
+      } catch (err) {
+        console.error("Failed to load post", err);
+      } finally {
+        draftLoadedRef.current = true;
+      }
+    }
+
+    if (open && !editPostLoadedRef.current && isEditing) {
+      loadOldPost();
+    }
+  }, [apiFetch, open]);
+
+
 
   /* -------------------- UI -------------------- */
 
@@ -227,6 +336,7 @@ export default function PostComposer({ handleCreate }) {
         <div className="action">
           {images.length > 0 && (
             <ImagePreview
+              removable={!isEditing}
               images={images}
               onRemove={(i) => {
                 URL.revokeObjectURL(images[i]);
@@ -236,7 +346,7 @@ export default function PostComposer({ handleCreate }) {
             />
           )}
 
-          {taggedFriends.length > 0 && (
+          {taggedFriends?.length > 0 && (
             <div className="selected-pills">
               {taggedFriends.map((f) => (
                 <span key={f.user_id} className="pill">
@@ -299,6 +409,14 @@ export default function PostComposer({ handleCreate }) {
                   onClick={() => {
                     unlockScroll();
                     setOpen(false);
+                    setText("");
+                    setImages([]);
+                    setFiles([]);
+                    setTaggedFriends([]);
+                    setPostId(0);
+                    onClose();
+                    draftLoadedRef.current = false;
+
                     if (textareaRef.current) textareaRef.current.blur();
                   }}
                   disabled={isSubmitting}
@@ -342,6 +460,14 @@ export default function PostComposer({ handleCreate }) {
         onClick={() => {
           unlockScroll();
           setOpen(false);
+          setText("");
+          setImages([]);
+          setFiles([]);
+          setTaggedFriends([]);
+          setPostId(0);
+          draftLoadedRef.current = false;
+          onClose();
+
           if (textareaRef.current) textareaRef.current.blur();
         }}
       />
