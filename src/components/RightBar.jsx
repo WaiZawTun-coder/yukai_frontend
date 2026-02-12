@@ -147,7 +147,7 @@ const RightBar = () => {
     <div className="rightbar-wrapper">
       <div className="container">
         <div className="header-icons">
-          <NotificationsActiveIcon />
+          <NotificationsActiveIcon onClick={() => router.push('/notifications')} />
           <MessageIcon onClick={() => router.push("/chat")} />
         </div>
 
