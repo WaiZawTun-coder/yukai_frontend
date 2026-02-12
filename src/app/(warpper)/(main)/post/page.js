@@ -54,19 +54,19 @@ const SocialPost = ({
   // Fetch Post
   // -------------------------
   useEffect(() => {
-    if(isFetching) return;
-
     if (!paramPostId && !paramPost) {
       router.replace("/");
       return;
     }
-
+  
     const getPost = async () => {
-      setIsFetching(true);
       setIsLoading(true);
+  
       const postId = paramPostId ? paramPostId : paramPost.post_id;
+  
       try {
         const res = await apiFetch(`/api/get-post?post_id=${postId}`);
+  
         if (!res.status) {
           showSnackbar({
             title: "Error",
@@ -77,6 +77,7 @@ const SocialPost = ({
           setErrorMessage(res.message || "Unable to fetch post");
           return;
         }
+  
         setPost(res.data[0]);
       } catch (err) {
         showSnackbar({
@@ -85,19 +86,21 @@ const SocialPost = ({
           variant: "error",
         });
         setIsValid(false);
-        setErrorMessage(res.message || "Unable to fetch post");
+        setErrorMessage(err?.message || "Unable to fetch post");
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     if (!paramPost) {
       getPost();
     } else {
       setPost(paramPost);
       setIsLoading(false);
     }
-  }, [apiFetch, router, showSnackbar, paramPost, paramPostId, isFetching]);
+  
+  }, [paramPostId, paramPost, router, apiFetch, showSnackbar]); 
+  
 
   // -------------------------
   // Fetch Comments (by page)
@@ -105,6 +108,7 @@ const SocialPost = ({
   useEffect(() => {
     if (!isCommentOpen) return;
     if (!paramPostId && !paramPost) return;
+    if(!post) return;
 
     const postId = paramPostId ? paramPostId : paramPost.post_id;
 
@@ -133,7 +137,7 @@ const SocialPost = ({
     };
 
     getComments();
-  }, [page, isCommentOpen, paramPostId, paramPost, apiFetch, showSnackbar]);
+  }, [page, isCommentOpen, paramPostId, paramPost, apiFetch, showSnackbar, post]);
 
   useEffect(() => {
     setComments([]);
