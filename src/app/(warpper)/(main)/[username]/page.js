@@ -28,6 +28,7 @@ import DoneIcon from "@mui/icons-material/Done";
 
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { emitAccountRequest } from "@/utilities/socket";
+import NotFound from "@/app/not-found";
 
 const TABS = [
   { id: 1, name: "Posts", url: "posts" },
@@ -49,7 +50,7 @@ const Profile = () => {
     ? params.username[0]
     : params.username;
 
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(null);
   const [posts, setPosts] = useState({
     textPosts: [],
     posts: [],
@@ -554,6 +555,8 @@ const Profile = () => {
   
 
   if (isLoading) return <ProfileSkeleton />;
+
+  if(!user) return <NotFound title={"Account not found"} message="" />;
 
   return (
     <div className="profile-page" ref={wrapperRef}>
