@@ -1,68 +1,17 @@
 /* Settings Page - Clean and Fixed Version */
+.setting-page-wrapper{
+  width: 100%;
+  max-width: 720px;
+}
+
 .setting-container {
-  background: var(--card-bg, rgba(255, 255, 255, 0.02));
-  color: var(--text-primary, #ffffff);
+  color: var(--text-color, #ffffff);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   width: 100%;
-  padding: 5px;
-  padding-left: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-}
-
-.card {
-  background: var(--card-bg, rgba(255, 255, 255, 0.02));
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.1));
-  box-sizing: border-box;
-}
-
-/* Page Header */
-.setting-header {
-  padding: 0 0 25px 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-soft, rgba(255, 255, 255, 0.1));
-  margin-bottom: 30px;
-  width: 100%;
-}
-
-/* Back Button */
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  color: var(--text-primary, #ffffff);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-}
-
-.back-button:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.back-button:active:not(:disabled) {
-  transform: translateX(-2px);
-}
-
-.back-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 /* Page Name */
@@ -95,31 +44,55 @@
   border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.1));
   overflow: hidden;
   margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: var(--secondary-color);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setting-section.setting-danger{
+  background-color: transparent;
+  border: 2px solid var(--status-error);
 }
 
 /* Section Header - Icon BEFORE title */
 .section-header {
-  padding: 18px 20px;
   display: flex;
   align-items: center;
-  gap: 12px; /* Space between icon and title */
+  gap: 12px;
   margin: 0;
+  color: var(--text-color);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--accent-color);
 }
 
 /* Section Icon - now BEFORE title */
 .section-icon {
   font-size: 16px;
-  color: var(--accent-color, #3b82f6);
+  color: var(--text-color, #3b82f6);
   opacity: 0.8;
   flex-shrink: 0;
+}
+
+.setting-section.setting-danger .section-header{
+  border-color: var(--status-error);
+}
+
+.setting-section.setting-danger .section-icon{
+  color: var(--status-error);
 }
 
 /* Section Title */
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-primary, #ffffff);
+  color: var(--text-color, #ffffff);
   margin: 0;
+}
+
+.setting-section.setting-danger .section-title{
+  color: var(--status-error);
 }
 
 /* Setting Card */
@@ -132,6 +105,9 @@
   padding: 0;
   margin: 0;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 /* Setting Item */
@@ -142,28 +118,32 @@
   padding: 16px 20px;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: var(--text-secondary, #b0b8c1);
+  color: var(--text-color, #b0b8c1);
   font-size: 15px;
   width: 100%;
   box-sizing: border-box;
   border-bottom: 1px solid var(--border-soft, rgba(255, 255, 255, 0.05));
   background: transparent;
   text-decoration: none;
+  border-radius: 16px;
+  border: 1px solid transparent;
 }
 
-.setting-item:last-child {
-  border-bottom: none;
+.setting-danger .setting-item{
+  color: white;
 }
 
 .setting-item:hover {
-  background: var(--hover-bg, rgba(255, 255, 255, 0.08));
-  color: var(--text-primary, #ffffff);
+  background-color: var(--surface-3);
+  box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 /* Menu Item Icon Styling (NO background) */
 .menu-item-icon {
   font-size: 16px;
-  color: var(--text-muted, #8e9fb1);
+  color: var(--text-color);
   margin-right: 12px;
   width: 20px;
   text-align: center;
@@ -171,8 +151,8 @@
   flex-shrink: 0;
 }
 
-.setting-item:hover .menu-item-icon {
-  color: var(--text-primary, #ffffff);
+.setting-danger .menu-item-icon{
+  color: var(--status-error);
 }
 
 /* Menu Item Text */
@@ -186,13 +166,8 @@
 .setting-item .chevron-icon {
   margin-left: auto;
   font-size: 13px;
-  color: var(--text-muted, #8e9fb1);
   transition: all 0.2s ease;
   flex-shrink: 0;
-}
-
-.setting-item:hover .chevron-icon {
-  color: var(--text-primary, #ffffff);
 }
 
 /* Remove any existing background from icons */

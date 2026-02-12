@@ -1,44 +1,7 @@
-/* Delete/Deactivate Account CSS */
-.edit-profile-container {
-  min-height: 100vh;
-  background-color: #0d1b2a;
-  padding: 2rem 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: #ffffff;
-}
-
 .edit-profile-wrapper {
-  max-width: 48rem;
+  max-width: 720px;
   margin: 0 auto;
   padding: 0 1rem;
-}
-
-/* Back Button */
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: none;
-  border: none;
-  color: #e2e8f0;
-  font-size: 0.875rem;
-  padding: 0.5rem 0;
-  cursor: pointer;
-  transition: color 0.2s;
-  margin-bottom: 1.5rem;
-}
-
-.back-button:hover {
-  color: #ffffff;
-}
-
-.back-button i {
-  font-size: 0.75rem;
-}
-
-/* Header */
-.profile-header {
-  margin-bottom: 1.5rem;
 }
 
 .profile-title {
@@ -353,21 +316,6 @@
   .edit-buttons .edit-button {
     width: 100%;
   }
-}
-
-/* Make sure all text is visible */
-.edit-profile-container,
-.edit-profile-container h1,
-.edit-profile-container h2,
-.edit-profile-container h3,
-.edit-profile-container h4,
-.edit-profile-container h5,
-.edit-profile-container h6,
-.edit-profile-container p,
-.edit-profile-container span,
-.edit-profile-container label,
-.edit-profile-container div {
-  color: #ffffff;
 }
 
 /* Specific text colors for descriptions and hints */

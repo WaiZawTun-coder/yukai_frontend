@@ -148,10 +148,11 @@ const Sidebar = () => {
         })}
       </div>
 
+        {pathname !== "/settings" && 
       <div className="toggle">
         {/* <DarkModeRoundedIcon /> */}
         <ThemeToggle />
-      </div>
+      </div>}
     </div>
   );
 };

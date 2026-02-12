@@ -24,35 +24,6 @@
   width: 100%;
 }
 
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--btn-secondary-bg, rgba(255, 255, 255, 0.1));
-  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.2));
-  color: var(--text-primary, #ffffff);
-  padding: 0.5rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 1.5rem;
-  width: 32px;
-  height: 32px;
-}
-
-.back-button:hover:not(:disabled) {
-  background: var(--btn-secondary-hover, rgba(255, 255, 255, 0.15));
-  border-color: var(--border-soft, rgba(255, 255, 255, 0.3));
-  transform: translateX(-3px);
-}
-
-.back-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .header-content {
   text-align: left;
 }
@@ -103,23 +74,6 @@
   border: 1px solid var(--border-soft, #334155);
   overflow: hidden;
   margin-bottom: 1.5rem;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary, #ffffff);
-  margin: 0;
-  padding: 1.5rem 1.5rem 0.5rem;
-  background: var(--section-header-bg, rgba(0, 0, 0, 0.2));
-}
-
-.section-icon {
-  color: var(--accent-color, #60a5fa);
-  font-size: 1rem;
 }
 
 /* Current Account Display */
@@ -531,12 +485,6 @@
     padding: 0 1rem;
   }
   
-  .section-title {
-    padding: 1.5rem 1.5rem 0.5rem;
-    text-align: left;
-    justify-content: flex-start;
-  }
-  
   .current-account-display {
     padding: 1rem;
   }
@@ -550,10 +498,6 @@
   
   .page-title i {
     font-size: 20px;
-  }
-  
-  .section-title {
-    padding: 1.25rem 1.25rem 0.5rem;
   }
   
   .form-section {

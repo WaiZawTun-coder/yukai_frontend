@@ -20,43 +20,13 @@
 
 /* Page Header (Profile-style) */
 .page-header {
-  padding: 12px 20px;
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid var(--border-soft, rgba(255, 255, 255, 0.1));
-  background-color: var(--primary-color, #0d1b2a);
   position: sticky;
   top: 0;
   z-index: 100;
   backdrop-filter: blur(10px);
-  margin-bottom: 2rem;
-}
-
-/* Back Button (Profile-style) */
-.back-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  color: var(--text-primary, #ffffff);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  width: 32px;
-  height: 32px;
-}
-
-.back-button:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateX(-2px);
-}
-
-.back-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 /* Page Name (Profile-style) */
@@ -95,23 +65,6 @@
   border: 1px solid var(--border-soft, #334155);
   overflow: hidden;
   margin-bottom: 1.5rem;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary, #ffffff);
-  margin: 0;
-  padding: 1.5rem 1.5rem 0.5rem;
-  background: var(--section-header-bg, rgba(0, 0, 0, 0.2));
-}
-
-.section-icon {
-  color: var(--accent-color, #60a5fa);
-  font-size: 1rem;
 }
 
 /* Current Setting Display */
@@ -499,10 +452,6 @@
   .save-button {
     width: 100%;
     min-width: auto;
-  }
-  
-  .section-title {
-    padding: 1rem 1rem 0.5rem;
   }
   
   .current-setting-display {

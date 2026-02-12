@@ -597,6 +597,9 @@ const Profile = () => {
             className="avatar"
             width={120}
             height={120}
+            style={{
+              objectFit: "cover",
+            }}
           />
 
           <div className="user-info">
@@ -625,7 +628,7 @@ const Profile = () => {
                 <div className="actions">
                   {isLoggedInUser ? (
                     <>
-                      <button className="btn light">
+                      <button className="btn light" onClick={() => router.push("/edit-profile")}>
                         <EditIcon /> Edit Profile
                       </button>
                     </>
