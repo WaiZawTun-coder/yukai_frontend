@@ -34,6 +34,8 @@ const SocialPost = ({
   const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState(null);
   const [isValid, setIsValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isFetching, setIsFetching] = useState(false)
 
   const [comments, setComments] = useState([]);
   const [page, setPage] = useState(1);
@@ -52,12 +54,15 @@ const SocialPost = ({
   // Fetch Post
   // -------------------------
   useEffect(() => {
+    if(isFetching) return;
+
     if (!paramPostId && !paramPost) {
       router.replace("/");
       return;
     }
 
     const getPost = async () => {
+      setIsFetching(true);
       setIsLoading(true);
       const postId = paramPostId ? paramPostId : paramPost.post_id;
       try {
@@ -65,10 +70,11 @@ const SocialPost = ({
         if (!res.status) {
           showSnackbar({
             title: "Error",
-            message: res.message,
+            message: res.message || "Unable to fetch post",
             variant: "error",
           });
           setIsValid(false);
+          setErrorMessage(res.message || "Unable to fetch post");
           return;
         }
         setPost(res.data[0]);
@@ -79,6 +85,7 @@ const SocialPost = ({
           variant: "error",
         });
         setIsValid(false);
+        setErrorMessage(res.message || "Unable to fetch post");
       } finally {
         setIsLoading(false);
       }
@@ -90,7 +97,7 @@ const SocialPost = ({
       setPost(paramPost);
       setIsLoading(false);
     }
-  }, [apiFetch, router, showSnackbar, paramPost, paramPostId]);
+  }, [apiFetch, router, showSnackbar, paramPost, paramPostId, isFetching]);
 
   // -------------------------
   // Fetch Comments (by page)
@@ -314,7 +321,7 @@ const SocialPost = ({
     return (
       <NotFound
         title="Access Denied"
-        message="You don't have access to this post."
+        message={errorMessage}
       />
     );
   }
