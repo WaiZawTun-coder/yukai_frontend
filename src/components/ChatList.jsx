@@ -35,6 +35,7 @@ const ChatList = ({ onSelectChat }) => {
   const [decryptedMessages, setDecryptedMessages] = useState({});
   const [onlineUserIds, setOnlineUserIds] = useState(new Set());
   const [activeChatId, setActiveChatId] = useState(null);
+  const [searchChat, setSearchChat] = useState("");
 
   /* ===================== FETCH CHATS ===================== */
   const fetchChats = useCallback(async () => {
@@ -50,8 +51,7 @@ const ChatList = ({ onSelectChat }) => {
   useEffect(() => {
     const handleNewChat = async (newChat) => {
       const chatData = await apiFetch(
-        `/api/get-group-chat?chat_id=${
-          newChat.chat_id
+        `/api/get-group-chat?chat_id=${newChat.chat_id
         }&device_id=${getDeviceId()}`
       );
       setChatsList((prev) => [chatData, ...prev]);
@@ -135,6 +135,7 @@ const ChatList = ({ onSelectChat }) => {
       });
 
       console.log({ [chat_id]: preview }); // real time message data is updating on group chat (only for receiving message) unread count is working too
+      //TODO
 
       setDecryptedMessages((prev) => ({ ...prev, [chat_id]: preview }));
 
@@ -173,11 +174,12 @@ const ChatList = ({ onSelectChat }) => {
   /* ===================== FILTER TABS ===================== */
   const filteredChats = useMemo(() => {
     return chatsWithStatus.filter((chat) => {
-      if (activeTab === "unread") return chat.unread_count > 0;
-      if (activeTab === "group") return chat.type === "group";
-      return true;
+      if (activeTab === "unread") return chat.unread_count > 0 && chat.type == "group" ? chat.chat_name.toLowerCase().includes(searchChat) : chat.participants[0].display_name.toLowerCase().includes(searchChat);
+      if (activeTab === "group") return chat.type === "group" && chat.chat_name.toLowerCase().includes(searchChat);
+      console.log(chat.participants[0].display_name.toLowerCase().includes(searchChat))
+      return true && chat.type == "group" ? chat.chat_name.toLowerCase().includes(searchChat) : chat.participants[0].display_name.toLowerCase().includes(searchChat);
     });
-  }, [chatsWithStatus, activeTab]);
+  }, [chatsWithStatus, activeTab, searchChat]);
 
   /* ===================== OPEN CHAT ===================== */
   const handleOpenChat = (chat) => {
@@ -230,7 +232,7 @@ const ChatList = ({ onSelectChat }) => {
           <div className="chat-action-box">
             <div className="chat-search-box active">
               <SearchIcon className="icon" />
-              <input type="search" placeholder="Search..." />
+              <input type="search" placeholder="Search..." onChange={(e) => { setSearchChat(e.target.value.toLowerCase()) }} />
             </div>
             <button
               className="action-icon"
@@ -377,9 +379,8 @@ const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
         {users.map((user) => (
           <div
             key={user.user_id}
-            className={`user-row ${
-              selected.has(user.user_id) ? "selected" : ""
-            }`}
+            className={`user-row ${selected.has(user.user_id) ? "selected" : ""
+              }`}
             onClick={() => toggleUser(user.user_id)}
           >
             <Image

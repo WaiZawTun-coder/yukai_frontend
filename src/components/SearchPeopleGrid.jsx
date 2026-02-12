@@ -115,8 +115,8 @@ export default function SearchPeopleGrid({
           {loading
             ? "Loading more..."
             : hasMore
-            ? "Scroll to load more"
-            : "End of results"}
+              ? "Scroll to load more"
+              : "End of results"}
         </div>
       )}
     </div>
@@ -240,7 +240,7 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
   };
 
   return (
-    <div className="people-card" ref={ref}>
+    <div className="people-card" ref={ref} onClick={() => { runAction("view") }}>
       {/* MENU */}
       {config.menu.length > 0 && (
         <button
@@ -256,7 +256,9 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
       {openMenu && (
         <div ref={menuRef} className="card-menu">
           {config.menu.includes("block") && (
-            <button className="danger" onClick={() => runAction("block")}>
+            <button className="danger" onClick={(e) => {
+              e.stopPropagation(); runAction("block");
+            }}>
               Block
             </button>
           )}
@@ -286,7 +288,9 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
       <div className="card-buttons">
         {/* FRIENDSHIP BUTTON */}
         {person.friendship_status === "none" && (
-          <Button disabled={loading} onClick={() => runAction("send_request")}>
+          <Button disabled={loading} onClick={(e) => {
+            e.stopPropagation(); runAction("send_request");
+          }}>
             {loading ? "Requesting..." : "Add Friend"}
           </Button>
         )}
@@ -294,7 +298,9 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
         {person.friendship_status === "request_sent" && (
           <Button
             disabled={loading}
-            onClick={() => runAction("cancel_request")}
+            onClick={(e) => {
+              e.stopPropagation(); runAction("cancel_request");
+            }}
           >
             {loading ? "Cancelling..." : "Cancel Request"}
           </Button>
@@ -304,7 +310,9 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
           <>
             <Button
               disabled={loading}
-              onClick={() => runAction("accept_request")}
+              onClick={(e) => {
+                e.stopPropagation(); runAction("accept_request");
+              }}
             >
               {loading ? "Accepting..." : "Accept"}
             </Button>
@@ -312,7 +320,9 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
             <Button
               variant="outlined"
               disabled={loading}
-              onClick={() => runAction("reject_request")}
+              onClick={(e) => {
+                e.stopPropagation(); runAction("reject_request");
+              }}
             >
               {loading ? "Rejecting..." : "Reject"}
             </Button>
@@ -320,7 +330,9 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
         )}
 
         {person.friendship_status === "friends" && (
-          <Button disabled={loading} onClick={() => runAction("unfriend")}>
+          <Button disabled={loading} onClick={(e) => {
+            e.stopPropagation(); runAction("unfriend");
+          }}>
             {loading ? "Processing..." : "Friends"}
           </Button>
         )}
@@ -329,7 +341,9 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
         {person.following_status === "not_following" && (
           <Button
             disabled={loading}
-            onClick={() => runAction("follow")}
+            onClick={(e) => {
+              e.stopPropagation(); runAction("follow");
+            }}
             variant="outlined"
           >
             {loading ? "Following..." : "Follow"}
@@ -339,7 +353,9 @@ export const PeopleCard = forwardRef(({ person, removeCard }, ref) => {
         {person.following_status === "following" && (
           <Button
             disabled={loading}
-            onClick={() => runAction("unfollow")}
+            onClick={(e) => {
+              e.stopPropagation(); runAction("unfollow");
+            }}
             variant="outlined"
           >
             {loading ? "Unfollowing..." : "Following"}

@@ -92,6 +92,33 @@
   opacity: 1;
 }
 
+.snackbar-actions{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  gap: 12px;
+}
+
+.snackbar-action-btn{
+  flex: 1;
+  outline: none;
+  border:none;
+  min-height: 46px;
+  border-radius: 16px;
+}
+
+.snackbar-action-btn.accept{
+  background-color: var(--status-success);
+  color: white;
+}
+
+.snackbar-action-btn.reject{
+  background-color: var(--status-error);
+  color: white;
+}
+
 /* Animation */
 @keyframes slideInRight {
   from {

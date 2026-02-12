@@ -293,10 +293,10 @@ export function CallProvider({ children }) {
           </div>
         ),
         actions: (
-          <>
-            <button onClick={() => answerCall(callData)}>Accept</button>
-            <button onClick={() => rejectCall(callData)}>Reject</button>
-          </>
+          <div className="snackbar-actions">
+            <button onClick={() => answerCall(callData)} className="snackbar-action-btn accept">Accept</button>
+            <button onClick={() => rejectCall(callData)} className="snackbar-action-btn reject">Reject</button>
+          </div>
         ),
       });
     };
