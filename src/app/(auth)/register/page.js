@@ -43,15 +43,17 @@ const Register = () => {
     const stepParam = searchParams.get("step");
 
     if (stepParam === "2") {
-      setStep(2);
-
       // if user already logged in, preload data
       if (user) {
+        setStep(2);
         setFormData({
           userId: user.user_id,
           email: user.email,
           username: user.username,
         });
+      } else {
+        setStep(1);
+        router.push("/register");
       }
     }
   }, [searchParams, user]);
@@ -135,6 +137,12 @@ const Register = () => {
           variant: "error",
         });
       }
+    } catch (err) {
+      showSnackbar({
+        title: "Failed",
+        message: err.message || "Register failed",
+        variant: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -209,6 +217,12 @@ const Register = () => {
         setStep(3);
         setIsTransitioning(false);
       }, 300);
+    } catch (err) {
+      showSnackbar({
+        title: "Failed",
+        message: err.message || "Register failed",
+        variant: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -340,8 +354,11 @@ const Register = () => {
         </div>
 
         {step === 1 && (
-          <Link href="/login">Already have an account? Login</Link>
+          <Link className="signup" href="/login">
+            Already have an account? <span>Login</span>
+          </Link>
         )}
+        <p className="brand">yukai</p>
       </div>
     </div>
   );

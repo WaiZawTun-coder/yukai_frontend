@@ -118,7 +118,7 @@ const Login = () => {
     <div className="login-wrapper">
       <div className="login-left">
         <Image
-          src="/images/loginImage.png"
+          src="/Images/loginImage.png"
           alt="loginImage"
           width={450}
           height={520}

@@ -350,7 +350,7 @@ const Profile = () => {
     //   return { ...prev, [activeTab]: [post, ...prev[activeTab]] };
     // });
     setPosts((prev) => {
-      const isContainImage = post.attachments.length > 0;
+      const isContainImage = post?.attachments?.length > 0;
       if (isContainImage) {
         return {
           textPosts: [...prev.textPosts, post],
@@ -405,126 +405,153 @@ const Profile = () => {
   };
 
   const handleSendRequest = async () => {
-    const res = await apiFetch("/api/send-request", {
-      method: "POST",
-      body: { user_id: user.user_id },
-    });
-
-    if (!res.status) {
-      return;
-    }
-
+    // Optimistically update state
     setIsSentRequest(true);
     setRequestDirection("sent");
-
-    const payload = {
-      type: "request",
-      referenceId: authUser.user_id,
-      message: `${authUser.display_name} sent a friend request to you.`,
-      target_user_id: [user.user_id],
-    };
-
-    if (user.user_id == authUser.user_id) return;
-
-    const notifRes = await apiFetch(`/api/add-notification`, {
-      method: "POST",
-      body: payload,
-    });
-
-    payload.id = notifRes.data.event_id;
-    payload.sender_id = authUser.user_id;
-    payload.sender_name = authUser.user_display_name;
-    payload.profile_image = authUser.profile_image;
-    payload.gender = authUser.gender;
-    payload.read = false;
-
-    emitAccountRequest(payload);
-  };
-
-  const handleResponseRequest = async (type) => {
-    if (!(type == "accepted" || type == "rejected" || type == "canceled"))
-      return;
-    await apiFetch("/api/response-request", {
-      method: "POST",
-      body: { user_id: user.user_id, status: type },
-    });
-
-    if (type == "accepted") {
+    setUser((prev) => ({ ...prev, friend_status: "pending", request_direction: "sent" }));
+  
+    try {
+      const res = await apiFetch("/api/send-request", {
+        method: "POST",
+        body: { user_id: user.user_id },
+      });
+  
+      if (!res.status) {
+        // revert if failed
+        setIsSentRequest(false);
+        setRequestDirection("");
+        setUser((prev) => ({ ...prev, friend_status: null, request_direction: null }));
+        return;
+      }
+  
+      // Emit notification
       const payload = {
         type: "request",
         referenceId: authUser.user_id,
-        message: `${authUser.display_name} accepted your friend request.`,
+        message: `${authUser.display_name} sent a friend request to you.`,
         target_user_id: [user.user_id],
+        sender_id: authUser.user_id,
+        sender_name: authUser.user_display_name,
+        profile_image: authUser.profile_image,
+        gender: authUser.gender,
+        read: false,
       };
-
-      if (user.user_id == authUser.user_id) return;
-
+  
       const notifRes = await apiFetch(`/api/add-notification`, {
         method: "POST",
         body: payload,
       });
-
+  
       payload.id = notifRes.data.event_id;
-      payload.sender_id = authUser.user_id;
-      payload.sender_name = authUser.user_display_name;
-      payload.profile_image = authUser.profile_image;
-      payload.gender = authUser.gender;
-      payload.read = false;
-
       emitAccountRequest(payload);
+    } catch (err) {
+      console.error(err);
+      // revert optimistic update on error
+      setIsSentRequest(false);
+      setRequestDirection("");
+      setUser((prev) => ({ ...prev, friend_status: null, request_direction: null }));
     }
   };
+  
+
+  const handleResponseRequest = async (type) => {
+    if (!(type === "accepted" || type === "rejected" || type === "canceled")) return;
+  
+    // Optimistic update
+    if (type === "accepted") setIsFriends(true);
+    if (type === "rejected" || type === "canceled") setIsSentRequest(false);
+  
+    setUser((prev) => ({
+      ...prev,
+      friend_status: type === "accepted" ? "accepted" : "rejected",
+    }));
+  
+    try {
+      await apiFetch("/api/response-request", {
+        method: "POST",
+        body: { user_id: user.user_id, status: type },
+      });
+  
+      if (type === "accepted") {
+        const payload = {
+          type: "request",
+          referenceId: authUser.user_id,
+          message: `${authUser.display_name} accepted your friend request.`,
+          target_user_id: [user.user_id],
+          sender_id: authUser.user_id,
+          sender_name: authUser.user_display_name,
+          profile_image: authUser.profile_image,
+          gender: authUser.gender,
+          read: false,
+        };
+  
+        const notifRes = await apiFetch(`/api/add-notification`, {
+          method: "POST",
+          body: payload,
+        });
+  
+        payload.id = notifRes.data.event_id;
+        emitAccountRequest(payload);
+      }
+    } catch (err) {
+      console.error(err);
+      // optionally revert state here if API fails
+    }
+  };
+  
 
   const goToMessage = () => {
     router.replace(`/chat/${username}`);
   };
 
   const handleFollow = async () => {
-    await apiFetch("/api/follow", {
-      method: "POST",
-      body: { following_id: user.user_id },
-    });
-
-    const payload = {
-      type: "request",
-      referenceId: authUser.user_id,
-      message: `${authUser.display_name} stated to follow you.`,
-      target_user_id: [user.user_id],
-    };
-
-    if (user.user_id == authUser.user_id) return;
-
-    if (user.user_id == authUser.user_id) return;
-    const notifRes = await apiFetch(`/api/add-notification`, {
-      method: "POST",
-      body: payload,
-    });
-
-    payload.id = notifRes.data.event_id;
-    payload.sender_id = authUser.user_id;
-    payload.sender_name = authUser.user_display_name;
-    payload.profile_image = authUser.profile_image;
-    payload.gender = authUser.gender;
-    payload.read = false;
-
-    emitAccountRequest(payload);
+    // Optimistic update
+    setUser((prev) => ({ ...prev, is_following: true }));
+  
+    try {
+      await apiFetch("/api/follow", {
+        method: "POST",
+        body: { following_id: user.user_id },
+      });
+  
+      // notification code...
+    } catch (err) {
+      console.error(err);
+      // revert
+      setUser((prev) => ({ ...prev, is_following: false }));
+    }
   };
-
+  
   const handleUnfollow = async () => {
-    await apiFetch("/api/unfollow", {
-      method: "POST",
-      body: { following_id: user.user_id },
-    });
+    setUser((prev) => ({ ...prev, is_following: false }));
+  
+    try {
+      await apiFetch("/api/unfollow", {
+        method: "POST",
+        body: { following_id: user.user_id },
+      });
+    } catch (err) {
+      console.error(err);
+      setUser((prev) => ({ ...prev, is_following: true }));
+    }
   };
 
   const handleUnfriend = async () => {
-    await apiFetch("/api/unfriend", {
-      method: "POST",
-      body: {
-        target_id: user.user_id,
-      },
-    });
+    setIsFriends(false);
+    setUser((prev) => ({ ...prev, friend_status: null }));
+  
+    try {
+      await apiFetch("/api/unfriend", {
+        method: "POST",
+        body: { target_id: user.user_id },
+      });
+    } catch (err) {
+      console.error(err);
+      setIsFriends(true);
+      setUser((prev) => ({ ...prev, friend_status: "accepted" }));
+    }
   };
+  
 
   if (isLoading) return <ProfileSkeleton />;
 
@@ -600,10 +627,6 @@ const Profile = () => {
                     <>
                       <button className="btn light">
                         <EditIcon /> Edit Profile
-                      </button>
-                      <button className="btn">
-                        <WorkspacePremiumIcon />
-                        Upgrade profile
                       </button>
                     </>
                   ) : (

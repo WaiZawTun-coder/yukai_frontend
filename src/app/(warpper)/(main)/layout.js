@@ -1,15 +1,9 @@
 "use client";
 
-import FloatingCall from "@/components/FloatingCall";
-import { MessageNotifications } from "@/components/MessageNotification";
 import RightBar from "@/components/RightBar";
 import Sidebar from "@/components/SideBar";
 import AuthLoadingScreen from "@/components/ui/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { BusyProvider } from "@/context/BusyContext";
-import { CallProvider } from "@/context/CallContext";
-import { NotificationProvider } from "@/context/NotificationContext";
-import SocketInitializer from "@/utilities/SocketInitializer";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -26,17 +20,19 @@ export default function MainLayout({ children }) {
       return;
     }
 
-    if (user && user.completed_step < 2 && pathname !== "/register") {
+    if (user && Number(user.completed_step) !== 2 && pathname !== "/register") {
       router.replace("/register?step=2");
-      return;
     }
   }, [authLoading, isLoggedIn, user, pathname, router]);
 
-  if (authLoading && !hasKeys) {
+  if (authLoading)
     return <AuthLoadingScreen text="Authentication Loading..." />;
-  }
 
   if (!isLoggedIn) return null;
+
+  if (user && Number(user.completed_step) !== 2 && pathname !== "/register") {
+    return null;
+  }
 
   return (
     <>

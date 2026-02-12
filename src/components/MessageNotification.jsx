@@ -1,6 +1,6 @@
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useNotification } from "../context/NotificationContext";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useApi } from "@/utilities/api";
@@ -10,7 +10,7 @@ const DISPLAY_TIME = 10000;
 
 export const MessageNotifications = () => {
   const { messages, removeMessage } = useNotification();
-  const { showSnackbar } = useSnackbar();
+  const { showSnackbar, removeSnackbar } = useSnackbar();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -19,7 +19,15 @@ export const MessageNotifications = () => {
   const apiFetch = useApi();
 
   const processedRef = useRef(new Set());
+  const snackbarIdRef = useRef(null);
   const timersRef = useRef([]);
+
+  const hideMessage = useCallback(() => {
+    if (snackbarIdRef.current) {
+      removeSnackbar(snackbarIdRef.current);
+      snackbarIdRef.current = null;
+    }
+  }, [removeSnackbar])
 
   useEffect(() => {
     messages.forEach(async (msg) => {
@@ -40,7 +48,7 @@ export const MessageNotifications = () => {
           sender_signed_prekey_pub: msg.message.sender_signed_prekey_pub,
         });
 
-        showSnackbar({
+        snackbarIdRef.current = showSnackbar({
           title: "New Message",
           message: (
             <div
@@ -70,15 +78,20 @@ export const MessageNotifications = () => {
           variant: "notification",
           duration: 10000,
           actions: (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/chat/${userDetail.username}`);
-              }}
-              className="btn-accept"
-            >
-              Open
-            </button>
+            <div className="snackbar-actions">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/chat/${userDetail.username}`);
+                }}
+                className="snackbar-action-btn accept"
+              >
+                Open
+              </button>
+              <button className="snackbar-action-btn reject" onClick={() => {
+                hideMessage()
+              }}>Close</button>
+            </div>
           ),
         });
 
@@ -97,7 +110,7 @@ export const MessageNotifications = () => {
 
       timersRef.current.push(timer);
     });
-  }, [messages, showSnackbar, removeMessage, router, pathname]);
+  }, [messages, showSnackbar, removeMessage, router, pathname, apiFetch, decryptPayload, hideMessage]);
 
   useEffect(() => {
     return () => {

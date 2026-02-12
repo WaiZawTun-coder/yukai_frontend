@@ -208,7 +208,7 @@ const MessageItem = ({
         </span>
 
         <span className="time">
-          {formatTime(msg.sent_at)}
+          {formatTime(msg.sent_at, { utc: true })}
           {msg.sender_user_id === currentUserId &&
             (msg.status === "seen" ? " ✓✓ seen" : " ✓ sent")}
         </span>
