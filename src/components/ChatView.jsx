@@ -228,8 +228,26 @@ const MessageItem = ({
         <span className="time">
           {formatTime(msg.sent_at, { utc: true })}
           {msg.sender_user_id === currentUserId &&
-            (msg.status === "seen" ? " ✓✓ seen" : " ✓ sent")}
+            (msg.status === "seen"
+              ? " ✓✓ seen"
+              : msg.status === "delivered"
+                ? " ✓✓"
+                : msg.status === "sent"
+                  ? " ✓"
+                  : msg.status === "sending"
+                    ? " ⏳"
+                    : msg.status === "failed"
+                      ? " ❌"
+                      : "")}
         </span>
+        {msg.status === "failed" && (
+          <span
+            className="retry-btn"
+            onClick={() => retryMessage(msg)}
+          >
+            Retry
+          </span>
+        )}
       </div>
     </div>
   );
@@ -606,11 +624,37 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     };
   }, [chatId]);
 
+  const retryMessage = (msg) => {
+    setMessages((prev) =>
+      prev.filter((m) => m.message_id !== msg.message_id)
+    );
+
+    setInputText(msg.plain_text);
+  };
+
   const handleSend = async () => {
     const trimmedText = inputText.trim();
     if (!trimmedText || !chatParticipants.length) return;
 
     const timestamp = new Date().toISOString();
+
+    const tempId = `temp-${Date.now()}`;
+
+    // Add temporary message immediately
+    setMessages((prev) => [
+      ...prev,
+      {
+        message_id: tempId,
+        chat_id: chatId,
+        sender_user_id: user.user_id,
+        plain_text: trimmedText,
+        status: "sending",
+        sent_at: timestamp,
+        isTemp: true,
+      },
+    ]);
+
+    setInputText("");
 
     try {
       // Encrypt for all participants in parallel
@@ -684,23 +728,31 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       });
 
       // Update local UI
-      setMessages((prev) => [
-        ...prev,
-        {
-          message_id: res.message_id,
-          chat_id: chatId,
-          sender_user_id: user.user_id,
-          plain_text: trimmedText,
-          status: "sent",
-          sent_at: timestamp,
-        },
-      ]);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.message_id === tempId
+            ? {
+              ...msg,
+              message_id: res.message_id,
+              status: "sent",
+              isTemp: false,
+            }
+            : msg
+        )
+      );
 
       setInputText("");
 
     } catch (error) {
       console.error("Send message failed:", error);
 
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.message_id === tempId
+            ? { ...msg, status: "failed" }
+            : msg
+        )
+      );
       // Optional: show toast or mark message failed
       // showToast("Failed to send message");
     }
@@ -1130,5 +1182,3 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
 };
 
 export default ChatView;
-
-// TODO: show participants on chat detail
