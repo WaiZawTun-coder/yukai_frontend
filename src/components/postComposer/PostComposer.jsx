@@ -168,8 +168,6 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
 
         const followerIds = followers.map((f) => f.user_id);
 
-        console.log({ followerIds })
-
         const payload = {
           type: "post",
           referenceId: data.data[0].post_id,
@@ -185,7 +183,6 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
         emitPostCreate();
       }
     } catch (err) {
-      console.log(err)
       showSnackbar({ title: err.message || "Network error", message: err.error || "Please try again", variant: "error" });
     } finally {
       setIsSubmitting(false);
@@ -195,7 +192,6 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
   /* -------------------- UPDATE DEFAULT AUDIENCE -------------------- */
   useEffect(() => {
     const update = () => {
-      console.log({ user })
       setPrivacy(user.default_audience);
     };
 

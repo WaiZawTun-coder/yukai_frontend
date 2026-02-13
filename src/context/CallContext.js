@@ -252,10 +252,6 @@ export function CallProvider({ children }) {
     [remoteUsers]
   );
 
-  useEffect(() => {
-    console.log({ remoteUsers });
-  }, [remoteUsers]);
-
   // -------------------
   // Incoming Call socket
   // -------------------

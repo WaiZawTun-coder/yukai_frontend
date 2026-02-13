@@ -1,0 +1,148 @@
+.user-detail-container {
+    max-width: 720px;
+    width: 95%;
+    font-family: Arial, sans-serif;
+}
+
+.user-card {
+    background: var(--secondary-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.header-card {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.profile-image {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #eee;
+}
+
+.header-info h2 {
+    margin: 0;
+}
+
+.username {
+    color: gray;
+    margin-bottom: 8px;
+}
+
+.bio {
+    margin-top: 10px;
+    color: #444;
+}
+
+.status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.online {
+    background-color: #28a745;
+}
+
+.offline {
+    background-color: #ccc;
+}
+
+.stats-card {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.stat h3 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.stat p {
+    margin: 5px 0 0;
+    color: gray;
+}
+
+.info-card h3,
+.relationship-card h3 {
+    margin-bottom: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row span:first-child {
+    font-weight: bold;
+    color: #555;
+}
+
+.loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 18px;
+}
+
+.menu-container {
+    position: relative;
+}
+
+.menu-button {
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.menu-button:hover {
+    background: none;
+}
+
+.menu-dropdown {
+    position: absolute;
+    width: 150px;
+    top: 28px;
+    right: 0;
+    background: var(--secondary-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.menu-dropdown button {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+.menu-dropdown button:hover {
+    background: var(--surface-3);
+}

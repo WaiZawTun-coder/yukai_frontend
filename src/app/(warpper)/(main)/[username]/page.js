@@ -13,22 +13,21 @@ import ProfileTabs from "@/components/ProfileTabs";
 import SavedList from "@/components/SavedList";
 import SavedPost from "@/components/SavedPost";
 import Modal from "@/components/ui/Modal";
+import Popup from "@/components/ui/Popup";
 import ProfileSkeleton from "@/components/ui/ProfileSkeleton";
 import TextField from "@/components/ui/TextField";
 import SocialPost from "../post/page";
-import Popup from "@/components/ui/Popup";
 
-import EditIcon from "@mui/icons-material/Edit";
-import MessageIcon from "@mui/icons-material/Message";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
-import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
+import EditIcon from "@mui/icons-material/Edit";
+import MessageIcon from "@mui/icons-material/Message";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import { emitAccountRequest } from "@/utilities/socket";
 import NotFound from "@/app/not-found";
+import { emitAccountRequest } from "@/utilities/socket";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 const TABS = [
   { id: 1, name: "Posts", url: "posts" },
@@ -699,7 +698,7 @@ const Profile = () => {
             <div className="extra-info">
               {/* TODO: update database schema */}
               {/* <p className="status">Single ♥️</p> */}
-              <p className="see-info">••• See your info</p>
+              <p className="see-info" onClick={() => router.push(`/${username}/detail`)}>••• See info</p>
             </div>
           </div>
         </div>

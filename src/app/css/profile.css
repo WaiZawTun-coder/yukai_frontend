@@ -87,6 +87,11 @@
   font-size: 13px;
   opacity: 0.6;
   margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.extra-info .see-info:hover {
+  text-decoration: underline;
 }
 
 .extra-info .text-posts {
@@ -151,6 +156,7 @@
 .profile-divider {
   position: relative;
 }
+
 .profile-divider::before {
   content: "";
   position: absolute;
@@ -267,6 +273,7 @@
     flex-direction: column;
     gap: 0;
   }
+
   .info-container {
     flex-direction: column;
     align-items: flex-start;
@@ -274,11 +281,13 @@
     gap: 16px;
     padding: 0 16px;
   }
+
   .stats-container {
     width: 100%;
     margin: 0 auto;
     gap: 0px;
   }
+
   .top-bar {
     flex-direction: column;
     align-items: stretch;
@@ -297,6 +306,7 @@
     margin: -60px 0 15px;
     display: block;
   }
+
   .profile-stats {
     justify-content: center;
   }

@@ -29,7 +29,6 @@ const LogoutAllDevicesPage = () => {
                 const res = await apiFetch("/api/user/get-devices");
                 if (res.status) setSessions(res.data);
             } catch (err) {
-                console.log(err);
                 showSnackbar({ title: "Error", message: "Failed to load sessions", variant: "error" });
             } finally {
                 setLoading(false);

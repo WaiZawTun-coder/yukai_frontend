@@ -176,7 +176,6 @@ const ChatList = ({ onSelectChat }) => {
     return chatsWithStatus.filter((chat) => {
       if (activeTab === "unread") return chat.unread_count > 0 && chat.type == "group" ? chat.chat_name.toLowerCase().includes(searchChat) : chat.participants[0].display_name.toLowerCase().includes(searchChat);
       if (activeTab === "group") return chat.type === "group" && chat.chat_name.toLowerCase().includes(searchChat);
-      console.log(chat.participants[0].display_name.toLowerCase().includes(searchChat))
       return true && chat.type == "group" ? chat.chat_name.toLowerCase().includes(searchChat) : chat.participants[0].display_name.toLowerCase().includes(searchChat);
     });
   }, [chatsWithStatus, activeTab, searchChat]);

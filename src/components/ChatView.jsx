@@ -15,6 +15,7 @@ import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import WestRoundedIcon from "@mui/icons-material/WestRounded";
 
 import { useAuth } from "@/context/AuthContext";
+import { useBusy } from "@/context/BusyContext";
 import { useCall } from "@/context/CallContext";
 import { useApi } from "@/utilities/api";
 import {
@@ -38,9 +39,8 @@ import {
   socket,
 } from "@/utilities/socket";
 import Button from "./ui/Button";
-import { useBusy } from "@/context/BusyContext";
 import Modal from "./ui/Modal";
-import TextField from "./ui/TextField";
+import Popup from "./ui/Popup";
 
 /* ----------------------- Child Components ------------------------- */
 
@@ -52,7 +52,7 @@ const ChatHeader = ({
   isOnline,
   typingUser,
   lastSeen,
-  isCalleeBusy,
+  isCalleeBusy
 }) => (
   <div className="chat-header">
     <div className="back-button" onClick={onBack}>
@@ -243,6 +243,9 @@ const ChatInfoPanel = ({
   router,
   handleShowMembersModal,
   handleShowFriendsModal,
+  openModal,
+  isMuted,
+  handleMute
 }) => (
   <div
     className={`chat-info-panel ${showInfo ? "open" : ""} ${isMobile ? "mobile" : "desktop"
@@ -284,8 +287,8 @@ const ChatInfoPanel = ({
             <Button onClick={handleShowFriendsModal}>Add Members</Button>
           </>
         )}
-        <Button>Mute</Button>
-        <Button color="danger" variant="outlined">
+        <Button onClick={handleMute}>{isMuted ? "Unmute" : "Mute"}</Button>
+        <Button color="danger" variant="outlined" onClick={openModal}>
           {chatData.type === "group" ? "Leave" : "Block"}
         </Button>
       </div>
@@ -325,6 +328,11 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const [typingUser, setTypingUser] = useState(null);
 
   const [selected, setSelected] = useState(new Set());
+  const [isInCall, setIsInCall] = useState(false);
+
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [mutedIds, setMutedIds] = useState(new Set());
 
   const messageEndRef = useRef(null);
 
@@ -338,7 +346,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   const formatTime = (time, { utc = false } = {}) => {
-    console.log({ time })
     if (!time) return "";
 
     if (time.charAt(time.length - 1) == 'Z') {
@@ -426,6 +433,9 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
         `/api/chats/participants?chat_id=${chat.chat_id
         }&device_id=${getDeviceId()}`
       );
+      const muted = new Set();
+      resParticipants.data.forEach(p => p.is_muted == 1 && muted.add(p.user_id))
+      setMutedIds(muted);
       setChatParticipants(resParticipants.data);
       setFilteredMembers(resParticipants.data);
 
@@ -642,7 +652,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       }
 
       const targetParticipants = chatParticipants
-        .filter((p) => p.user_id !== user.user_id)
+        .filter((p) => p.user_id !== user.user_id && !mutedIds.has(p.user_id))
         .map((p) => p.user_id);
 
       // Emit encrypted messages via socket
@@ -676,6 +686,20 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       // showToast("Failed to send message");
     }
   };
+
+  const handleLeave = async () => {
+    if (chatData.type == "group") {
+      const res = await apiFetch("/api/chats/leave", { method: "POST", body: { chat_id: chatData.chat_id } });
+      if (res.status)
+        // router.push("/chat");
+        router.refresh();
+    } else {
+      const res = await apiFetch("/api/block-user", { method: "POST", body: { blocked_user_id: chatData.other_user_id } });
+      if (res.status)
+        router.refresh();
+      // router.push("/chat")
+    }
+  }
 
   /* -------------------- Effects -------------------- */
 
@@ -780,6 +804,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   };
 
   const handleVideoCall = async () => {
+    setIsInCall(true);
     // const callee = chatData.
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },
@@ -794,10 +819,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     };
 
     await startCall(userInfo, roomId, "video");
-    console.log(
-      "Start Call",
-      chatParticipants.map((p) => p.user_id)
-    );
 
     makeCall({
       toUsers: chatParticipants.map((p) => p.user_id),
@@ -827,6 +848,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   };
 
   const handleAudioCall = async () => {
+    setIsInCall(true);
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },
       {
@@ -879,6 +901,36 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     });
   };
 
+  const handleMute = async () => {
+    const newMuted = !isMuted;
+
+    // Update state immediately
+    setIsMuted(newMuted);
+    setMutedIds((prev) => {
+      const next = new Set(prev);
+      newMuted ? next.add(user.user_id) : next.delete(user.user_id);
+      return next;
+    });
+
+    try {
+      await apiFetch("/api/chats/mute", {
+        method: "POST",
+        body: { chat_id: chatData.chat_id, is_muted: newMuted },
+      });
+    } catch (err) {
+      console.error("Failed to update mute status", err);
+      // revert state if API fails
+      setIsMuted(!newMuted);
+      setMutedIds((prev) => {
+        const next = new Set(prev);
+        newMuted ? next.delete(user.user_id) : next.add(user.user_id);
+        return next;
+      });
+    }
+  };
+
+
+
   /* -------------------- Render -------------------- */
 
   return (
@@ -893,11 +945,12 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             isOnline={onlineStatus.online}
             typingUser={typingUser}
             lastSeen={onlineStatus.lastSeen}
-            isCalleeBusy={
+            isCalleeBusy={(
               chatData.type === "private"
                 ? isUserBusy(chatData.other_user_id)
-                : false
+                : false) && isInCall
             }
+            isMuted={mutedIds.has(user.user_id)}
           />
 
           <MessageList
@@ -928,6 +981,9 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           router={router}
           handleShowMembersModal={handleShowMembersModal}
           handleShowFriendsModal={handleShowFriendsModal}
+          openModal={() => { setLeaveModalOpen(true) }}
+          isMuted={mutedIds.has(user.user_id)}
+          handleMute={handleMute}
         />
       </div>
       <Modal
@@ -1041,6 +1097,15 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           </Button>
         </div>
       </Modal>
+
+      <Popup isOpen={leaveModalOpen} title={chatData.type == "group" ? "Leave group" : "Block User?"} footer={
+        <div className="popup-actions">
+          <button className="popup-btn popup-btn-cancel" onClick={() => setLeaveModalOpen(false)}>Cancel</button>
+          <button className="popup-btn popup-btn-danger" onClick={() => handleLeave()}>{chatData.type == "group" ? "Leave" : "Block"}</button>
+        </div>
+      } onClose={() => { setLeaveModalOpen(false) }}>
+        {chatData.type == "group" ? "Are you sure to leave this group?" : `Are you sure to block ${chatData.other_display_name}`}
+      </Popup>
     </div>
   );
 };
