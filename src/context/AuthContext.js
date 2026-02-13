@@ -392,16 +392,23 @@ export const AuthProvider = ({ children }) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, device_id: getDeviceId() }),
     });
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
 
-    setAccessToken(data.data.access_token);
-    setUser(data.data);
+    if (data.two_factor_required) {
+      // store temporary token
+      localStorage.setItem("temp_access_token", data.data.access_token);
+      return data;
+    }  else{
 
-    return data;
+      setAccessToken(data.data.access_token);
+      setUser(data.data);
+
+      return data;
+    }
   };
 
   const logout = async () => {
@@ -434,6 +441,10 @@ export const AuthProvider = ({ children }) => {
     const res = await fetch(getBackendUrl() + "/auth/refresh", {
       method: "POST",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({device_id: getDeviceId()})
     });
 
     const data = await res.json();
@@ -465,6 +476,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         hasKeys,
         isLoggedIn: !!accessToken,
+        setAccessToken,
+        setUser,
 
         socket,
 

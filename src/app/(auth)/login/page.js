@@ -91,11 +91,16 @@ const Login = () => {
       setIsLoading(true);
       const response = await login(username, password);
       if (response.status) {
+        if (response.two_factor_required) {
+          router.replace(`/verify-otp?user=${response.data.user_id}`);
+          return;
+        }
+
         if (response.incomplete || response.data?.completed_step < 2) {
           router.replace("/register?step=2");
-        } else {
-          router.replace("/");
         }
+
+        router.replace("/");
       } else {
         showSnackbar({
           title: "Login Failed",

@@ -52,6 +52,9 @@
   border: 1px solid var(--border-soft, #334155);
   margin-bottom: 1.5rem;
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .form-section:last-child {

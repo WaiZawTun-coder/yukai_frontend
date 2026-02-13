@@ -2,39 +2,29 @@
 'use client';
 
 import React, { useState } from 'react';
-import ProfileSettings from './editprofile';
-import ChangeEmail from './changeemail';
-import ChangePassword from './changepassword';
-import SwitchAccount from './switchaccount';
-import WhoCanSeePosts from './whocanseeposts';
-import PhoneNumberandBirthday from './phoneandnumbers';
-import DeleteAccount from './deleteacccount';
-import DeactivateAccount from './deactivateaccount';
-import LogoutSettings from './logout';
-import ChangePhoneNumber from './changephoneno';
 
+import ThemeToggle from '@/components/ThemeToggle';
+import Button from '@/components/ui/Button';
+import Popup from '@/components/ui/Popup';
+import { useAuth } from '@/context/AuthContext';
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import PersonIcon from "@mui/icons-material/Person";
-import EmailIcon from "@mui/icons-material/Email";
-import KeyIcon from "@mui/icons-material/Key";
-import PhoneIcon from "@mui/icons-material/Phone";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import BlockIcon from "@mui/icons-material/Block";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import SecurityIcon from "@mui/icons-material/Security";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EmailIcon from "@mui/icons-material/Email";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import HistoryIcon from "@mui/icons-material/History";
-import PaletteIcon from "@mui/icons-material/Palette";
-import DeleteIcon from "@mui/icons-material/Delete";
-import BlockIcon from "@mui/icons-material/Block";
+import KeyIcon from "@mui/icons-material/Key";
 import LogoutIcon from "@mui/icons-material/Logout";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import PaletteIcon from "@mui/icons-material/Palette";
+import PersonIcon from "@mui/icons-material/Person";
+import PhoneIcon from "@mui/icons-material/Phone";
+import SecurityIcon from "@mui/icons-material/Security";
 import SettingsIcon from "@mui/icons-material/Settings";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import ThemeToggle from '@/components/ThemeToggle';
-import Popup from '@/components/ui/Popup';
-import Button from '@/components/ui/Button';
 
 
 const SettingSidebar = () => {
@@ -112,7 +102,7 @@ const SettingSidebar = () => {
       icon: 'fa-user-shield',
       items: [
         { name: 'Who can see my posts', url: "/default-audience" },
-        { name: 'Phone number & Birthday', url: "/personal-info" }
+        // { name: 'Phone number & Birthday', url: "/personal-info" }
       ],
     },
     {

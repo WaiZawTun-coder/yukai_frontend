@@ -1,0 +1,43 @@
+.account-health-card {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 12px;
+    align-items: center;
+    background: var(--secondary-color);
+}
+
+.health-icon {
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+}
+
+.health-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.health-description {
+    margin: 4px 0 0;
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+/* Status Colors */
+.status-healthy {
+    border-left: 4px solid #22c55e;
+}
+
+.status-warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.status-suspended {
+    border-left: 4px solid #6366f1;
+}
+
+.status-banned {
+    border-left: 4px solid #ef4444;
+}
