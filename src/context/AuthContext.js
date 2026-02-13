@@ -432,6 +432,10 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("temp_access_token", data.data.access_token);
       return data;
     }  else{
+      if(!data.status){ 
+        throw new Error(data.message);
+        return;
+      }
 
       setAccessToken(data.data.access_token);
       setUser(data.data);
@@ -461,6 +465,8 @@ export const AuthProvider = ({ children }) => {
     await fetch(getBackendUrl() + "/auth/logout", {
       method: "POST",
       credentials: "include",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({"device_id": getDeviceId()})
     });
 
     router.replace("/login");

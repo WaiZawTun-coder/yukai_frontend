@@ -222,7 +222,20 @@ const MessageItem = ({
         )}
 
         <span className={`message-content ${msg.plain_text}`}>
-          {parseLinks(msg.plain_text || "Encrypted message")}
+          {msg.message_type === "image" ? (
+            <Image
+              src={msg.plain_text && `/api/images?url=${msg.plain_text}`}
+              alt="Sent image"
+              className="chat-image"
+              width={250}
+              height={250}
+            />
+          ) : (
+            <span className="message-content">
+              {parseLinks(msg.plain_text || "Encrypted message")}
+            </span>
+          )}
+
         </span>
 
         <span className="time">
@@ -253,24 +266,71 @@ const MessageItem = ({
   );
 };
 
-const ChatInput = ({ inputText, setInputText, onSend }) => (
-  <div className="chat-input-area">
-    <AttachFileRoundedIcon className="icon-clip" />
-    <input
-      type="text"
-      placeholder="Message"
-      className="chat-input"
-      value={inputText}
-      onChange={(e) => setInputText(e.target.value)}
-      onKeyDown={(e) => e.key === "Enter" && onSend()}
-      autoFocus
-    />
-    <SentimentSatisfiedAltRoundedIcon className="icon-sticker" />
-    <div className="icon-mic" onClick={onSend}>
-      {inputText.trim() ? <SendRoundedIcon /> : <MicRoundedIcon />}
+const ChatInput = ({ inputText, setInputText, onSend, onSendImage }) => {
+  const fileRef = useRef(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSelectedImage({
+      file,
+      preview: URL.createObjectURL(file),
+    });
+  };
+
+  const handleSendClick = () => {
+    if (selectedImage) {
+      onSendImage(selectedImage.file);
+      setSelectedImage(null);
+      fileRef.current.value = "";
+    } else {
+      onSend();
+    }
+  };
+
+  return (
+    <div className="chat-input-area">
+      <input
+        type="file"
+        accept="image/*"
+        hidden
+        ref={fileRef}
+        onChange={handleFileChange}
+      />
+
+      <AttachFileRoundedIcon
+        className="icon-clip"
+        onClick={() => fileRef.current?.click()}
+      />
+
+      <input
+        type="text"
+        placeholder="Message"
+        className="chat-input"
+        value={inputText}
+        onChange={(e) => setInputText(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSendClick()}
+      />
+
+      {selectedImage && (
+        <div className="image-preview">
+          <img src={selectedImage.preview} width={60} />
+        </div>
+      )}
+
+      <div className="icon-mic" onClick={handleSendClick}>
+        {inputText.trim() || selectedImage ? (
+          <SendRoundedIcon />
+        ) : (
+          <MicRoundedIcon />
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
 
 const ChatInfoPanel = ({
   showInfo,
@@ -772,6 +832,100 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     }
   }
 
+  const handleSendImage = async (file) => {
+    if (!chatParticipants.length) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("folder", "chat")
+
+      // 1️⃣ Upload image
+      const uploadData = await apiFetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadData?.data?.image_url) throw new Error("Upload failed");
+
+      const imageUrl = uploadData.data.image_url;
+
+      // 2️⃣ Encrypt image URL just like text
+      const encryptionResults = await Promise.all(
+        chatParticipants.map(async (participant) => {
+          const payloads = await encryptForDevices({
+            plainText: imageUrl,
+            recipientDevices: participant.devices,
+          });
+
+          return { participant, payloads };
+        })
+      );
+
+      const apiPayload = [];
+      const outgoingMessages = [];
+      const timestamp = new Date().toISOString();
+
+      encryptionResults.forEach(({ participant, payloads }) => {
+        payloads.forEach((payload) => {
+          apiPayload.push({
+            cipher_text: payload.ciphertext,
+            recipient_device_id: payload.device_id,
+            recipient_user_id: participant.user_id,
+            iv: payload.iv,
+            signed_prekey_id: payload.signed_prekey_id,
+            sender_signed_prekey_pub: payload.sender_signed_prekey_pub,
+          });
+
+          outgoingMessages.push({
+            chat_id: chatId,
+            sender_user_id: user.user_id,
+            cipher_text: payload.ciphertext,
+            iv: payload.iv,
+            signed_prekey_id: payload.signed_prekey_id,
+            sender_signed_prekey_pub: payload.sender_signed_prekey_pub,
+            recipient_device_id: payload.device_id,
+            message_type: "image",
+            sent_at: timestamp,
+          });
+        });
+      });
+
+      const res = await apiFetch("/api/chat/send-message", {
+        method: "POST",
+        body: {
+          chat_id: chatId,
+          message_type: "image",
+          payloads: apiPayload,
+        },
+      });
+
+      if (!res?.message_id) throw new Error("Message failed");
+
+      outgoingMessages.forEach((message) => {
+        sendMessage({
+          ...message,
+          message_id: res.message_id,
+        });
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          message_id: res.message_id,
+          sender_user_id: user.user_id,
+          plain_text: imageUrl,
+          message_type: "image",
+          status: "sent",
+          sent_at: timestamp,
+        },
+      ]);
+    } catch (err) {
+      console.error("Image send failed:", err);
+    }
+  };
+
+
   /* -------------------- Effects -------------------- */
 
   useEffect(scrollToBottom, [messages]);
@@ -1036,7 +1190,9 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             inputText={inputText}
             setInputText={handleTyping}
             onSend={handleSend}
+            onSendImage={handleSendImage}
           />
+
         </div>
 
         <div
