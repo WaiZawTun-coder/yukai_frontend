@@ -17,6 +17,8 @@ import {
   onUserOffline,
   offPresenceListeners,
 } from "@/utilities/socket";
+import { Menu, MenuItem } from "@mui/material";
+import Popup from "./ui/Popup";
 
 const RightBar = () => {
   const apiFetch = useApi();
@@ -29,6 +31,15 @@ const RightBar = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [menuLoading, setMenuLoading] = useState(false);
+
+  const [blockPopupOpen, setBlockPopupOpen] = useState(false);
+  const [unfriendPopupOpen, setUnfriendPopupOpen] = useState(false);
+
+  const [actionLoading, setActionLoading] = useState(false);
 
   const observerRef = useRef(null);
 
@@ -141,6 +152,75 @@ const RightBar = () => {
     [isLoading, hasMore]
   );
 
+  const handleMenuOpen = (event, user) => {
+    event.stopPropagation();
+    setMenuAnchor(event.currentTarget);
+    setSelectedUser(user);
+  };
+
+  const handleMenuClose = () => {
+    if (menuLoading) return; // prevent closing while loading
+    setMenuAnchor(null);
+    setSelectedUser(null);
+  };
+
+  const openBlockConfirmation = (user) => {
+    setSelectedUser(user);
+    setBlockPopupOpen(true);
+  };
+
+  const openUnfriendConfirmation = (user) => {
+    setSelectedUser(user);
+    setUnfriendPopupOpen(true);
+  };
+
+  const handleBlockUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      setActionLoading(true);
+
+      await apiFetch("/api/block-user", {
+        method: "POST",
+        body: { blocked_user_id: selectedUser.user_id },
+      });
+
+      // Remove from UI
+      setFriends((prev) =>
+        prev.filter((f) => f.user_id !== selectedUser.user_id)
+      );
+
+      setBlockPopupOpen(false);
+    } catch (err) {
+      console.error("Block failed:", err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUnfriendUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      setActionLoading(true);
+
+      await apiFetch("/api/unfriend", {
+        method: "POST",
+        body: { target_id: selectedUser.user_id },
+      });
+
+      setFriends((prev) =>
+        prev.filter((f) => f.user_id !== selectedUser.user_id)
+      );
+
+      setUnfriendPopupOpen(false);
+    } catch (err) {
+      console.error("Unfriend failed:", err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   /* ===================== UI ===================== */
 
   return (
@@ -214,7 +294,7 @@ const RightBar = () => {
                   >
                     <MessageIcon />
                   </span>
-                  <span onClick={(e) => e.stopPropagation()}>
+                  <span onClick={(e) => handleMenuOpen(e, user)}>
                     <MoreHorizOutlinedIcon />
                   </span>
                 </div>
@@ -226,6 +306,93 @@ const RightBar = () => {
           {!hasMore && <div className="friend-list-end">No more friends</div>}
         </div>
       </div>
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            openUnfriendConfirmation(selectedUser);
+          }}
+        >
+          Unfriend
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            openBlockConfirmation(selectedUser);
+          }}
+        >
+          Block
+        </MenuItem>
+      </Menu>
+
+      {/* Block Confirmation Popup */}
+      <Popup
+        isOpen={blockPopupOpen}
+        onClose={() => !actionLoading && setBlockPopupOpen(false)}
+        title="Block User?"
+        footer={
+          <div className="popup-actions">
+            <button
+              onClick={() => setBlockPopupOpen(false)}
+              className="popup-btn popup-btn-cancel"
+              disabled={actionLoading}
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={handleBlockUser}
+              className="popup-btn popup-btn-danger"
+              disabled={actionLoading}
+            >
+              {actionLoading ? "Blocking..." : "Block"}
+            </button>
+          </div>
+        }
+      >
+        <p>
+          Are you sure you want to block{" "}
+          <strong>{selectedUser?.display_name}</strong>?
+        </p>
+        <p style={{ fontSize: "13px", opacity: 0.7 }}>
+          They will no longer be able to see your profile or contact you.
+        </p>
+      </Popup>
+      {/* Unfriend Confirmation Popup */}
+      <Popup
+        isOpen={unfriendPopupOpen}
+        onClose={() => !actionLoading && setUnfriendPopupOpen(false)}
+        title="Unfriend?"
+        footer={
+          <div className="popup-actions">
+            <button
+              onClick={() => setUnfriendPopupOpen(false)}
+              className="popup-btn popup-btn-cancel"
+              disabled={actionLoading}
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={handleUnfriendUser}
+              className="popup-btn popup-btn-danger"
+              disabled={actionLoading}
+            >
+              {actionLoading ? "Removing..." : "Unfriend"}
+            </button>
+          </div>
+        }
+      >
+        <p>
+          Are you sure you want to remove{" "}
+          <strong>{selectedUser?.display_name}</strong> from your friends?
+        </p>
+      </Popup>
     </div>
   );
 };
