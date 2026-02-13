@@ -16,7 +16,7 @@ import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useRouter } from 'next/navigation';
 
-const ChangePassword = ({ onBack }) => {
+const ChangePassword = () => {
     const { user: authUser } = useAuth();
     const { showSnackbar } = useSnackbar();
     const router = useRouter();
@@ -234,11 +234,6 @@ const ChangePassword = ({ onBack }) => {
                     message: 'Enter a new password',
                     color: 'gray'
                 });
-
-                // Optionally go back after success
-                if (onBack) {
-                    setTimeout(() => onBack(), 1500);
-                }
 
             } else {
                 throw new Error(res.message || "Failed to change password");
@@ -494,7 +489,7 @@ const ChangePassword = ({ onBack }) => {
                             <div className="form-edit">
                                 <button
                                     type="button"
-                                    onClick={onBack}
+                                    onClick={router.back}
                                     className="edit-button cancel"
                                     disabled={isLoading || isSendingOtp}
                                 ><CloseOutlinedIcon fontSize="small" />

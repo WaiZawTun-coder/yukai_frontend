@@ -9,6 +9,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/utilities/api";
+import { useAuth } from "@/context/AuthContext";
 
 const WhoCanSeePosts = () => {
     const [selectedOption, setSelectedOption] = useState("Friends");
@@ -16,6 +17,7 @@ const WhoCanSeePosts = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const { user, setUser } = useAuth();
     const apiFetch = useApi();
     const router = useRouter();
 
@@ -119,6 +121,10 @@ const WhoCanSeePosts = () => {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        setUser(prev => ({ ...prev, default_audience: currentSetting.toLowerCase() == "only me" ? "private" : currentSetting.toLowerCase() }))
+    }, [currentSetting, setUser])
 
     if (loading) {
         return (

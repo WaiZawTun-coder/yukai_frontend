@@ -195,6 +195,7 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
   /* -------------------- UPDATE DEFAULT AUDIENCE -------------------- */
   useEffect(() => {
     const update = () => {
+      console.log({ user })
       setPrivacy(user.default_audience);
     };
 
