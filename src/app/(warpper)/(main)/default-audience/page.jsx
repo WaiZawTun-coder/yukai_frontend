@@ -2,39 +2,43 @@
 
 import { useState, useEffect } from "react";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import PublicIcon from "@mui/icons-material/Public";
+import GroupIcon from "@mui/icons-material/Group";
+import LockIcon from "@mui/icons-material/Lock";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/utilities/api";
 
-const WhoCanSeePosts = ({ }) => {
-    const [selectedOption, setSelectedOption] = useState('Friends');
+const WhoCanSeePosts = () => {
+    const [selectedOption, setSelectedOption] = useState("Friends");
+    const [currentSetting, setCurrentSetting] = useState("Friends");
     const [isLoading, setIsLoading] = useState(false);
-    const [currentSetting, setCurrentSetting] = useState('Friends');
     const [loading, setLoading] = useState(true);
 
     const apiFetch = useApi();
-
     const router = useRouter();
 
+    // Material UI icons mapping
     const privacyOptions = [
         {
-            id: 'public',
-            value: 'Public',
-            icon: 'fas fa-globe',
-            description: 'Anyone on or off the platform can see your posts'
+            id: "public",
+            value: "Public",
+            icon: <PublicIcon />,
+            description: "Anyone on or off the platform can see your posts",
         },
         {
-            id: 'friends',
-            value: 'Friends',
-            icon: 'fas fa-user-friends',
-            description: 'Only your confirmed friends can see your posts'
+            id: "friends",
+            value: "Friends",
+            icon: <GroupIcon />,
+            description: "Only your confirmed friends can see your posts",
         },
         {
-            id: 'private',
-            value: 'Only me',
-            icon: 'fas fa-lock',
-            description: 'Only you can see your posts - completely private'
-
-        }
+            id: "private",
+            value: "Only me",
+            icon: <LockIcon />,
+            description: "Only you can see your posts - completely private",
+        },
     ];
 
     // Load default privacy setting
@@ -42,42 +46,36 @@ const WhoCanSeePosts = ({ }) => {
         const initializeData = async () => {
             try {
                 // First try localStorage
-                const savedSetting = localStorage.getItem('postVisibility') || 'Friends';
+                const savedSetting = localStorage.getItem("postVisibility") || "Friends";
                 setSelectedOption(savedSetting);
                 setCurrentSetting(savedSetting);
 
-                // Then try to fetch from backend
+                // Then try backend
                 try {
-                    const response = await apiFetch('/api/user/privacy/default');
-
+                    const response = await apiFetch("/api/user/privacy/default");
                     if (response.ok) {
                         const data = await response.json();
-
                         if (data.status === true) {
-                            let displayValue = 'Friends';
-                            if (data.default_privacy === 'public') displayValue = 'Public';
-                            else if (data.default_privacy === 'friends') displayValue = 'Friends';
-                            else if (data.default_privacy === 'only me') displayValue = 'Only me';
+                            let displayValue = "Friends";
+                            if (data.default_privacy === "public") displayValue = "Public";
+                            else if (data.default_privacy === "friends") displayValue = "Friends";
+                            else if (data.default_privacy === "only me") displayValue = "Only me";
 
                             setSelectedOption(displayValue);
                             setCurrentSetting(displayValue);
-                            localStorage.setItem('postVisibility', displayValue);
+                            localStorage.setItem("postVisibility", displayValue);
                         }
                     }
-                } catch (fetchError) {
-                    // Silently fail - use localStorage
+                } catch {
                     console.log("Backend unavailable, using localStorage");
                 }
-
-            } catch (mainError) {
-                // TODO: add error message
-            } finally {
+            } catch { }
+            finally {
                 setLoading(false);
             }
         };
-
         initializeData();
-    }, []);
+    }, [apiFetch]);
 
     const handleOptionSelect = (option) => {
         if (isLoading || loading) return;
@@ -86,55 +84,37 @@ const WhoCanSeePosts = ({ }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (selectedOption === currentSetting) {
-            return; // No change
-        }
+        if (selectedOption === currentSetting) return;
 
         setIsLoading(true);
 
         try {
-            // Convert display value to database value
-            let dbValue = 'friends';
-            if (selectedOption === 'Public') dbValue = 'public';
-            else if (selectedOption === 'Friends') dbValue = 'friends';
-            else if (selectedOption === 'Only me') dbValue = 'private';
+            let dbValue = "friends";
+            if (selectedOption === "Public") dbValue = "public";
+            else if (selectedOption === "Friends") dbValue = "friends";
+            else if (selectedOption === "Only me") dbValue = "private";
 
             try {
-                // Try to save to backend
-                const response = await apiFetch('/api/user/privacy/default', {
-                    method: 'POST',
-                    body: { privacy: dbValue }
+                const response = await apiFetch("/api/user/privacy/default", {
+                    method: "POST",
+                    body: { privacy: dbValue },
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-
                     if (data.status) {
-                        // Success from backend
                         setCurrentSetting(selectedOption);
-                        localStorage.setItem('postVisibility', selectedOption);
+                        localStorage.setItem("postVisibility", selectedOption);
                     } else {
-                        throw new Error(data.message || 'Backend save failed');
+                        throw new Error(data.message || "Backend save failed");
                     }
                 } else {
                     throw new Error(`HTTP ${response.status}`);
                 }
-            } catch (apiError) {
-                // Fallback: Save locally only
+            } catch {
                 setCurrentSetting(selectedOption);
-                localStorage.setItem('postVisibility', selectedOption);
-                // Don't set this as an error since it's just a fallback
-                // setError("Saved locally (backend unavailable).");
+                localStorage.setItem("postVisibility", selectedOption);
             }
-
-            // Reset success message after 3 seconds
-            setTimeout(() => {
-                setError("");
-            }, 3000);
-
-        } catch (error) {
-            setError(error.message || "Failed to save. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -145,7 +125,7 @@ const WhoCanSeePosts = ({ }) => {
             <div className="who-can-see-posts-page">
                 <div className="who-can-see-posts-container">
                     <div className="loading-container">
-                        <i className="fas fa-spinner fa-spin"></i>
+                        <PublicIcon className="spin" />
                         <p>Loading privacy settings...</p>
                     </div>
                 </div>
@@ -156,26 +136,17 @@ const WhoCanSeePosts = ({ }) => {
     return (
         <div className="who-can-see-posts-page">
             <div className="who-can-see-posts-container">
-                {/* Header with Back Button */}
                 <div className="page-header">
-                    <button
-                        onClick={router.back}
-                        className="back-button"
-                        disabled={isLoading}
-                    >
+                    <button onClick={router.back} className="back-button" disabled={isLoading}>
                         <ArrowBackIosIcon fontSize="small" />
                     </button>
                     <span className="page-name">Default Post Privacy</span>
                 </div>
 
-                {/* Form Container */}
                 <div className="privacy-form-container">
                     <form onSubmit={handleSubmit} className="privacy-form">
-                        {/* Privacy Options Section */}
                         <div className="form-section options-section">
-                            <h3 className="section-title">
-                                Select Default Privacy Level
-                            </h3>
+                            <h3 className="section-title">Select Default Privacy Level</h3>
                             <p className="section-subtitle">
                                 Choose who can see your posts by default. You can still change privacy for individual posts.
                             </p>
@@ -184,80 +155,52 @@ const WhoCanSeePosts = ({ }) => {
                                 {privacyOptions.map((option) => (
                                     <div
                                         key={option.id}
-                                        className={`privacy-option ${selectedOption === option.value ? 'selected' : ''} ${isLoading ? 'disabled' : ''}`}
+                                        className={`privacy-option ${selectedOption === option.value ? "selected" : ""} ${isLoading ? "disabled" : ""
+                                            }`}
                                         onClick={() => handleOptionSelect(option.value)}
                                     >
                                         <div className="privacy-option-radio">
-                                            <div className={`radio-circle ${selectedOption === option.value ? 'checked' : ''}`}>
-                                                {selectedOption === option.value && <div className="radio-dot"></div>}
+                                            <div className={`radio-circle ${selectedOption === option.value ? "checked" : ""}`}>
+                                                {selectedOption === option.value && <div className="radio-dot" />}
                                             </div>
                                         </div>
 
-                                        <div className="privacy-option-avatar">
-                                            <div className="privacy-avatar-initials">
-                                                <i className={option.icon}></i>
-                                            </div>
-                                        </div>
+                                        <div className="privacy-option-avatar">{option.icon}</div>
 
                                         <div className="privacy-option-details">
                                             <div className="privacy-option-header">
                                                 <h4 className="privacy-option-name">{option.value}</h4>
-                                                {currentSetting === option.value &&
-                                                    <div className="active-badge">
-                                                        <i className="fas fa-check-circle"></i>
-                                                        Active Setting
-                                                    </div>
-                                                }
                                             </div>
                                             <p className="privacy-option-description">{option.description}</p>
                                         </div>
+                                        {currentSetting === option.value && (
+                                            <div className="active-badge">
+                                                <CheckCircleIcon fontSize="small" /> Active
+                                            </div>
+                                        )}
 
                                         <div className="privacy-option-action">
-                                            <i className="fas fa-chevron-right"></i>
+                                            <ChevronRightIcon />
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Form Actions */}
                         <div className="form-actions">
-                            <button
-                                type="button"
-                                onClick={router.back}
-                                className="action-button cancel-button"
-                                disabled={isLoading}
-                            >
-                                <i className="fas fa-times"></i>
+                            <button type="button" onClick={router.back} className="action-button cancel-button" disabled={isLoading}>
                                 Cancel
                             </button>
 
-                            <button
-                                type="submit"
-                                className="action-button switch-button"
-                                disabled={isLoading || selectedOption === currentSetting}
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <i className="fas fa-spinner fa-spin"></i>
-                                        Saving...
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="fas fa-save"></i>
-                                        Set as Default
-                                    </>
-                                )}
+                            <button type="submit" className="action-button switch-button" disabled={isLoading || selectedOption === currentSetting}>
+                                {isLoading ? "Saving..." : "Set as Default"}
                             </button>
                         </div>
 
-                        {/* Information Note */}
                         <div className="info-note">
-                            <i className="fas fa-info-circle"></i>
                             <span>
-                                This setting only affects <strong>new posts</strong> you create.
-                                Existing posts keep their original privacy settings.
-                                You can still choose a different privacy for individual posts when creating them.
+                                This setting only affects <strong>new posts</strong> you create. Existing posts keep their original privacy
+                                settings. You can still choose a different privacy for individual posts when creating them.
                             </span>
                         </div>
                     </form>
@@ -267,4 +210,4 @@ const WhoCanSeePosts = ({ }) => {
     );
 };
 
-export default WhoCanSeePosts;  
+export default WhoCanSeePosts;
