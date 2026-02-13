@@ -255,6 +255,27 @@ export const AuthProvider = ({ children }) => {
     };
   }, [accessToken, user, hasKeys]);
 
+  const waitForSignedPrekey = (timeout = 5000, interval = 100) => {
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+  
+      const check = () => {
+        if (signedPrekeyPrivRef.current) {
+          return resolve(signedPrekeyPrivRef.current);
+        }
+  
+        if (Date.now() - start >= timeout) {
+          return reject(new Error("Device keys not ready (timeout)"));
+        }
+  
+        setTimeout(check, interval);
+      };
+  
+      check();
+    });
+  };
+  
+
   /* ===================== CRYPTO HELPERS ===================== */
 
   const deriveSharedSecret = async (remoteSignedPrekeyPubBase64) => {
@@ -369,21 +390,29 @@ export const AuthProvider = ({ children }) => {
     iv,
     sender_signed_prekey_pub,
   }) => {
+  
     if (!signedPrekeyPrivRef.current) {
-      throw new Error("Device keys not ready");
+      try {
+        await waitForSignedPrekey(); // wait until ready
+      } catch (err) {
+        throw new Error("Device keys not ready (timeout)");
+      }
     }
-
+  
+    // At this point we are guaranteed keys exist
     const senderPub = await importX25519PublicKey(sender_signed_prekey_pub);
-
+  
     const sharedSecret = await crypto.subtle.deriveBits(
       { name: "X25519", public: senderPub },
       signedPrekeyPrivRef.current,
       256
     );
-
+  
     const aesKey = await deriveAESKey(sharedSecret);
+  
     return decryptMessage(aesKey, iv, ciphertext);
   };
+  
 
   /* ===================== AUTH ===================== */
 

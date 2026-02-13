@@ -173,9 +173,8 @@ const MessageItem = ({
   return (
     <div
       ref={ref}
-      className={`message ${
-        msg.sender_user_id === currentUserId ? "outgoing" : "incoming"
-      }`}
+      className={`message ${msg.sender_user_id === currentUserId ? "outgoing" : "incoming"
+        }`}
     >
       {msg.sender_user_id !== currentUserId && chatType == "group" && (
         <Image
@@ -246,9 +245,8 @@ const ChatInfoPanel = ({
   handleShowFriendsModal,
 }) => (
   <div
-    className={`chat-info-panel ${showInfo ? "open" : ""} ${
-      isMobile ? "mobile" : "desktop"
-    }`}
+    className={`chat-info-panel ${showInfo ? "open" : ""} ${isMobile ? "mobile" : "desktop"
+      }`}
   >
     <div className="info-header">
       <span>Chat Info</span>
@@ -340,7 +338,15 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   const formatTime = (time, { utc = false } = {}) => {
+    console.log({ time })
     if (!time) return "";
+
+    if (time.charAt(time.length - 1) == 'Z') {
+      return new Date(time).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    }
 
     // Normalize "YYYY-MM-DD HH:mm:ss" → ISO
     const iso = time.replace(" ", "T");
@@ -417,16 +423,14 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       if (!chat?.chat_id) return;
 
       const resParticipants = await apiFetch(
-        `/api/chats/participants?chat_id=${
-          chat.chat_id
+        `/api/chats/participants?chat_id=${chat.chat_id
         }&device_id=${getDeviceId()}`
       );
       setChatParticipants(resParticipants.data);
       setFilteredMembers(resParticipants.data);
 
       const resMessages = await apiFetch(
-        `/api/chat/get-messages?chat_id=${
-          chat.chat_id
+        `/api/chat/get-messages?chat_id=${chat.chat_id
         }&device_id=${getDeviceId()}&page=1`
       );
 
@@ -574,65 +578,74 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   }, [chatId]);
 
   const handleSend = async () => {
-    if (!inputText.trim() || !chatParticipants.length) return;
+    const trimmedText = inputText.trim();
+    if (!trimmedText || !chatParticipants.length) return;
 
-    const apiPayload = [];
-    const outgoingMessages = [];
+    const timestamp = new Date().toISOString();
 
-    for (const participant of chatParticipants) {
-      const payloads = await encryptForDevices({
-        plainText: inputText.trim(),
-        recipientDevices: participant.devices,
-      });
+    try {
+      // Encrypt for all participants in parallel
+      const encryptionResults = await Promise.all(
+        chatParticipants.map(async (participant) => {
+          const payloads = await encryptForDevices({
+            plainText: trimmedText,
+            recipientDevices: participant.devices,
+          });
 
-      apiPayload.push(
-        ...payloads.map((payload) => ({
-          cipher_text: payload.ciphertext,
-          recipient_device_id: payload.device_id,
-          recipient_user_id: participant.user_id,
-          iv: payload.iv,
-          signed_prekey_id: payload.signed_prekey_id,
-          sender_signed_prekey_pub: payload.sender_signed_prekey_pub,
-        }))
+          return { participant, payloads };
+        })
       );
 
-      payloads.forEach((payload) => {
-        outgoingMessages.push({
-          chat_id: chatId,
-          sender_user_id: user.user_id,
-          cipher_text: payload.ciphertext,
-          iv: payload.iv,
-          signed_prekey_id: payload.signed_prekey_id,
-          sender_signed_prekey_pub: payload.sender_signed_prekey_pub,
-          recipient_device_id: payload.device_id,
-          message_type: "text",
-          sent_at: new Date().toISOString(),
-          profile_image: user.profile_image,
-          gender: user.gender,
-          display_name: user.display_name,
+      const apiPayload = [];
+      const outgoingMessages = [];
+
+      encryptionResults.forEach(({ participant, payloads }) => {
+        payloads.forEach((payload) => {
+          apiPayload.push({
+            cipher_text: payload.ciphertext,
+            recipient_device_id: payload.device_id,
+            recipient_user_id: participant.user_id,
+            iv: payload.iv,
+            signed_prekey_id: payload.signed_prekey_id,
+            sender_signed_prekey_pub: payload.sender_signed_prekey_pub,
+          });
+
+          outgoingMessages.push({
+            chat_id: chatId,
+            sender_user_id: user.user_id,
+            cipher_text: payload.ciphertext,
+            iv: payload.iv,
+            signed_prekey_id: payload.signed_prekey_id,
+            sender_signed_prekey_pub: payload.sender_signed_prekey_pub,
+            recipient_device_id: payload.device_id,
+            message_type: "text",
+            sent_at: timestamp,
+            profile_image: user.profile_image,
+            gender: user.gender,
+            display_name: user.display_name,
+          });
         });
       });
-    }
 
-    const res = await apiFetch("/api/chat/send-message", {
-      method: "POST",
-      body: {
-        chat_id: chatId,
-        message_type: "text",
-        reply_to: null,
-        payloads: apiPayload,
-      },
-    });
+      const res = await apiFetch("/api/chat/send-message", {
+        method: "POST",
+        body: {
+          chat_id: chatId,
+          message_type: "text",
+          reply_to: null,
+          payloads: apiPayload,
+        },
+      });
 
-    // const res = { status: true, message_id: 1 };
+      if (!res?.status || !res?.message_id) {
+        throw new Error("Message send failed");
+      }
 
-    const targetParticipants = chatParticipants
-      .map((participant) => {
-        if (participant.user_id != user.user_id) return participant.user_id;
-      })
-      .filter((d) => d);
+      const targetParticipants = chatParticipants
+        .filter((p) => p.user_id !== user.user_id)
+        .map((p) => p.user_id);
 
-    if (res.status) {
+      // Emit encrypted messages via socket
       outgoingMessages.forEach((message) => {
         sendMessage({
           ...message,
@@ -640,21 +653,28 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           participants: targetParticipants,
         });
       });
+
+      // Update local UI
+      setMessages((prev) => [
+        ...prev,
+        {
+          message_id: res.message_id,
+          chat_id: chatId,
+          sender_user_id: user.user_id,
+          plain_text: trimmedText,
+          status: "sent",
+          sent_at: timestamp,
+        },
+      ]);
+
+      setInputText("");
+
+    } catch (error) {
+      console.error("Send message failed:", error);
+
+      // Optional: show toast or mark message failed
+      // showToast("Failed to send message");
     }
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        message_id: res.message_id,
-        chat_id: chatId,
-        sender_user_id: user.user_id,
-        plain_text: inputText.trim(),
-        status: "sent",
-        sent_at: new Date().toISOString(),
-      },
-    ]);
-
-    setInputText("");
   };
 
   /* -------------------- Effects -------------------- */
@@ -965,9 +985,8 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           {filteredFriends.map((friend) => (
             <div
               key={friend.user_id}
-              className={`user-row ${
-                selected.has(friend.user_id) ? "selected" : ""
-              }`}
+              className={`user-row ${selected.has(friend.user_id) ? "selected" : ""
+                }`}
               onClick={() => toggleUser(friend.user_id)}
             >
               <Image
@@ -1010,8 +1029,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
 
               if (res.status) {
                 const resParticipants = await apiFetch(
-                  `/api/chats/participants?chat_id=${
-                    chat.chat_id
+                  `/api/chats/participants?chat_id=${chat.chat_id
                   }&device_id=${getDeviceId()}`
                 );
 
