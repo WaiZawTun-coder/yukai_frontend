@@ -170,6 +170,25 @@ const MessageItem = ({
     msg.sender_user_id,
   ]);
 
+  function parseLinks(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlRegex).map((part, index) =>
+      urlRegex.test(part) ? (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="chat-link"
+        >
+          {part}
+        </a>
+      ) : (
+        part
+      )
+    );
+  }
+
   return (
     <div
       ref={ref}
@@ -202,8 +221,8 @@ const MessageItem = ({
           </div>
         )}
 
-        <span className="message-content">
-          {msg.plain_text || "Encrypted message"}
+        <span className={`message-content ${msg.plain_text}`}>
+          {parseLinks(msg.plain_text || "Encrypted message")}
         </span>
 
         <span className="time">
