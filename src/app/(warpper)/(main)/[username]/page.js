@@ -913,7 +913,7 @@ const Profile = () => {
       >
         <div className="popup-actions">
           <button
-            className="popup-btn"
+            className="popup-btn popup-btn-cancel"
             onClick={() => {
               handleUnfriend();
               setOpenUpdateFriendPopup(false);
@@ -922,7 +922,7 @@ const Profile = () => {
             Unfriend
           </button>
           <button
-            className="popup-btn"
+            className="popup-btn popup-btn-cancel"
             onClick={() => {
               if (user.is_following) {
                 handleUnfollow();

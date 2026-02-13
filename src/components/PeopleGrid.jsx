@@ -64,6 +64,18 @@ const ACTION_CONFIG = {
     },
     menu: ["block"],
   },
+  "sent-requests": {
+    primary: {
+      label: {
+        default: "Cancel Request",
+        pending: "Requesting...",
+        done: "Add Friend",
+      },
+      action: "cancel_request",
+    },
+    secondary: null,
+    menu: ["block"],
+  },
 };
 
 /* ---------------- GRID ---------------- */
@@ -123,7 +135,7 @@ export default function PeopleGrid({
                 prev.filter((p) => p.user_id !== person.user_id)
               )
             }
-            setOpenMenuId={() => {}}
+            setOpenMenuId={() => { }}
             key={person.user_id}
             ref={isLast ? lastItemRef : null}
           />
@@ -142,8 +154,8 @@ export default function PeopleGrid({
           (loading
             ? "Loading more..."
             : hasMore
-            ? "Scroll to load more"
-            : `End of ${type.split("-").join(" ")}`)}
+              ? "Scroll to load more"
+              : `End of ${type.split("-").join(" ")}`)}
       </div>
     </div>
   );
@@ -392,7 +404,7 @@ export function PeopleCard({
           >
             {
               config.primary.label[
-                loading ? "pending" : completed ? "done" : "default"
+              loading ? "pending" : completed ? "done" : "default"
               ]
             }
           </Button>

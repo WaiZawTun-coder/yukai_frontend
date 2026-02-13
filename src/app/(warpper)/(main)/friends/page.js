@@ -8,7 +8,8 @@ import { useEffect, useState, useCallback } from "react";
 const TABS = [
   { id: 1, name: "Friends", url: "friends" },
   { id: 2, name: "Following", url: "following" },
-  { id: 3, name: "Requests", url: "requests" },
+  { id: 3, name: "Received Requests", url: "requests" },
+  {id: 5, name: "Sent Requests", url:"sent-requests"},
   { id: 4, name: "Add More", url: "add-more" },
 ];
 
@@ -32,6 +33,7 @@ export default function Friends() {
     friends: { ...INITIAL_TAB_STATE },
     following: { ...INITIAL_TAB_STATE },
     requests: { ...INITIAL_TAB_STATE },
+    "sent-requests": {...INITIAL_TAB_STATE},
     "add-more": { ...INITIAL_TAB_STATE },
   });
 
@@ -55,6 +57,8 @@ export default function Friends() {
         return `/api/get-following?page=${page}`;
       case "requests":
         return `/api/get-received-requests?page=${page}`;
+      case "sent-requests":
+        return `/api/get-sent-requests?page=${page}`
       case "add-more":
         return `/api/get-people-you-may-know?page=${page}`;
       default:
