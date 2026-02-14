@@ -724,12 +724,14 @@ const Profile = () => {
         {posts.textPosts.map((post, index) => {
           const isLast = index === posts.textPosts.length - 1;
           return (
-            <div
+            // <div
+            //   key={post.post_id}
+            //   ref={isLast ? lastPostRef : null}
+            //   className="profile-post"
+            // >
+              <SocialPost
               key={post.post_id}
               ref={isLast ? lastPostRef : null}
-              className="profile-post"
-            >
-              <SocialPost
                 paramPost={post}
                 isCommentOpen={false}
                 handleCommentClick={() => {
@@ -737,7 +739,7 @@ const Profile = () => {
                   setModalPost(post);
                 }}
               />
-            </div>
+            // </div>
           );
         })}
 
