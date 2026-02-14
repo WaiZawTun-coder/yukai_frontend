@@ -395,6 +395,7 @@ const Home = () => {
                     setOpenPopup(true);
                     setTargetPostId(post?.post_id);
                   }}
+                  isSaved={post?.isSaved}
                 />
               </div>
             );

@@ -137,6 +137,8 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
       formData.append("attachments[]", file);
     });
 
+    formData.append("tag_friends", taggedFriends.map(user => user.user_id));
+
     try {
       const data = await apiFetch("/api/create-post", {
         method: "POST",

@@ -206,13 +206,13 @@ const SearchResults = () => {
         data: prev.data.map((p) =>
           p.post_id === postId
             ? {
-                ...p,
-                reaction: reactType,
-                react_count:
-                  reactType === p.reaction
-                    ? p.react_count
-                    : (p.react_count || 0) + 1,
-              }
+              ...p,
+              reaction: reactType,
+              react_count:
+                reactType === p.reaction
+                  ? p.react_count
+                  : (p.react_count || 0) + 1,
+            }
             : p
         ),
       }));
@@ -348,9 +348,8 @@ const SearchResults = () => {
         </div>
         <div>
           <div
-            className={`search-input-container ${
-              isScrolled ? "search-input-container--scrolled" : ""
-            }`}
+            className={`search-input-container ${isScrolled ? "search-input-container--scrolled" : ""
+              }`}
           >
             <TextField
               size="small"
@@ -446,6 +445,7 @@ const SearchResults = () => {
                       postId={post?.post_id}
                       userReaction={post?.reaction ?? null}
                       onOpen={() => openPostModal(post)}
+                      isSaved={post?.is_saved}
                     />
                   </div>
                 );
@@ -462,20 +462,20 @@ const SearchResults = () => {
         posts.data.length === 0) ||
         (activeTab === "users" && users.data.length === 0) ||
         (activeTab === "posts" && posts.data.length === 0)) && (
-        <div className="no-results-card">
-          <div className="no-results-icon">🔍</div>
-          <h3>No results found</h3>
-          <p>
-            We couldn&apos;t find anything for &quot;
-            <strong>{debouncedKeyword}</strong>&quot;
-          </p>
-          <ul className="no-results-suggestions">
-            <li>Check your spelling</li>
-            <li>Try different keywords</li>
-            <li>Browse popular users or posts</li>
-          </ul>
-        </div>
-      )}
+          <div className="no-results-card">
+            <div className="no-results-icon">🔍</div>
+            <h3>No results found</h3>
+            <p>
+              We couldn&apos;t find anything for &quot;
+              <strong>{debouncedKeyword}</strong>&quot;
+            </p>
+            <ul className="no-results-suggestions">
+              <li>Check your spelling</li>
+              <li>Try different keywords</li>
+              <li>Browse popular users or posts</li>
+            </ul>
+          </div>
+        )}
 
       {modalPost && (
         <Modal

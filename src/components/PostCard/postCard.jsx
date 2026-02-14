@@ -57,6 +57,7 @@ export default function PostCard({
   postId,
   userReaction = null,
   handleDelete,
+  isSaved = false
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -154,6 +155,7 @@ export default function PostCard({
           isOwner={user.username == authUser.username}
           postId={postId}
           handleDelete={handleDelete}
+          isSaved={isSaved}
         />
       </div>
       <hr className="post-divider"></hr>

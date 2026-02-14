@@ -9,7 +9,7 @@ import Modal from "../ui/Modal";
 import Popup from "../ui/Popup";
 import PostComposer from "../postComposer/PostComposer";
 
-export default function PostMenu({ isOwner, postId, handleDelete }) {
+export default function PostMenu({ isOwner, postId, handleDelete, isSaved = false }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const apiFetch = useApi();
@@ -87,14 +87,14 @@ export default function PostMenu({ isOwner, postId, handleDelete }) {
           {isOwner ? (
             <>
               <button onClick={() => { setIsPostEditing(true) }}>Edit post</button>
-              <button>Change privacy</button>
+              {/* <button>Change privacy</button> */}
               <button className="danger" onClick={handleDelete}>
                 Delete post
               </button>
             </>
           ) : (
             <>
-              <button onClick={() => setIsModalOpen(true)}>Save post</button>
+              <button onClick={() => setIsModalOpen(true)}>{isSaved ? "Unsave post" : "Save post"}</button>
               <button onClick={handleHide}>Hide post</button>
               <button onClick={handleReport}>Report post</button>
             </>

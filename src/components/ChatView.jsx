@@ -7,10 +7,10 @@ import { useEffect, useRef, useState } from "react";
 // Icons
 import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
 import CallRoundedIcon from "@mui/icons-material/CallRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
-import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatisfiedAltRounded";
 import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import WestRoundedIcon from "@mui/icons-material/WestRounded";
 
@@ -290,6 +290,19 @@ const ChatInput = ({ inputText, setInputText, onSend, onSendImage }) => {
     }
   };
 
+  const handleRemoveImage = () => {
+    if (selectedImage?.preview) {
+      URL.revokeObjectURL(selectedImage.preview);
+    }
+
+    setSelectedImage(null);
+
+    if (fileRef.current) {
+      fileRef.current.value = "";
+    }
+  };
+
+
   return (
     <div className="chat-input-area">
       <input
@@ -304,21 +317,46 @@ const ChatInput = ({ inputText, setInputText, onSend, onSendImage }) => {
         className="icon-clip"
         onClick={() => fileRef.current?.click()}
       />
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%" }}>
+        {selectedImage && (
+          <div className="image-preview">
+            <div style={{ position: "relative", display: "inline-block" }}>
+              <img src={selectedImage.preview} width={60} />
 
-      <input
-        type="text"
-        placeholder="Message"
-        className="chat-input"
-        value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleSendClick()}
-      />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                style={{
+                  position: "absolute",
+                  top: -6,
+                  right: -6,
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "#ff4d4f",
+                  color: "#fff",
+                  cursor: "pointer",
+                  fontSize: 12,
+                  lineHeight: "20px",
+                }}
+              >
+                <CloseRoundedIcon style={{ fontSize: 14 }} />
+              </button>
+            </div>
+          </div>
+        )}
 
-      {selectedImage && (
-        <div className="image-preview">
-          <img src={selectedImage.preview} width={60} />
-        </div>
-      )}
+
+        <input
+          type="text"
+          placeholder="Message"
+          className="chat-input"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSendClick()}
+        />
+      </div>
 
       <div className="icon-mic" onClick={handleSendClick}>
         {inputText.trim() || selectedImage ? (

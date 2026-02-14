@@ -166,7 +166,7 @@
 /* Input */
 .chat-input-area {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 6px;
   padding: 10px;
   border-top: 1px solid var(--border-soft);
@@ -180,6 +180,8 @@
   padding: 8px 10px;
   border-radius: 20px;
   background: #f4f4f4;
+  width: 100%;
+  flex: 1;
 }
 
 .icon-mic {
@@ -214,6 +216,7 @@
 .mobile-chat-page {
   width: 100%;
 }
+
 .chat-info-panel.mobile {
   position: fixed;
   width: 85%;
@@ -330,6 +333,7 @@
     transform: scale(0.85);
     opacity: 0.5;
   }
+
   to {
     transform: scale(1);
     opacity: 1;

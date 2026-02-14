@@ -376,6 +376,7 @@ const SocialPost = ({
             setOpenPopup(true);
             setTargetPostId(post?.post_id);
           }}
+          isSaved={post?.is_saved}
         />
 
         {isCommentOpen && (
