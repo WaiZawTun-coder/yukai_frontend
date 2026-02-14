@@ -203,6 +203,13 @@ const ChatList = ({ onSelectChat }) => {
   const formatTime = (time, { utc = false } = {}) => {
     if (!time) return "";
 
+    if (time.charAt(time.length - 1) == 'Z') {
+      return new Date(time).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    }
+
     // Normalize "YYYY-MM-DD HH:mm:ss" → ISO
     const iso = time.replace(" ", "T");
 

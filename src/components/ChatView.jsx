@@ -359,11 +359,7 @@ const ChatInput = ({ inputText, setInputText, onSend, onSendImage }) => {
       </div>
 
       <div className="icon-mic" onClick={handleSendClick}>
-        {inputText.trim() || selectedImage ? (
-          <SendRoundedIcon />
-        ) : (
-          <MicRoundedIcon />
-        )}
+        <SendRoundedIcon />
       </div>
     </div>
   );

@@ -242,14 +242,14 @@ export default function ProfileSettings() {
                                 >
                                     <AutorenewOutlinedIcon />
                                 </button>
-                                {profileData.coverImage && (
+                                {/* {profileData.coverImage && (
                                     <button
                                         className="photo-button delete"
                                         onClick={() => handlePhotoDelete('cover')}
                                     >
                                         <DeleteOutlinedIcon />
                                     </button>
-                                )}
+                                )} */}
                             </div>
                         </div>
 
@@ -283,7 +283,7 @@ export default function ProfileSettings() {
                                     {profileData.profileImage ? "Change Photo" : "Upload Photo"}
                                 </button>
 
-                                {profileData.profileImage && (
+                                {/* {profileData.profileImage && (
                                     <button
                                         className="photo-button delete"
                                         onClick={() => handlePhotoDelete('profile')}
@@ -291,7 +291,7 @@ export default function ProfileSettings() {
                                         <DeleteOutlinedIcon />
                                         Delete Photo
                                     </button>
-                                )}
+                                )} */}
                             </div>
 
                             <p className="photo-hint">
