@@ -94,7 +94,8 @@ const SettingSidebar = () => {
         { name: 'Edit Profile', url: '/edit-profile' },
         { name: 'Change Email', url: '/change-email' },
         { name: 'Change Password', url: '/change-password' },
-        { name: 'Change Phone Number', url: 'change-phone-number' }
+        { name: 'Change Phone Number', url: 'change-phone-number' },
+        { name: 'Block User',url : '/block-user'}
       ],
     },
     {
