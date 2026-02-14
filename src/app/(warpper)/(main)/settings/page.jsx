@@ -79,7 +79,7 @@ const SettingSidebar = () => {
         return <PaletteIcon fontSize="small" />;
       case "Security":
         return <SecurityIcon fontSize="small" />;
-      case "Danger Zone":
+      case "Accuont Management":
         return <DeleteIcon fontSize="small" />;
       default:
         return <SettingsIcon fontSize="small" />;
@@ -124,7 +124,7 @@ const SettingSidebar = () => {
       ],
     },
     {
-      title: 'Danger Zone',
+      title: 'Account Management',
       icon: 'fa-shield-halved',
       items: [
         { name: 'Delete Account', url: '/delete-account' },
@@ -156,7 +156,7 @@ const SettingSidebar = () => {
 
       <div className="setting-content">
         {settingsData.map((section, index) => (
-          <section key={index} className={`setting-section ${section.title === 'Danger Zone' ? "setting-danger" : ""}`}>
+          <section key={index} className={`setting-section ${section.title === 'Account Management' ? "setting-danger" : ""}`}>
             <div className="section-header">
               {/* Icon moved BEFORE the title */}
               <span className="section-icon">

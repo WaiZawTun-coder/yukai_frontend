@@ -740,6 +740,8 @@ const Profile = () => {
             </div>
           );
         })}
+
+        {posts.textPosts.length == 0 && <div style={{width: "100%", color: "var(--text-color)", textAlign: "center", height: "200px", lineHeight: "200px"}}>No post found</div>}
         {modalPost && (
           <Modal
             isOpen={isModalOpen}
@@ -764,6 +766,7 @@ const Profile = () => {
         style={{ width: "100%", maxWidth: "720px" }}
       >
         <ProfileImagePost posts={posts.posts} />
+        {posts.posts.length == 0 && <div style={{width: "100%", color: "var(--text-color)", textAlign: "center", height: "200px", lineHeight: "200px"}}>No Image found</div>}
       </div>
       {/* SAVED TAB */}
 
