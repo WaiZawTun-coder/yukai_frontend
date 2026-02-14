@@ -182,6 +182,26 @@ export default function NotificationMenu() {
     return `${years} year${years > 1 ? "s" : ""} ago`;
   }
 
+  const formatTime = (time, { utc = false } = {}) => {
+    if (!time) return "";
+
+    if (time.charAt(time.length - 1) == 'Z') {
+      return new Date(time).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    }
+
+    // Normalize "YYYY-MM-DD HH:mm:ss" → ISO
+    const iso = time.replace(" ", "T");
+
+    const date = utc
+      ? new Date(iso + "Z") // force UTC
+      : new Date(iso); // local time
+
+    return date;
+  };
+
   async function markAllAsRead() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
 
@@ -242,7 +262,7 @@ export default function NotificationMenu() {
 
               <div className="notif-content">
                 <p>{n.message}</p>
-                <span>{timeAgo(new Date(n.time))}</span>
+                <span>{timeAgo(formatTime(n.time))}</span>
               </div>
 
               {!n.read && <span className="unread-dot" />}

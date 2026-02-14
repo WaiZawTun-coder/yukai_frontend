@@ -374,13 +374,11 @@ const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
 
   return (
     <Modal isOpen={isModalOpen} onClose={onClose} title={"Create New Group"}>
-      {isGroup && (
-        <input
-          placeholder="Group name"
-          value={groupName}
-          onChange={(e) => setGroupName(e.target.value)}
-        />
-      )}
+      <input
+        placeholder="Group name"
+        value={groupName}
+        onChange={(e) => setGroupName(e.target.value)}
+      />
       <div className="user-list">
         {users.map((user) => (
           <div
