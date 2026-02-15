@@ -9,7 +9,12 @@ import Modal from "../ui/Modal";
 import Popup from "../ui/Popup";
 import PostComposer from "../postComposer/PostComposer";
 
-export default function PostMenu({ isOwner, postId, handleDelete, isSaved = false }) {
+export default function PostMenu({
+  isOwner,
+  postId,
+  handleDelete,
+  isSaved = false,
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const apiFetch = useApi();
@@ -17,6 +22,7 @@ export default function PostMenu({ isOwner, postId, handleDelete, isSaved = fals
   const { showSnackbar } = useSnackbar();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPostEditing, setIsPostEditing] = useState(false);
+  const [isReportPopupOpen, setIsReportPopupOpen] = useState(false);
 
   // Close on outside click
   useEffect(() => {
@@ -55,10 +61,10 @@ export default function PostMenu({ isOwner, postId, handleDelete, isSaved = fals
     });
   };
 
-  const handleReport = async () => {
+  const handleReport = async ({ type }) => {
     const res = await apiFetch(`/api/report-post`, {
       method: "POST",
-      body: { post_id: postId },
+      body: { post_id: postId, report_type: type },
     });
 
     showSnackbar({
@@ -86,7 +92,13 @@ export default function PostMenu({ isOwner, postId, handleDelete, isSaved = fals
         <div className="post-menu-dropdown">
           {isOwner ? (
             <>
-              <button onClick={() => { setIsPostEditing(true) }}>Edit post</button>
+              <button
+                onClick={() => {
+                  setIsPostEditing(true);
+                }}
+              >
+                Edit post
+              </button>
               {/* <button>Change privacy</button> */}
               <button className="danger" onClick={handleDelete}>
                 Delete post
@@ -94,18 +106,38 @@ export default function PostMenu({ isOwner, postId, handleDelete, isSaved = fals
             </>
           ) : (
             <>
-              <button onClick={() => setIsModalOpen(true)}>{isSaved ? "Unsave post" : "Save post"}</button>
+              <button onClick={() => setIsModalOpen(true)}>
+                {isSaved ? "Unsave post" : "Save post"}
+              </button>
               <button onClick={handleHide}>Hide post</button>
-              <button onClick={handleReport}>Report post</button>
+              <button onClick={() => setIsReportPopupOpen(true)}>
+                Report post
+              </button>
             </>
           )}
           {/* <button>View edit history</button> */}
         </div>
       )}
       {isModalOpen && <ModalSavePost onClose={onClose} savePost={handleSave} />}
-      {isPostEditing && <PostComposer editPostId={postId} isEditing={true} handleCreate={() => {
-        setIsPostEditing(false)
-      }} onClose={() => { setIsPostEditing(false) }} isOpen={true} />}
+      {isPostEditing && (
+        <PostComposer
+          editPostId={postId}
+          isEditing={true}
+          handleCreate={() => {
+            setIsPostEditing(false);
+          }}
+          onClose={() => {
+            setIsPostEditing(false);
+          }}
+          isOpen={true}
+        />
+      )}
+      {isReportPopupOpen && (
+        <ReportPostPopup
+          onClose={() => setIsReportPopupOpen(false)}
+          onSubmit={handleReport}
+        />
+      )}
     </div>
   );
 }
@@ -126,7 +158,7 @@ const ModalSavePost = ({ onClose, savePost }) => {
   useEffect(() => {
     const getSavedLists = async () => {
       const res = await apiFetch(
-        `/api/get-saved-lists?username=${user.username}`
+        `/api/get-saved-lists?username=${user.username}`,
       );
 
       if (!res.status) {
@@ -147,7 +179,7 @@ const ModalSavePost = ({ onClose, savePost }) => {
     const updateSearch = () => {
       if (!savedLists) return;
       setFilteredList(
-        savedLists.filter((list) => list.name.includes(searchListValue))
+        savedLists.filter((list) => list.name.includes(searchListValue)),
       );
     };
 
@@ -266,6 +298,60 @@ const CreateSavedListPopup = ({ onClose, createlist }) => {
             setNewListName(e.target.value);
           }}
         />
+      </div>
+    </Popup>
+  );
+};
+
+const ReportPostPopup = ({ onClose, onSubmit }) => {
+  const [selectedType, setSelectedType] = useState("");
+
+  const reportTypes = [
+    { value: "spam", label: "Spam or misleading" },
+    { value: "harassment", label: "Harassment or bullying" },
+    { value: "improper_word", label: "Improper Word" },
+    { value: "other", label: "Other" },
+  ];
+
+  return (
+    <Popup
+      isOpen={true}
+      onClose={onClose}
+      title="Report Post"
+      footer={
+        <div className="popup-actions">
+          <button className="popup-btn popup-btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className="popup-btn popup-btn-confirm"
+            disabled={!selectedType}
+            onClick={() => {
+              onSubmit({ type: selectedType });
+              onClose();
+            }}
+          >
+            Submit
+          </button>
+        </div>
+      }
+    >
+      <div
+        className="report-options"
+        style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+      >
+        {reportTypes.map((type) => (
+          <label key={type.value} className="report-option">
+            <input
+              type="radio"
+              name="reportType"
+              value={type.value}
+              checked={selectedType === type.value}
+              onChange={(e) => setSelectedType(e.target.value)}
+            />
+            {type.label}
+          </label>
+        ))}
       </div>
     </Popup>
   );

@@ -1,6 +1,5 @@
-import { getBackendUrl } from "./url";
 import { useAuth } from "../context/AuthContext";
-import { useSnackbar } from "@/context/SnackbarContext";
+import { getBackendUrl } from "./url";
 
 export const useApi = () => {
   const { accessToken, refreshToken, logout } = useAuth();
