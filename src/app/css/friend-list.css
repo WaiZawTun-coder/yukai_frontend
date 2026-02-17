@@ -1,5 +1,5 @@
 .rightbar-wrapper {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   /* padding: 20px; */
@@ -189,7 +189,7 @@
   border-radius: 10px;
 }
 .friend-list {
-  max-height: calc(100vh - 160px);
+  max-height: calc(100dvh - 160px);
   overflow-y: auto;
   padding: 10px 0;
 }

@@ -1,7 +1,7 @@
 .chat-layout {
   display: grid;
   grid-template-columns: 430px 1fr;
-  height: 100vh;
+  height: 100dvh;
   width: 100vw;
 }
 
@@ -126,7 +126,7 @@ button:hover {
 }
 
 /* 📱 Mobile */
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .chat-list-pane {
     width: 100%;
   }
@@ -142,7 +142,7 @@ button:hover {
 .main-container-chat {
   width: 100%;
   /* max-width: 430px; */
-  height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
 }
 
@@ -258,7 +258,9 @@ button:hover {
   border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  transition: background 200ms ease, color 200ms ease;
+  transition:
+    background 200ms ease,
+    color 200ms ease;
 }
 
 .chat-tabs button:hover {

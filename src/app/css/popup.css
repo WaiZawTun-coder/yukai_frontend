@@ -24,7 +24,7 @@
   background: var(--secondary-color);
   border-radius: 16px;
   width: 95%;
-  max-height: 90vh;
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
   transform: scale(0.95) translateY(10px);

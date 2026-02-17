@@ -1,6 +1,6 @@
 /* Root layout */
 .notfound-page {
-  min-height: calc(100vh - 64px);
+  min-height: calc(100dvh - 64px);
   /* background: radial-gradient(circle at top, #1f2933, #020617 60%); */
   display: flex;
   align-items: center;
@@ -8,7 +8,11 @@
   width: 100%;
   padding: 24px;
   color: var(--text-color);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 }
 
 /* Card */
@@ -34,8 +38,7 @@
   inset: -40%;
   background: radial-gradient(
     circle,
-    /* rgba(59, 130, 246, 0.25), */
-    var(--primary-color),
+    /* rgba(59, 130, 246, 0.25), */ var(--primary-color),
     transparent 60%
   );
   filter: blur(80px);
@@ -87,7 +90,10 @@
   cursor: pointer;
   border: none;
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
 .btn:active {

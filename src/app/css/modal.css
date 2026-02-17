@@ -23,14 +23,16 @@
   width: 95%;
   overflow-x: hidden;
 
-  max-height: 95dvh;
-  min-height: 95dvh;
+  max-height: 95ddvh;
+  min-height: 95ddvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
   transform: translateY(-50px) scale(0.8);
   opacity: 0;
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.2s ease;
 }
 
 /* Prevent children from breaking scroll */
@@ -85,7 +87,9 @@
   color: #cbd5e1;
   font-size: 18px;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .modal-close-button:hover {
@@ -103,8 +107,8 @@
 }
 
 /* ✅ Fallback for older Safari */
-@supports not (height: 100dvh) {
+@supports not (height: 100ddvh) {
   .modal-content {
-    max-height: 90vh;
+    max-height: 90dvh;
   }
 }

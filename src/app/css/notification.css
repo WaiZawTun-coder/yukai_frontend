@@ -2,14 +2,14 @@
   position: relative;
   max-width: 720px;
   width: 100%;
-  height: calc(100vh - 76px);
+  height: calc(100dvh - 76px);
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 @media (min-width: 1200px) {
   .notif-root {
-    height: 95vh;
+    height: 95dvh;
   }
 }
 

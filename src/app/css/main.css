@@ -2,7 +2,7 @@
    AUTH LOADING SCREEN
 ====================================================== */
 .auth-loading-screen {
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
 
   display: grid;
@@ -25,7 +25,7 @@
 .main-layout-container {
   display: flex;
   justify-content: center;
-  /* min-height: 100vh; */
+  /* min-height: 100dvh; */
   width: 100%;
   background-position: center;
   background-attachment: fixed;

@@ -10,7 +10,7 @@
 
 .tag-modal {
   width: 420px;
-  max-height: 80vh;
+  max-height: 80dvh;
   background: var(--secondary-color);
   border-radius: 10px;
   display: flex;

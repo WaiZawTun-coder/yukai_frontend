@@ -62,7 +62,7 @@ export default function PostComposer({
     const mainContent = document.getElementById("main-content");
     if (mainContent) {
       mainContent.style.overflow = "hidden";
-      mainContent.style.maxHeight = "90vh";
+      mainContent.style.maxHeight = "90dvh";
     }
   };
 

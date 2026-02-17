@@ -4,7 +4,7 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   /* background: linear-gradient(135deg, #4facfe, #00f2fe); */
   display: flex;
   flex-direction: column;
@@ -30,7 +30,7 @@
 .video-box {
   width: 80vw;
   max-width: 1200px;
-  height: 60vh;
+  height: 60dvh;
   background-color: var(--secondary-color);
   border-radius: 20px;
   overflow: hidden;
@@ -46,7 +46,7 @@
 .audio-only {
   width: 60vw;
   max-width: 600px;
-  height: 40vh;
+  height: 40dvh;
   background-color: var(--secondary-color);
   border-radius: 20px;
   display: flex;
@@ -95,11 +95,11 @@
 @media (max-width: 768px) {
   .video-box {
     width: 90vw;
-    height: 50vh;
+    height: 50dvh;
   }
   .audio-only {
     width: 80vw;
-    height: 30vh;
+    height: 30dvh;
   }
   .controls button {
     padding: 10px 20px;

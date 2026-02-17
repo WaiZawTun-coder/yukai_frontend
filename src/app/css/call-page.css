@@ -1,7 +1,7 @@
 /* CallPage.css or global CSS */
 .call-root {
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   background: black;
   display: flex;
   flex-direction: column;
@@ -84,7 +84,9 @@
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(10px);
   z-index: 20;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .call-controls.hidden {

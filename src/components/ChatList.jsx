@@ -51,8 +51,9 @@ const ChatList = ({ onSelectChat }) => {
   useEffect(() => {
     const handleNewChat = async (newChat) => {
       const chatData = await apiFetch(
-        `/api/get-group-chat?chat_id=${newChat.chat_id
-        }&device_id=${getDeviceId()}`
+        `/api/get-group-chat?chat_id=${
+          newChat.chat_id
+        }&device_id=${getDeviceId()}`,
       );
       setChatsList((prev) => [chatData, ...prev]);
     };
@@ -65,14 +66,14 @@ const ChatList = ({ onSelectChat }) => {
     requestOnlineUsers();
     onOnlineUsers(({ users }) => setOnlineUserIds(new Set(users)));
     onUserOnline(({ userId }) =>
-      setOnlineUserIds((prev) => new Set(prev).add(userId))
+      setOnlineUserIds((prev) => new Set(prev).add(userId)),
     );
     onUserOffline(({ userId }) =>
       setOnlineUserIds((prev) => {
         const copy = new Set(prev);
         copy.delete(userId);
         return copy;
-      })
+      }),
     );
     return () => offPresenceListeners();
   }, []);
@@ -105,7 +106,7 @@ const ChatList = ({ onSelectChat }) => {
         return "Encrypted message";
       }
     },
-    [decryptPayload, hasKeys]
+    [decryptPayload, hasKeys],
   );
 
   /* ===================== INITIAL DECRYPT ALL ===================== */
@@ -168,15 +169,30 @@ const ChatList = ({ onSelectChat }) => {
         const user = chat.participants[0];
         return { ...chat, online: onlineUserIds.has(String(user?.user_id)) };
       }),
-    [chatsList, onlineUserIds]
+    [chatsList, onlineUserIds],
   );
 
   /* ===================== FILTER TABS ===================== */
   const filteredChats = useMemo(() => {
+    const search = searchChat.toLowerCase();
+
     return chatsWithStatus.filter((chat) => {
-      if (activeTab === "unread") return chat.unread_count > 0 && chat.type == "group" ? chat.chat_name.toLowerCase().includes(searchChat) : chat.participants[0].display_name.toLowerCase().includes(searchChat);
-      if (activeTab === "group") return chat.type === "group" && chat.chat_name.toLowerCase().includes(searchChat);
-      return true && chat.type == "group" ? chat.chat_name.toLowerCase().includes(searchChat) : chat.participants[0].display_name.toLowerCase().includes(searchChat);
+      const isGroup = chat.type === "group";
+      const name = isGroup
+        ? chat.chat_name?.toLowerCase()
+        : chat.participants?.[0]?.display_name?.toLowerCase();
+
+      const matchesSearch = name?.includes(search);
+
+      if (activeTab === "unread") {
+        return chat.unread_count > 0 && matchesSearch;
+      }
+
+      if (activeTab === "group") {
+        return isGroup && matchesSearch;
+      }
+
+      return matchesSearch;
     });
   }, [chatsWithStatus, activeTab, searchChat]);
 
@@ -188,8 +204,8 @@ const ChatList = ({ onSelectChat }) => {
     setActiveChatId(chat.chat_id);
     setChatsList((prev) =>
       prev.map((c) =>
-        c.chat_id === chat.chat_id ? { ...c, unread_count: 0 } : c
-      )
+        c.chat_id === chat.chat_id ? { ...c, unread_count: 0 } : c,
+      ),
     );
 
     const route =
@@ -203,11 +219,11 @@ const ChatList = ({ onSelectChat }) => {
   const formatTime = (time, { utc = false } = {}) => {
     if (!time) return "";
 
-    if (time.charAt(time.length - 1) == 'Z') {
+    if (time.charAt(time.length - 1) == "Z") {
       return new Date(time).toLocaleTimeString([], {
         hour: "2-digit",
-        minute: "2-digit"
-      })
+        minute: "2-digit",
+      });
     }
 
     // Normalize "YYYY-MM-DD HH:mm:ss" → ISO
@@ -238,7 +254,13 @@ const ChatList = ({ onSelectChat }) => {
           <div className="chat-action-box">
             <div className="chat-search-box active">
               <SearchIcon className="icon" />
-              <input type="search" placeholder="Search..." onChange={(e) => { setSearchChat(e.target.value.toLowerCase()) }} />
+              <input
+                type="search"
+                placeholder="Search..."
+                onChange={(e) => {
+                  setSearchChat(e.target.value.toLowerCase());
+                }}
+              />
             </div>
             <button
               className="action-icon"
@@ -383,8 +405,9 @@ const CreateChatModal = ({ isModalOpen, onClose, onCreated }) => {
         {users.map((user) => (
           <div
             key={user.user_id}
-            className={`user-row ${selected.has(user.user_id) ? "selected" : ""
-              }`}
+            className={`user-row ${
+              selected.has(user.user_id) ? "selected" : ""
+            }`}
             onClick={() => toggleUser(user.user_id)}
           >
             <Image
