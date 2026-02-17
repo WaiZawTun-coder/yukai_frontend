@@ -9,6 +9,7 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { useApi } from "@/utilities/api";
 import Image from "next/image";
 import { offNotification, onNotification } from "@/utilities/socket";
+import { useAuth } from "@/context/AuthContext";
 
 const iconMap = {
   react: <FavoriteOutlinedIcon className="notif-icon like" />,
@@ -22,6 +23,7 @@ export default function NotificationMenu() {
 
   const loaderRef = useRef(null);
   const wrapperRef = useRef(null);
+  const { setNotificationCount } = useAuth();
 
   const [page, setPage] = useState(1);
   const [notifications, setNotifications] = useState([]);
@@ -226,6 +228,7 @@ export default function NotificationMenu() {
               className={`notif-item ${!n.read ? "unread" : ""}`}
               onClick={() => {
                 !n.read && markAsRead(n.id);
+                !n.read && setNotificationCount((prev) => prev - 1);
                 redirect(n.type, n.reference_id);
               }}
             >

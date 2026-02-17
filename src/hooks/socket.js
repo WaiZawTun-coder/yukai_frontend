@@ -19,7 +19,7 @@ export const useSocket = () => {
   const { addMessage, addCall } = useNotification();
   const { addCall: addCallContext } = useCall();
   const { updateBusy } = useBusy();
-  const { setNotificationCount, setMessageCount } = useAuth();
+  const { setNotificationCount, setMessageCount, getDeviceId } = useAuth();
   const apiFetch = useApi();
   const { showSnackbar } = useSnackbar();
 
@@ -40,7 +40,9 @@ export const useSocket = () => {
         setNotificationCount(notiCountRes.data.unread ?? 0);
       }
 
-      const messageCountRes = await apiFetch("/api/get-unread-message-count");
+      const messageCountRes = await apiFetch(
+        `/api/get-unread-message-count?device_id=${getDeviceId()}`,
+      );
       if (messageCountRes.status) {
         setMessageCount(messageCountRes.data.unread_count ?? 0);
       }
