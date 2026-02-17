@@ -57,12 +57,14 @@ export default function PostCard({
   postId,
   userReaction = null,
   handleDelete,
-  isSaved = false
+  isSaved = false,
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const [time, setTime] = useState("");
   const { user: authUser } = useAuth();
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const parseLocalDateTime = (dateStr) => {
@@ -97,6 +99,12 @@ export default function PostCard({
     const timer = setInterval(update, 60000);
     return () => clearInterval(timer);
   }, [createdAt]);
+
+  const truncateText = (text, maxLength = 150) => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };
 
   return (
     <div className="post-card">
@@ -161,7 +169,25 @@ export default function PostCard({
       <hr className="post-divider"></hr>
 
       {/* CONTENT */}
-      {content && <p className="post-content">{content}</p>}
+      {content && (
+        <p className="post-content">
+          {isExpanded ? content : truncateText(content, 150)}
+          {content.length > 150 && (
+            <span
+              className="read-more"
+              onClick={() => setIsExpanded(!isExpanded)}
+              style={{
+                color: "var(--text-muted)",
+                cursor: "pointer",
+                marginLeft: "4px",
+              }}
+            >
+              {isExpanded && <br />}
+              {isExpanded ? "Show less" : "Read more"}
+            </span>
+          )}
+        </p>
+      )}
 
       {/* IMAGES */}
       {images.length > 0 && <PostImages images={images} />}

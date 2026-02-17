@@ -6,6 +6,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useKeyboard } from "./postComposer/useKeyboard";
+import { Badge, IconButton } from "@mui/material";
+import { useAuth } from "@/context/AuthContext";
 
 const tabs = [
   { id: 1, tabName: "For You", url: "?type=recommend" },
@@ -18,6 +20,8 @@ const TopBar = ({ setData }) => {
   const [searchText, setSearchText] = useState("");
   const [searchActive, setSearchActive] = useState(false);
   const [hidden, setHidden] = useState(false);
+
+  const { messageCount } = useAuth();
 
   const params = useSearchParams();
   const router = useRouter();
@@ -177,10 +181,16 @@ const TopBar = ({ setData }) => {
             />
           </div>
           {/* chat icon */}
-          <MessageIcon
-            onClick={() => router.push("/chat")}
-            className="chat-icon"
-          />
+
+          <IconButton color="inherit">
+            <Badge
+              badgeContent={messageCount}
+              color="error"
+              invisible={messageCount === 0}
+            >
+              <MessageIcon onClick={() => router.push("/chat")} />
+            </Badge>
+          </IconButton>
         </div>
       </div>
     </div>
