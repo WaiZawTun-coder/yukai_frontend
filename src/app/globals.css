@@ -420,3 +420,8 @@ a:hover {
 .hidden {
   display: none;
 }
+
+img {
+  display: block;
+  object-fit: cover;
+}
