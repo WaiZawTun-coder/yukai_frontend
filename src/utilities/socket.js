@@ -351,6 +351,18 @@ export const offNotification = (cb) => {
 };
 
 /* ============================================================
+   Notifications
+============================================================ */
+
+export const onNewNotification = (cb) => {
+  socket.on("new-notification", cb);
+};
+
+export const offNewNotification = (cb) => {
+  socket.off("new-notification", cb);
+};
+
+/* ============================================================
    Utils
 ============================================================ */
 

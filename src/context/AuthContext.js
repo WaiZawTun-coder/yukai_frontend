@@ -52,6 +52,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [hasKeys, setHasKeys] = useState(false);
   const [keysLoading, setKeysLoading] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
   // Crypto refs
   const identityPrivRef = useRef(null);
   const signedPrekeyPrivRef = useRef(null);
@@ -103,7 +105,7 @@ export const AuthProvider = ({ children }) => {
             Authorization: `Bearer ${accessToken}`,
           },
           signal: controller.signal,
-        }
+        },
       );
 
       if (!res.ok) {
@@ -258,23 +260,22 @@ export const AuthProvider = ({ children }) => {
   const waitForSignedPrekey = (timeout = 5000, interval = 100) => {
     return new Promise((resolve, reject) => {
       const start = Date.now();
-  
+
       const check = () => {
         if (signedPrekeyPrivRef.current) {
           return resolve(signedPrekeyPrivRef.current);
         }
-  
+
         if (Date.now() - start >= timeout) {
           return reject(new Error("Device keys not ready (timeout)"));
         }
-  
+
         setTimeout(check, interval);
       };
-  
+
       check();
     });
   };
-  
 
   /* ===================== CRYPTO HELPERS ===================== */
 
@@ -284,7 +285,7 @@ export const AuthProvider = ({ children }) => {
     return crypto.subtle.deriveBits(
       { name: "X25519", public: remotePub },
       signedPrekeyPrivRef.current,
-      256
+      256,
     );
   };
 
@@ -294,7 +295,7 @@ export const AuthProvider = ({ children }) => {
       sharedSecret,
       "HKDF",
       false,
-      ["deriveKey"]
+      ["deriveKey"],
     );
 
     return crypto.subtle.deriveKey(
@@ -307,7 +308,7 @@ export const AuthProvider = ({ children }) => {
       hkdfKey,
       { name: "AES-GCM", length: 256 },
       false,
-      ["encrypt", "decrypt"]
+      ["encrypt", "decrypt"],
     );
   };
 
@@ -317,7 +318,7 @@ export const AuthProvider = ({ children }) => {
     const cipherBuffer = await crypto.subtle.encrypt(
       { name: "AES-GCM", iv },
       aesKey,
-      new TextEncoder().encode(plainText)
+      new TextEncoder().encode(plainText),
     );
 
     return {
@@ -344,7 +345,7 @@ export const AuthProvider = ({ children }) => {
     const plainBuffer = await crypto.subtle.decrypt(
       { name: "AES-GCM", iv },
       aesKey,
-      cipher // ✅ correct
+      cipher, // ✅ correct
     );
 
     return new TextDecoder().decode(plainBuffer);
@@ -390,7 +391,6 @@ export const AuthProvider = ({ children }) => {
     iv,
     sender_signed_prekey_pub,
   }) => {
-  
     if (!signedPrekeyPrivRef.current) {
       try {
         await waitForSignedPrekey(); // wait until ready
@@ -398,21 +398,20 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Device keys not ready (timeout)");
       }
     }
-  
+
     // At this point we are guaranteed keys exist
     const senderPub = await importX25519PublicKey(sender_signed_prekey_pub);
-  
+
     const sharedSecret = await crypto.subtle.deriveBits(
       { name: "X25519", public: senderPub },
       signedPrekeyPrivRef.current,
-      256
+      256,
     );
-  
+
     const aesKey = await deriveAESKey(sharedSecret);
-  
+
     return decryptMessage(aesKey, iv, ciphertext);
   };
-  
 
   /* ===================== AUTH ===================== */
 
@@ -431,8 +430,8 @@ export const AuthProvider = ({ children }) => {
       // store temporary token
       localStorage.setItem("temp_access_token", data.data.access_token);
       return data;
-    }  else{
-      if(!data.status){ 
+    } else {
+      if (!data.status) {
         throw new Error(data.message);
         return;
       }
@@ -465,8 +464,11 @@ export const AuthProvider = ({ children }) => {
     await fetch(getBackendUrl() + "/auth/logout", {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
-      body: JSON.stringify({"device_id": getDeviceId()})
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ device_id: getDeviceId() }),
     });
 
     router.replace("/login");
@@ -477,9 +479,9 @@ export const AuthProvider = ({ children }) => {
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({device_id: getDeviceId()})
+      body: JSON.stringify({ device_id: getDeviceId() }),
     });
 
     const data = await res.json();
@@ -523,6 +525,11 @@ export const AuthProvider = ({ children }) => {
         encryptForDevices,
         decryptPayload,
         getDeviceId,
+
+        notificationCount,
+        setNotificationCount,
+        messageCount,
+        setMessageCount,
       }}
     >
       {children}

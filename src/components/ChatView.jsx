@@ -52,7 +52,7 @@ const ChatHeader = ({
   isOnline,
   typingUser,
   lastSeen,
-  isCalleeBusy
+  isCalleeBusy,
 }) => (
   <div className="chat-header">
     <div className="back-button" onClick={onBack}>
@@ -157,7 +157,7 @@ const MessageItem = ({
           hasMarkedRef.current = false;
         }
       },
-      { threshold: 0.8 }
+      { threshold: 0.8 },
     );
 
     observer.observe(ref.current);
@@ -185,15 +185,16 @@ const MessageItem = ({
         </a>
       ) : (
         part
-      )
+      ),
     );
   }
 
   return (
     <div
       ref={ref}
-      className={`message ${msg.sender_user_id === currentUserId ? "outgoing" : "incoming"
-        }`}
+      className={`message ${
+        msg.sender_user_id === currentUserId ? "outgoing" : "incoming"
+      }`}
     >
       {msg.sender_user_id !== currentUserId && chatType == "group" && (
         <Image
@@ -235,7 +236,6 @@ const MessageItem = ({
               {parseLinks(msg.plain_text || "Encrypted message")}
             </span>
           )}
-
         </span>
 
         <span className="time">
@@ -254,10 +254,7 @@ const MessageItem = ({
                       : "")}
         </span>
         {msg.status === "failed" && (
-          <span
-            className="retry-btn"
-            onClick={() => retryMessage(msg)}
-          >
+          <span className="retry-btn" onClick={() => retryMessage(msg)}>
             Retry
           </span>
         )}
@@ -302,7 +299,6 @@ const ChatInput = ({ inputText, setInputText, onSend, onSendImage }) => {
     }
   };
 
-
   return (
     <div className="chat-input-area">
       <input
@@ -317,7 +313,14 @@ const ChatInput = ({ inputText, setInputText, onSend, onSendImage }) => {
         className="icon-clip"
         onClick={() => fileRef.current?.click()}
       />
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          width: "100%",
+        }}
+      >
         {selectedImage && (
           <div className="image-preview">
             <div style={{ position: "relative", display: "inline-block" }}>
@@ -347,7 +350,6 @@ const ChatInput = ({ inputText, setInputText, onSend, onSendImage }) => {
           </div>
         )}
 
-
         <input
           type="text"
           placeholder="Message"
@@ -365,7 +367,6 @@ const ChatInput = ({ inputText, setInputText, onSend, onSendImage }) => {
   );
 };
 
-
 const ChatInfoPanel = ({
   showInfo,
   isMobile,
@@ -376,11 +377,12 @@ const ChatInfoPanel = ({
   handleShowFriendsModal,
   openModal,
   isMuted,
-  handleMute
+  handleMute,
 }) => (
   <div
-    className={`chat-info-panel ${showInfo ? "open" : ""} ${isMobile ? "mobile" : "desktop"
-      }`}
+    className={`chat-info-panel ${showInfo ? "open" : ""} ${
+      isMobile ? "mobile" : "desktop"
+    }`}
   >
     <div className="info-header">
       <span>Chat Info</span>
@@ -479,11 +481,11 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const formatTime = (time, { utc = false } = {}) => {
     if (!time) return "";
 
-    if (time.charAt(time.length - 1) == 'Z') {
+    if (time.charAt(time.length - 1) == "Z") {
       return new Date(time).toLocaleTimeString([], {
         hour: "2-digit",
-        minute: "2-digit"
-      })
+        minute: "2-digit",
+      });
     }
 
     // Normalize "YYYY-MM-DD HH:mm:ss" → ISO
@@ -502,8 +504,8 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const markMessageDelivered = (messageId) => {
     setMessages((prev) =>
       prev.map((m) =>
-        m.message_id === messageId ? { ...m, status: "delivered" } : m
-      )
+        m.message_id === messageId ? { ...m, status: "delivered" } : m,
+      ),
     );
     if (chatId) emitUpdateReceipt(messageId, chatId, "delivered");
   };
@@ -511,8 +513,8 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const markMessageSeen = async (messageId) => {
     setMessages((prev) =>
       prev.map((m) =>
-        m.message_id === messageId ? { ...m, status: "seen" } : m
-      )
+        m.message_id === messageId ? { ...m, status: "seen" } : m,
+      ),
     );
     const res = await apiFetch(`/api/chat/update-receipt`, {
       method: "POST",
@@ -551,7 +553,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       const resChat = await apiFetch(
         type !== "group"
           ? `/api/chat?username=${username}&device_id=${getDeviceId()}`
-          : `/api/get-group-chat?chat_id=${group_id}&device_id=${getDeviceId()}`
+          : `/api/get-group-chat?chat_id=${group_id}&device_id=${getDeviceId()}`,
       );
       const chat = resChat.data;
       checkUserOnline(String(chat.other_user_id));
@@ -561,30 +563,35 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       if (!chat?.chat_id) return;
 
       const resParticipants = await apiFetch(
-        `/api/chats/participants?chat_id=${chat.chat_id
-        }&device_id=${getDeviceId()}`
+        `/api/chats/participants?chat_id=${
+          chat.chat_id
+        }&device_id=${getDeviceId()}`,
       );
       const muted = new Set();
-      resParticipants.data.forEach(p => p.is_muted == 1 && muted.add(p.user_id))
+      resParticipants.data.forEach(
+        (p) => p.is_muted == 1 && muted.add(p.user_id),
+      );
       setMutedIds(muted);
       setChatParticipants(resParticipants.data);
       setFilteredMembers(resParticipants.data);
 
       const resMessages = await apiFetch(
-        `/api/chat/get-messages?chat_id=${chat.chat_id
-        }&device_id=${getDeviceId()}&page=1`
+        `/api/chat/get-messages?chat_id=${
+          chat.chat_id
+        }&device_id=${getDeviceId()}&page=1`,
       );
 
       const decrypted = [];
 
       for (const message of resMessages.data) {
         const participant = resParticipants.data.find(
-          (p) => p.user_id === user.user_id
+          (p) => p.user_id === user.user_id,
         );
         if (!participant) continue;
 
         const device = participant.devices.find(
-          (d) => String(d.signed_prekey_id) === String(message.signed_prekey_id)
+          (d) =>
+            String(d.signed_prekey_id) === String(message.signed_prekey_id),
         );
         if (!device) continue;
 
@@ -677,7 +684,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
 
     const handleReceiptUpdate = ({ message_id, status }) => {
       setMessages((prev) =>
-        prev.map((m) => (m.message_id === message_id ? { ...m, status } : m))
+        prev.map((m) => (m.message_id === message_id ? { ...m, status } : m)),
       );
     };
 
@@ -719,9 +726,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   }, [chatId]);
 
   const retryMessage = (msg) => {
-    setMessages((prev) =>
-      prev.filter((m) => m.message_id !== msg.message_id)
-    );
+    setMessages((prev) => prev.filter((m) => m.message_id !== msg.message_id));
 
     setInputText(msg.plain_text);
   };
@@ -760,7 +765,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           });
 
           return { participant, payloads };
-        })
+        }),
       );
 
       const apiPayload = [];
@@ -826,26 +831,23 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
         prev.map((msg) =>
           msg.message_id === tempId
             ? {
-              ...msg,
-              message_id: res.message_id,
-              status: "sent",
-              isTemp: false,
-            }
-            : msg
-        )
+                ...msg,
+                message_id: res.message_id,
+                status: "sent",
+                isTemp: false,
+              }
+            : msg,
+        ),
       );
 
       setInputText("");
-
     } catch (error) {
       console.error("Send message failed:", error);
 
       setMessages((prev) =>
         prev.map((msg) =>
-          msg.message_id === tempId
-            ? { ...msg, status: "failed" }
-            : msg
-        )
+          msg.message_id === tempId ? { ...msg, status: "failed" } : msg,
+        ),
       );
       // Optional: show toast or mark message failed
       // showToast("Failed to send message");
@@ -854,17 +856,22 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
 
   const handleLeave = async () => {
     if (chatData.type == "group") {
-      const res = await apiFetch("/api/chats/leave", { method: "POST", body: { chat_id: chatData.chat_id } });
+      const res = await apiFetch("/api/chats/leave", {
+        method: "POST",
+        body: { chat_id: chatData.chat_id },
+      });
       if (res.status)
         // router.push("/chat");
         router.refresh();
     } else {
-      const res = await apiFetch("/api/block-user", { method: "POST", body: { blocked_user_id: chatData.other_user_id } });
-      if (res.status)
-        router.refresh();
+      const res = await apiFetch("/api/block-user", {
+        method: "POST",
+        body: { blocked_user_id: chatData.other_user_id },
+      });
+      if (res.status) router.refresh();
       // router.push("/chat")
     }
-  }
+  };
 
   const handleSendImage = async (file) => {
     if (!chatParticipants.length) return;
@@ -872,7 +879,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     try {
       const formData = new FormData();
       formData.append("image", file);
-      formData.append("folder", "chat")
+      formData.append("folder", "chat");
 
       // 1️⃣ Upload image
       const uploadData = await apiFetch("/api/upload-image", {
@@ -893,7 +900,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           });
 
           return { participant, payloads };
-        })
+        }),
       );
 
       const apiPayload = [];
@@ -959,13 +966,12 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     }
   };
 
-
   /* -------------------- Effects -------------------- */
 
   useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 860);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -982,8 +988,8 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
         chatParticipants.filter((p) =>
           p.display_name
             .toLowerCase()
-            .includes(searchMembersValue.toLowerCase())
-        )
+            .includes(searchMembersValue.toLowerCase()),
+        ),
       );
     };
     update();
@@ -1012,7 +1018,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   useEffect(() => {
     const update = () => {
       const participantsId = new Set(
-        chatParticipants.map((p) => String(p.user_id))
+        chatParticipants.map((p) => String(p.user_id)),
       );
 
       const search = searchFriendsValue.toLowerCase();
@@ -1030,7 +1036,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           return (
             name.includes(search) && !participantsId.has(String(f.user_id))
           );
-        })
+        }),
       );
     };
 
@@ -1056,7 +1062,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       .join("_")}_${chatId}`;
     const hash = Array.from(baseString).reduce(
       (acc, char) => acc + char.charCodeAt(0),
-      0
+      0,
     ); // simple hash
 
     return `room_${idsPart}_${hash}`.slice(0, 64); // ensure max 64 chars
@@ -1068,7 +1074,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },
       chatParticipants,
-      chatData.chat_id
+      chatData.chat_id,
     );
 
     const userInfo = {
@@ -1115,7 +1121,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
         username: chatData.other_username,
         user_id: chatData.other_user_id,
       },
-      chatData.chat_id
+      chatData.chat_id,
     );
 
     const userInfo = {
@@ -1188,8 +1194,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
     }
   };
 
-
-
   /* -------------------- Render -------------------- */
 
   return (
@@ -1204,8 +1208,8 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             isOnline={onlineStatus.online}
             typingUser={typingUser}
             lastSeen={onlineStatus.lastSeen}
-            isCalleeBusy={(
-              chatData.type === "private"
+            isCalleeBusy={
+              (chatData.type === "private"
                 ? isUserBusy(chatData.other_user_id)
                 : false) && isInCall
             }
@@ -1226,7 +1230,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             onSend={handleSend}
             onSendImage={handleSendImage}
           />
-
         </div>
 
         <div
@@ -1242,7 +1245,9 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           router={router}
           handleShowMembersModal={handleShowMembersModal}
           handleShowFriendsModal={handleShowFriendsModal}
-          openModal={() => { setLeaveModalOpen(true) }}
+          openModal={() => {
+            setLeaveModalOpen(true);
+          }}
           isMuted={mutedIds.has(user.user_id)}
           handleMute={handleMute}
         />
@@ -1302,8 +1307,9 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
           {filteredFriends.map((friend) => (
             <div
               key={friend.user_id}
-              className={`user-row ${selected.has(friend.user_id) ? "selected" : ""
-                }`}
+              className={`user-row ${
+                selected.has(friend.user_id) ? "selected" : ""
+              }`}
               onClick={() => toggleUser(friend.user_id)}
             >
               <Image
@@ -1346,8 +1352,9 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
 
               if (res.status) {
                 const resParticipants = await apiFetch(
-                  `/api/chats/participants?chat_id=${chat.chat_id
-                  }&device_id=${getDeviceId()}`
+                  `/api/chats/participants?chat_id=${
+                    chat.chat_id
+                  }&device_id=${getDeviceId()}`,
                 );
 
                 setChatParticipants(resParticipants.data);
@@ -1359,13 +1366,32 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
         </div>
       </Modal>
 
-      <Popup isOpen={leaveModalOpen} title={chatData.type == "group" ? "Leave group" : "Block User?"} footer={
-        <div className="popup-actions">
-          <button className="popup-btn popup-btn-cancel" onClick={() => setLeaveModalOpen(false)}>Cancel</button>
-          <button className="popup-btn popup-btn-danger" onClick={() => handleLeave()}>{chatData.type == "group" ? "Leave" : "Block"}</button>
-        </div>
-      } onClose={() => { setLeaveModalOpen(false) }}>
-        {chatData.type == "group" ? "Are you sure to leave this group?" : `Are you sure to block ${chatData.other_display_name}`}
+      <Popup
+        isOpen={leaveModalOpen}
+        title={chatData.type == "group" ? "Leave group" : "Block User?"}
+        footer={
+          <div className="popup-actions">
+            <button
+              className="popup-btn popup-btn-cancel"
+              onClick={() => setLeaveModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="popup-btn popup-btn-danger"
+              onClick={() => handleLeave()}
+            >
+              {chatData.type == "group" ? "Leave" : "Block"}
+            </button>
+          </div>
+        }
+        onClose={() => {
+          setLeaveModalOpen(false);
+        }}
+      >
+        {chatData.type == "group"
+          ? "Are you sure to leave this group?"
+          : `Are you sure to block ${chatData.other_display_name}`}
       </Popup>
     </div>
   );

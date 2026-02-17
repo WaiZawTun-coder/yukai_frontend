@@ -212,7 +212,7 @@ const ChatList = ({ onSelectChat }) => {
       chat.type === "group"
         ? `/chat/group?group_id=${chat.chat_id}`
         : `/chat/${username}`;
-    if (window.innerWidth < 768) router.replace(route);
+    if (window.innerWidth < 860) router.replace(route);
     else onSelectChat(username, chat.type, chat.chat_id);
   };
 

@@ -147,6 +147,10 @@
   margin-bottom: 8px;
   color: var(--text-color);
 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -155,6 +159,13 @@
   transition:
     background 0.2s ease,
     color 0.2s ease;
+}
+
+.menu li div,
+.menu a div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 /* Hover */
@@ -257,7 +268,7 @@
   .menu li,
   .menu a {
     flex: 1;
-    flex-direction: column;
+    /* flex-direction: column; */
     justify-content: center;
     align-items: center;
 
@@ -266,6 +277,12 @@
     gap: 4px;
 
     border-radius: 12px;
+  }
+
+  .menu li div,
+  .menu a div {
+    flex-direction: column;
+    gap: 4px;
   }
 
   .menu li span,

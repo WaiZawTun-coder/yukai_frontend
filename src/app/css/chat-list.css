@@ -383,7 +383,7 @@ button:hover {
   padding: 0 6px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .chat-header .back-button {
     display: block;
   }

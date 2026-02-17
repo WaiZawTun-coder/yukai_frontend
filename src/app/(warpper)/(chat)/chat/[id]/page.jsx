@@ -17,7 +17,7 @@ const Chat = () => {
     const onResize = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        const isMobile = window.innerWidth < 768;
+        const isMobile = window.innerWidth < 860;
 
         if (!isMobile) {
           if (id === "group") {
@@ -37,7 +37,7 @@ const Chat = () => {
   }, [id, router]);
 
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
+    const isMobile = window.innerWidth < 860;
 
     if (!isMobile) {
       router.replace(`/chat?username=${id}`);

@@ -31,6 +31,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+import { Badge, IconButton } from "@mui/material";
+import { Notifications } from "@mui/icons-material";
 
 const menuList = [
   {
@@ -72,7 +74,7 @@ const menuList = [
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const { loading, user } = useAuth();
+  const { loading, user, notificationCount } = useAuth();
 
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -141,18 +143,35 @@ const Sidebar = () => {
               key={menu.id}
               className={`menu-item ${isActive ? "active" : ""}`}
             >
-              <Icon />
-              <span>{menu.name}</span>
+              {menu.name !== "Notifications" && (
+                <div>
+                  <Icon />
+                  <span>{menu.name}</span>
+                </div>
+              )}
+              {menu.name === "Notifications" && notificationCount > 0 && (
+                <div>
+                  <Badge
+                    badgeContent={notificationCount}
+                    color="error"
+                    invisible={notificationCount === 0}
+                  >
+                    <Icon />
+                  </Badge>
+                  <span>{menu.name}</span>
+                </div>
+              )}
             </Link>
           );
         })}
       </div>
 
-        {pathname !== "/settings" && 
-      <div className="toggle">
-        {/* <DarkModeRoundedIcon /> */}
-        <ThemeToggle />
-      </div>}
+      {pathname !== "/settings" && (
+        <div className="toggle">
+          {/* <DarkModeRoundedIcon /> */}
+          <ThemeToggle />
+        </div>
+      )}
     </div>
   );
 };

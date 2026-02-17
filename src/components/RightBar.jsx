@@ -1,28 +1,31 @@
 "use client";
 
-import MessageIcon from "@mui/icons-material/Message";
-import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
-import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
-import Image from "next/image";
 import { useApi } from "@/utilities/api";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import MessageIcon from "@mui/icons-material/Message";
+import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { useAuth } from "@/context/AuthContext";
 import {
   connectSocket,
   isSocketConnected,
-  requestOnlineUsers,
-  onOnlineUsers,
-  onUserOnline,
-  onUserOffline,
   offPresenceListeners,
+  onOnlineUsers,
+  onUserOffline,
+  onUserOnline,
+  requestOnlineUsers,
 } from "@/utilities/socket";
-import { Menu, MenuItem } from "@mui/material";
+import { Badge, IconButton, Menu, MenuItem } from "@mui/material";
 import Popup from "./ui/Popup";
 
 const RightBar = () => {
   const apiFetch = useApi();
   const router = useRouter();
+
+  const { notificationCount, messageCount } = useAuth();
 
   const [activeTab, setActiveTab] = useState("all");
   const [page, setPage] = useState(1);
@@ -98,7 +101,7 @@ const RightBar = () => {
         setFriends((prev) => {
           const oldFriendIds = new Set(prev.map((f) => f.user_id));
           const newFriends = newData.filter(
-            (f) => !oldFriendIds.has(f.user_id)
+            (f) => !oldFriendIds.has(f.user_id),
           );
           return [...prev, ...newFriends];
         });
@@ -127,7 +130,7 @@ const RightBar = () => {
 
   const onlineFriends = useMemo(
     () => friendsWithStatus.filter((f) => f.status === "online"),
-    [friendsWithStatus]
+    [friendsWithStatus],
   );
 
   const visibleFriends =
@@ -149,7 +152,7 @@ const RightBar = () => {
 
       observerRef.current.observe(node);
     },
-    [isLoading, hasMore]
+    [isLoading, hasMore],
   );
 
   const handleMenuOpen = (event, user) => {
@@ -187,7 +190,7 @@ const RightBar = () => {
 
       // Remove from UI
       setFriends((prev) =>
-        prev.filter((f) => f.user_id !== selectedUser.user_id)
+        prev.filter((f) => f.user_id !== selectedUser.user_id),
       );
 
       setBlockPopupOpen(false);
@@ -210,7 +213,7 @@ const RightBar = () => {
       });
 
       setFriends((prev) =>
-        prev.filter((f) => f.user_id !== selectedUser.user_id)
+        prev.filter((f) => f.user_id !== selectedUser.user_id),
       );
 
       setUnfriendPopupOpen(false);
@@ -227,8 +230,26 @@ const RightBar = () => {
     <div className="rightbar-wrapper">
       <div className="container">
         <div className="header-icons">
-          <NotificationsActiveIcon onClick={() => router.push('/notifications')} />
-          <MessageIcon onClick={() => router.push("/chat")} />
+          <IconButton color="inherit">
+            <Badge
+              badgeContent={notificationCount}
+              color="error"
+              invisible={notificationCount === 0}
+            >
+              <NotificationsActiveIcon
+                onClick={() => router.push("/notifications")}
+              />
+            </Badge>
+          </IconButton>
+          <IconButton color="inherit">
+            <Badge
+              badgeContent={messageCount}
+              color="error"
+              invisible={messageCount === 0}
+            >
+              <MessageIcon onClick={() => router.push("/chat")} />
+            </Badge>
+          </IconButton>
         </div>
 
         <div className="friend-header">
