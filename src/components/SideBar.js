@@ -149,12 +149,12 @@ const Sidebar = () => {
                   <span>{menu.name}</span>
                 </div>
               )}
-              {menu.name === "Notifications" && notificationCount > 0 && (
+              {menu.name === "Notifications" && (
                 <div>
                   <Badge
-                    badgeContent={notificationCount}
+                    badgeContent={notificationCount || 0}
                     color="error"
-                    invisible={notificationCount === 0}
+                    invisible={!notificationCount}
                   >
                     <Icon />
                   </Badge>
