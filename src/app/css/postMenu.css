@@ -60,3 +60,16 @@
   background-color: #ef444480;
   color: var(--text-color);
 }
+
+.report-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--secondary-color);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  box-shadow: var(--shadow-medium);
+  padding: 16px;
+  z-index: 20;
+  margin-top: 10px;
+}

@@ -82,12 +82,12 @@ const Home = () => {
           root: null,
           rootMargin: "200px",
           threshold: 0,
-        }
+        },
       );
 
       if (node) observerRef.current.observe(node);
     },
-    [isFetchPosts, hasMore, activeTab]
+    [isFetchPosts, hasMore, activeTab],
   );
 
   const lastCommentRef = useCallback(
@@ -102,12 +102,12 @@ const Home = () => {
             setIsFetchComments(true);
           }
         },
-        { root: null, rootMargin: "56px", threshold: 0 }
+        { root: null, rootMargin: "56px", threshold: 0 },
       );
 
       if (node) commentObserverRef.current.observe(node);
     },
-    [isFetchComments, hasMoreComments]
+    [isFetchComments, hasMoreComments],
   );
 
   // -------------------------------
@@ -138,11 +138,11 @@ const Home = () => {
 
         setData((prev) => {
           const oldPostIds = new Set(
-            prev[activeTab].map((post) => post.post_id)
+            prev[activeTab].map((post) => post.post_id),
           );
 
           const filterNewPosts = newPosts.filter(
-            (post) => !oldPostIds.has(post.post_id)
+            (post) => !oldPostIds.has(post.post_id),
           );
 
           return {
@@ -196,7 +196,7 @@ const Home = () => {
           `/api/get-comment/${modalPost.post_id}?page=${curCommentPage}`,
           {
             method: "GET",
-          }
+          },
         );
 
         setComments((prev) => [...prev, ...res.data]);
@@ -291,7 +291,7 @@ const Home = () => {
     if (diff < 86400) {
       return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
         -Math.floor(diff / 3600),
-        "hour"
+        "hour",
       );
     }
 
@@ -322,7 +322,7 @@ const Home = () => {
       });
       setData((prev) => {
         const updatePosts = prev[activeTab].filter(
-          (post) => post.post_id != targetPostId
+          (post) => post.post_id != targetPostId,
         );
 
         return { ...prev, [activeTab]: updatePosts };
@@ -360,55 +360,52 @@ const Home = () => {
           data[activeTab].map((post, index) => {
             const isLast = index === data[activeTab].length - 1;
             return (
-              <div
+              <PostCard
+                user={{
+                  userId: post?.creator?.id,
+                  username: post?.creator?.username,
+                  name: post?.creator?.display_name ?? "",
+                  avatar:
+                    post?.creator?.profile_image !== ""
+                      ? `/api/images?url=${post?.creator?.profile_image}`
+                      : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
+                }}
+                createdAt={post?.created_at}
+                privacy={post.privacy}
+                taggedUsers={post?.tagged_users}
+                content={post?.content}
+                images={post?.attachments}
+                likes={post?.react_count}
+                comments={post?.comment_count}
+                onLike={handleReact}
+                onComment={() => {
+                  if (!isModalOpen) {
+                    setIsModalOpen(true);
+                    setModalPost(post);
+                  }
+                }}
+                onShare={() => handleShare(post?.post_id)}
+                postId={post?.post_id}
+                userReaction={post?.reaction ?? null}
+                handleDelete={() => {
+                  setOpenPopup(true);
+                  setTargetPostId(post?.post_id);
+                }}
+                isSaved={post?.isSaved}
                 ref={isLast ? lastPostRef : null}
                 key={post?.post_id ?? index}
-              >
-                <PostCard
-                  user={{
-                    userId: post?.creator?.id,
-                    username: post?.creator?.username,
-                    name: post?.creator?.display_name ?? "",
-                    avatar:
-                      post?.creator?.profile_image !== ""
-                        ? `/api/images?url=${post?.creator?.profile_image}`
-                        : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
-                  }}
-                  createdAt={post?.created_at}
-                  privacy={post.privacy}
-                  taggedUsers={post?.tagged_users}
-                  content={post?.content}
-                  images={post?.attachments}
-                  likes={post?.react_count}
-                  comments={post?.comment_count}
-                  onLike={handleReact}
-                  onComment={() => {
-                    if (!isModalOpen) {
-                      setIsModalOpen(true);
-                      setModalPost(post);
-                    }
-                  }}
-                  onShare={() => handleShare(post?.post_id)}
-                  postId={post?.post_id}
-                  userReaction={post?.reaction ?? null}
-                  handleDelete={() => {
-                    setOpenPopup(true);
-                    setTargetPostId(post?.post_id);
-                  }}
-                  isSaved={post?.isSaved}
-                />
-              </div>
+              />
             );
           })}
+        {isFetchPosts && (
+          <>
+            <PostSkeleton />
+            <PostSkeleton />
+            <PostSkeleton />
+          </>
+        )}
       </div>
 
-      {isFetchPosts && (
-        <>
-          <PostSkeleton />
-          <PostSkeleton />
-          <PostSkeleton />
-        </>
-      )}
       {!hasMore[activeTab] && (
         <div className="no-more-posts">No more posts...</div>
       )}

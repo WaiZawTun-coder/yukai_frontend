@@ -79,45 +79,48 @@ export default function PostMenu({
   };
 
   return (
-    <div className="post-menu" ref={ref}>
-      <button
-        className="post-menu-btn"
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Post options"
-      >
-        ⋯
-      </button>
+    <>
+      <div className="post-menu" ref={ref}>
+        <button
+          className="post-menu-btn"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Post options"
+        >
+          ⋯
+        </button>
 
-      {open && (
-        <div className="post-menu-dropdown">
-          {isOwner ? (
-            <>
-              <button
-                onClick={() => {
-                  setIsPostEditing(true);
-                }}
-              >
-                Edit post
-              </button>
-              {/* <button>Change privacy</button> */}
-              <button className="danger" onClick={handleDelete}>
-                Delete post
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setIsModalOpen(true)}>
-                {isSaved ? "Unsave post" : "Save post"}
-              </button>
-              <button onClick={handleHide}>Hide post</button>
-              <button onClick={() => setIsReportPopupOpen(true)}>
-                Report post
-              </button>
-            </>
-          )}
-          {/* <button>View edit history</button> */}
-        </div>
-      )}
+        {open && (
+          <div className="post-menu-dropdown">
+            {isOwner ? (
+              <>
+                <button
+                  onClick={() => {
+                    setIsPostEditing(true);
+                  }}
+                >
+                  Edit post
+                </button>
+                {/* <button>Change privacy</button> */}
+                <button className="danger" onClick={handleDelete}>
+                  Delete post
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => setIsModalOpen(true)}>
+                  {isSaved ? "Unsave post" : "Save post"}
+                </button>
+                <button onClick={handleHide}>Hide post</button>
+                <button onClick={() => setIsReportPopupOpen(true)}>
+                  Report post
+                </button>
+              </>
+            )}
+            {/* <button>View edit history</button> */}
+          </div>
+        )}
+      </div>
+
       {isModalOpen && <ModalSavePost onClose={onClose} savePost={handleSave} />}
       {isPostEditing && (
         <PostComposer
@@ -138,7 +141,7 @@ export default function PostMenu({
           onSubmit={handleReport}
         />
       )}
-    </div>
+    </>
   );
 }
 
@@ -336,6 +339,7 @@ const ReportPostPopup = ({ onClose, onSubmit }) => {
         </div>
       }
     >
+      <h3>Select a reason for reporting this post</h3>
       <div
         className="report-options"
         style={{ display: "flex", flexDirection: "column", gap: "10px" }}
