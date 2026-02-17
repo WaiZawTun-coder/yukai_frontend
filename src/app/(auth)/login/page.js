@@ -4,6 +4,8 @@ import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
 import { useAuth } from "@/context/AuthContext";
 import { useSnackbar } from "@/context/SnackbarContext";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { IconButton, InputAdornment } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,6 +15,7 @@ const Login = () => {
   const [formData, setFormData] = useState({}); // handle form data
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login, accessToken, loading: authLoading, isLoggedIn } = useAuth();
   const router = useRouter();
@@ -53,7 +56,7 @@ const Login = () => {
       if (!name) return undefined;
       return (e) => handleFieldChange(name, e.target.value);
     },
-    [handleFieldChange]
+    [handleFieldChange],
   );
 
   const handleLogin = async (e) => {
@@ -151,13 +154,27 @@ const Login = () => {
           <TextField
             label="Password"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={formData.password ?? ""}
             onChange={getFieldChangeHandler("password")}
             required={true}
             error={errors.password?.status ?? false}
             color="accent"
             helperText={errors.password?.message ?? ""}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    onMouseDown={(e) => e.preventDefault()}
+                    edge="end"
+                    style={{ background: "transparent" }}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <Link href="/forget-password" className="forgot">

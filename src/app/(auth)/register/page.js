@@ -1,19 +1,20 @@
 "use client";
 
+import AppStepper from "@/components/ui/AppStepper";
 import RadioButtons from "@/components/ui/RadioButton";
 import TextField from "@/components/ui/TextField";
-import AppStepper from "@/components/ui/AppStepper";
 import { useApi } from "@/utilities/api";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { InputAdornment, IconButton } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-import AutorenewOutlinedIcon from "@mui/icons-material/AutorenewOutlined";
-import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useSnackbar } from "@/context/SnackbarContext";
+import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 
 const Register = () => {
   const apiFetch = useApi();
@@ -35,6 +36,9 @@ const Register = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [defaultPreviewImage, setDefaultPreviewImage] = useState("male");
   const [generatedUsername, setGeneratedUsername] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { showSnackbar } = useSnackbar();
 
@@ -173,7 +177,7 @@ const Register = () => {
     const minDate = new Date(
       today.getFullYear() - 13,
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
 
     if (new Date(dateOfBirth) > minDate) {
@@ -254,8 +258,8 @@ const Register = () => {
           {step === 1
             ? "Create Account"
             : step === 2
-            ? "Complete Profile"
-            : "Success"}
+              ? "Complete Profile"
+              : "Success"}
         </h2>
 
         <AppStepper
@@ -282,17 +286,49 @@ const Register = () => {
               />
               <TextField
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 onChange={getHandler("password")}
                 error={errors.password?.status ?? false}
                 helperText={errors.password?.message ?? ""}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                        style={{ background: "transparent" }}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <TextField
                 label="Confirm Password"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 onChange={getHandler("confirmPassword")}
                 error={errors.confirmPassword?.status ?? false}
                 helperText={errors.confirmPassword?.message ?? ""}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                        style={{ background: "transparent" }}
+                      >
+                        {showConfirmPassword ? (
+                          <VisibilityOff />
+                        ) : (
+                          <Visibility />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Button type="submit" disabled={loading}>
                 SIGN UP
