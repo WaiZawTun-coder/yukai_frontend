@@ -46,7 +46,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #fff;
+  color: var(--text-color);
   margin-left: 6px;
 }
 
@@ -109,13 +109,13 @@
 
 .username {
   font-weight: 600;
-  color: #fff;
+  color: var(--text-color);
   font-size: large;
 }
 
 .follow {
   font-size: 14px;
-  color: #cfe9ff;
+  color: var(--text-color);
   cursor: pointer;
 }
 
@@ -132,7 +132,7 @@
 .post-stats {
   display: flex;
   justify-content: space-between;
-  color: #eaf3fb;
+  color: var(--text-color);
   font-size: 14px;
   margin-bottom: 12px;
   flex-wrap: wrap;
@@ -162,7 +162,7 @@
 
 .icon {
   font-size: 20px;
-  color: #e6eef5;
+  color: var(--text-color);
   cursor: pointer;
 }
 

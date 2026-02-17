@@ -509,13 +509,13 @@
   outline: none;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid var(--border-medium);
-  color: #ffffff;
+  color: var(--text-color);
   font-size: 13px;
   margin: 12px 0;
 }
 
 .comment-input::placeholder {
-  color: #9ca3af;
+  color: var(--text-color);
 }
 
 .comment-submit {
