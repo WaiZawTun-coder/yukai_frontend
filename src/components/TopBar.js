@@ -182,7 +182,7 @@ const TopBar = ({ setData }) => {
           </div>
           {/* chat icon */}
 
-          <IconButton color="inherit">
+          <IconButton color="inherit" className="chat-icon">
             <Badge
               badgeContent={messageCount}
               color="error"

@@ -74,7 +74,7 @@ const menuList = [
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const { loading, user, notificationCount } = useAuth();
+  const { loading, user, notificationCount = 0 } = useAuth();
 
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
