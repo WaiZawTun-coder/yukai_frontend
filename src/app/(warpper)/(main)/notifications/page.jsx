@@ -129,7 +129,7 @@ export default function NotificationMenu() {
           setPage((p) => p + 1);
         }
       },
-      { threshold: 1 }
+      { threshold: 1 },
     );
 
     if (loaderRef.current) observer.observe(loaderRef.current);
@@ -140,7 +140,7 @@ export default function NotificationMenu() {
   // 🔹 Mark single notification as read
   const markAsRead = async (id) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
 
     try {
@@ -162,45 +162,27 @@ export default function NotificationMenu() {
     }
   };
 
-  function timeAgo(timestamp) {
-    const now = Date.now();
-    const diff = now - timestamp; // difference in ms
+  function timeAgo(utcString) {
+    const now = new Date();
+    const past = new Date(utcString + "Z"); // add Z to ensure UTC
+    const diff = now - past; // difference in milliseconds
 
     const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const weeks = Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
+    const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+    const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
 
-    if (seconds < 10) return "just now";
     if (seconds < 60) return `${seconds} seconds ago`;
-    if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    if (days < 30) return `${days} day${days > 1 ? "s" : ""} ago`;
-    if (months < 12) return `${months} month${months > 1 ? "s" : ""} ago`;
-    return `${years} year${years > 1 ? "s" : ""} ago`;
+    if (minutes < 60) return `${minutes} minutes ago`;
+    if (hours < 24) return `${hours} hours ago`;
+    if (days < 7) return `${days} days ago`;
+    if (weeks < 4) return `${weeks} weeks ago`;
+    if (months < 12) return `${months} months ago`;
+    return `${years} years ago`;
   }
-
-  const formatTime = (time, { utc = false } = {}) => {
-    if (!time) return "";
-
-    if (time.charAt(time.length - 1) == 'Z') {
-      return new Date(time).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
-      })
-    }
-
-    // Normalize "YYYY-MM-DD HH:mm:ss" → ISO
-    const iso = time.replace(" ", "T");
-
-    const date = utc
-      ? new Date(iso + "Z") // force UTC
-      : new Date(iso); // local time
-
-    return date;
-  };
 
   async function markAllAsRead() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -262,7 +244,7 @@ export default function NotificationMenu() {
 
               <div className="notif-content">
                 <p>{n.message}</p>
-                <span>{timeAgo(formatTime(n.time))}</span>
+                <span>{timeAgo(n.time)}</span>
               </div>
 
               {!n.read && <span className="unread-dot" />}

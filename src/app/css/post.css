@@ -3,13 +3,12 @@
   max-width: 720px;
   position: relative;
   display: flex;
-  justify-content: center;
   flex-direction: column;
-  max-height: 90vh;
+  height: calc(100vh - 76px);
 }
 
 .post-scrollable {
-  flex: 1 1 auto;
+  /* flex: 1 1 auto; */
   overflow-y: auto;
 }
 

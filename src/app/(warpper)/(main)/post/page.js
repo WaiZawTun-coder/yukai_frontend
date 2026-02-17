@@ -35,7 +35,7 @@ const SocialPost = ({
   const [post, setPost] = useState(null);
   const [isValid, setIsValid] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isFetching, setIsFetching] = useState(false)
+  const [isFetching, setIsFetching] = useState(false);
 
   const [comments, setComments] = useState([]);
   const [page, setPage] = useState(1);
@@ -58,15 +58,15 @@ const SocialPost = ({
       router.replace("/");
       return;
     }
-  
+
     const getPost = async () => {
       setIsLoading(true);
-  
+
       const postId = paramPostId ? paramPostId : paramPost.post_id;
-  
+
       try {
         const res = await apiFetch(`/api/get-post?post_id=${postId}`);
-  
+
         if (!res.status) {
           showSnackbar({
             title: "Error",
@@ -77,7 +77,7 @@ const SocialPost = ({
           setErrorMessage(res.message || "Unable to fetch post");
           return;
         }
-  
+
         setPost(res.data[0]);
       } catch (err) {
         showSnackbar({
@@ -91,16 +91,14 @@ const SocialPost = ({
         setIsLoading(false);
       }
     };
-  
+
     if (!paramPost) {
       getPost();
     } else {
       setPost(paramPost);
       setIsLoading(false);
     }
-  
-  }, [paramPostId, paramPost, router, apiFetch, showSnackbar]); 
-  
+  }, [paramPostId, paramPost, router, apiFetch, showSnackbar]);
 
   // -------------------------
   // Fetch Comments (by page)
@@ -108,7 +106,7 @@ const SocialPost = ({
   useEffect(() => {
     if (!isCommentOpen) return;
     if (!paramPostId && !paramPost) return;
-    if(!post) return;
+    if (!post) return;
 
     const postId = paramPostId ? paramPostId : paramPost.post_id;
 
@@ -137,7 +135,15 @@ const SocialPost = ({
     };
 
     getComments();
-  }, [page, isCommentOpen, paramPostId, paramPost, apiFetch, showSnackbar, post]);
+  }, [
+    page,
+    isCommentOpen,
+    paramPostId,
+    paramPost,
+    apiFetch,
+    showSnackbar,
+    post,
+  ]);
 
   useEffect(() => {
     setComments([]);
@@ -181,7 +187,7 @@ const SocialPost = ({
 
       if (node) observerRef.current.observe(node);
     },
-    [isFetchingComments, hasMore]
+    [isFetchingComments, hasMore],
   );
 
   // -------------------------
@@ -322,16 +328,14 @@ const SocialPost = ({
     );
 
   if (!isValid) {
-    return (
-      <NotFound
-        title="Access Denied"
-        message={errorMessage}
-      />
-    );
+    return <NotFound title="Access Denied" message={errorMessage} />;
   }
 
   return (
-    <div className="main-wrapper">
+    <div
+      className={pathname == "/post" ? "main-wrapper" : ""}
+      style={{ width: "100%" }}
+    >
       {pathname == "/post" && (
         <div className="page-header">
           <button
@@ -348,7 +352,10 @@ const SocialPost = ({
           </span>
         </div>
       )}
-      <div className="post-scrollable">
+      <div
+        className="post-scrollable"
+        style={{ maxHeight: pathname == "/post" ? "95vh" : "none" }}
+      >
         <PostCard
           user={{
             userId: post?.creator?.id,

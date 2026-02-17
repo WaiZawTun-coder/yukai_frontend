@@ -50,13 +50,15 @@
 @import url("./css/account-health.css");
 @import url("./css/login-activity.css");
 @import url("./css/user-detail.css");
+@import url("./css/verify-otp.css");
 
 /* =====================================================
    FONTS
 ===================================================== */
 @font-face {
   font-family: "Subjectivity";
-  src: url("/fonts/subjectivity/Subjectivity-Regular.woff2") format("woff2"),
+  src:
+    url("/fonts/subjectivity/Subjectivity-Regular.woff2") format("woff2"),
     url("/fonts/subjectivity/Subjectivity-Regular.otf") format("opentype");
 
   font-weight: 400;
@@ -143,12 +145,16 @@ html[data-theme="light"] {
   --focus-ring: rgba(110, 193, 228, 0.6);
 
   /* GRADIENTS */
-  --gradient-sidebar: linear-gradient(180deg,
-      var(--background-color) 0%,
-      var(--secondary-color) 100%);
-  --gradient-card: linear-gradient(180deg,
-      rgba(11, 42, 63, 0.98),
-      rgba(11, 42, 63, 0.9));
+  --gradient-sidebar: linear-gradient(
+    180deg,
+    var(--background-color) 0%,
+    var(--secondary-color) 100%
+  );
+  --gradient-card: linear-gradient(
+    180deg,
+    rgba(11, 42, 63, 0.98),
+    rgba(11, 42, 63, 0.9)
+  );
 }
 
 @media (max-width: 1200px) {
@@ -163,7 +169,6 @@ html[data-theme="light"] {
 
 /* DARK MODE */
 @media (prefers-color-scheme: dark) {
-
   :root,
   html[data-theme="dark"] {
     /* Brand */
@@ -239,7 +244,6 @@ select {
 }
 
 @media (max-width: 450px) {
-
   /* Headings */
   h1 {
     font-size: 18px;
@@ -395,7 +399,7 @@ a:hover {
 }
 
 /* Slide-up fade-in for reaction picker */
-.post-actions div.absolute>button {
+.post-actions div.absolute > button {
   opacity: 0;
   transform: translateY(10px) scale(0.9);
   animation: slideUp 0.2s forwards;

@@ -48,6 +48,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  overflow-x: auto;
 }
 
 .friend-tabs button {
@@ -59,7 +60,9 @@
   border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  transition: background 200ms ease, color 200ms ease;
+  transition:
+    background 200ms ease,
+    color 200ms ease;
 }
 
 .friend-tabs button:hover {
@@ -103,7 +106,9 @@
   background: var(--secondary-color);
   border-radius: 14px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
   position: relative;
 }
 
@@ -191,7 +196,10 @@
   font-weight: 500;
   cursor: pointer;
   border: none;
-  transition: background 200ms ease, color 200ms ease, transform 80ms ease;
+  transition:
+    background 200ms ease,
+    color 200ms ease,
+    transform 80ms ease;
 }
 
 .btn:active {
@@ -229,7 +237,9 @@
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
-  transition: background 200ms ease, color 200ms ease;
+  transition:
+    background 200ms ease,
+    color 200ms ease;
 }
 
 .menu-btn:hover {

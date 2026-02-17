@@ -1,0 +1,68 @@
+/* verify-otp-page.css */
+
+.verify-otp-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.verify-otp-page-card {
+  background: var(--secondary-color);
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.verify-otp-page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: var(--text-color);
+}
+
+.verify-otp-page-input {
+  width: 100%;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.verify-otp-page-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.verify-otp-page-button {
+  width: 100%;
+  padding: 12px;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.verify-otp-page-button:hover {
+  background-color: #4338ca;
+}
+
+.verify-otp-page-button:active {
+  transform: scale(0.98);
+}
+
+.verify-otp-page-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}

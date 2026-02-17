@@ -24,7 +24,13 @@ const PRIVACY_OPTIONS = [
   { label: "Only Me", value: "private" },
 ];
 
-export default function PostComposer({ handleCreate, isEditing = false, editPostId, onClose, isOpen = false }) {
+export default function PostComposer({
+  handleCreate,
+  isEditing = false,
+  editPostId,
+  onClose,
+  isOpen = false,
+}) {
   const apiFetch = useApi();
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
@@ -137,7 +143,10 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
       formData.append("attachments[]", file);
     });
 
-    formData.append("tag_friends", taggedFriends.map(user => user.user_id));
+    formData.append(
+      "tag_friends",
+      taggedFriends.map((user) => user.user_id),
+    );
 
     try {
       const data = await apiFetch("/api/create-post", {
@@ -146,7 +155,11 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
       });
 
       if (!data.status) {
-        showSnackbar({ title: "Post creation failed", message: data.message, variant: "error" });
+        showSnackbar({
+          title: "Post creation failed",
+          message: data.message,
+          variant: "error",
+        });
         return;
       }
 
@@ -185,7 +198,11 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
         emitPostCreate();
       }
     } catch (err) {
-      showSnackbar({ title: err.message || "Network error", message: err.error || "Please try again", variant: "error" });
+      showSnackbar({
+        title: err.message || "Network error",
+        message: err.error || "Please try again",
+        variant: "error",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -207,7 +224,7 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
         if (res.status) {
           setFriends(res.data);
         }
-      } catch { }
+      } catch {}
     }
 
     loadFriends();
@@ -231,7 +248,7 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
 
         if (draft.attachments?.length > 0) {
           const imageUrls = draft.attachments.map(
-            (file) => `/api/images?url=${file.file_path}`
+            (file) => `/api/images?url=${file.file_path}`,
           );
           setImages(imageUrls);
         }
@@ -244,7 +261,6 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
           title: "Draft restored",
           variant: "info",
         });
-
       } catch (err) {
         console.error("Failed to load draft", err);
       } finally {
@@ -256,7 +272,6 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
       loadDraft();
     }
   }, [apiFetch, open]);
-
 
   useEffect(() => {
     async function loadOldPost() {
@@ -276,7 +291,7 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
 
         if (draft.attachments?.length > 0) {
           const imageUrls = draft.attachments.map(
-            (file) => `/api/images?url=${file.file_path}`
+            (file) => `/api/images?url=${file.file_path}`,
           );
           setImages(imageUrls);
         }
@@ -284,7 +299,6 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
         if (draft.tagged_friends) {
           setTaggedFriends(draft.tagged_friends);
         }
-
       } catch (err) {
         console.error("Failed to load post", err);
       } finally {
@@ -296,8 +310,6 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
       loadOldPost();
     }
   }, [apiFetch, open]);
-
-
 
   /* -------------------- UI -------------------- */
 
@@ -353,7 +365,7 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
                   <button
                     onClick={() => {
                       setTaggedFriends((prev) =>
-                        prev.filter((fl) => fl.user_id !== f.user_id)
+                        prev.filter((fl) => fl.user_id !== f.user_id),
                       );
                     }}
                   >
@@ -394,7 +406,7 @@ export default function PostComposer({ handleCreate, isEditing = false, editPost
 
               <Select
                 options={PRIVACY_OPTIONS}
-                value={privacy}
+                value={privacy || "public"}
                 onChange={(e) => setPrivacy(e.target.value)}
                 size="small"
                 color="secondary"
