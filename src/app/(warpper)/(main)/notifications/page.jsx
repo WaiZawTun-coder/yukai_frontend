@@ -244,7 +244,6 @@ export default function NotificationMenu() {
 
               <div className="notif-content">
                 <p>{n.message}</p>
-                {n.time}
                 <span>{timeAgo(n.time)}</span>
               </div>
 
