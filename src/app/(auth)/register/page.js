@@ -116,21 +116,21 @@ const Register = () => {
     try {
       setLoading(true);
 
-      const res = await apiFetch("/auth/register", {
+      const data = await apiFetch("/auth/register", {
         method: "POST",
         body: { username: fullName, email, password },
       });
 
-      if (res.status && res.step === 2) {
+      if (data.status && data.step === 2) {
         setIsTransitioning(true);
         setTimeout(() => {
-          setAuth(res.data);
+          setAuth(data.data);
           setFormData({
-            userId: res.data.userId,
-            email: res.data.email,
-            username: res.data.generated_username,
+            userId: data.data.userId,
+            email: data.data.email,
+            username: data.data.generated_username,
           });
-          setGeneratedUsername(res.data.generated_username);
+          setGeneratedUsername(data.data.generated_username);
           setStep(2);
           setIsTransitioning(false);
         }, 300);

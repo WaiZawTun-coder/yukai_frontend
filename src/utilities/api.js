@@ -2,13 +2,13 @@ import { useAuth } from "../context/AuthContext";
 import { getBackendUrl } from "./url";
 
 export const useApi = () => {
-  const { accessToken, refreshToken, logout } = useAuth();
+  const { accessToken, refreshToken, logout, loading } = useAuth();
 
   const apiFetch = async (
     url,
     { method = "GET", body = null, headers = {}, retry = true } = {},
   ) => {
-    if (!accessToken) return;
+    if (loading) return;
     const isFormData = body instanceof FormData;
 
     const defaultHeaders = {
