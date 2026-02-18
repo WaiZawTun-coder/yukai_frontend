@@ -41,6 +41,7 @@ import {
 import Button from "./ui/Button";
 import Modal from "./ui/Modal";
 import Popup from "./ui/Popup";
+import NotFound from "@/app/not-found";
 
 /* ----------------------- Child Components ------------------------- */
 
@@ -1193,6 +1194,14 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       });
     }
   };
+
+  console.log({ chatData });
+
+  if (!chatData.type) {
+    return (
+      <NotFound title="Sorry" message="You cannot message with this user" />
+    );
+  }
 
   /* -------------------- Render -------------------- */
 
