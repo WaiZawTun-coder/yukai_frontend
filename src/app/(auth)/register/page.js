@@ -137,7 +137,7 @@ const Register = () => {
       } else {
         showSnackbar({
           title: "Failed",
-          message: res.message,
+          message: data.message,
           variant: "error",
         });
       }
