@@ -178,30 +178,6 @@ export default function CallPage() {
     router.back();
   };
 
-  if (callStatus !== "connected") {
-    return (
-      <div className="waiting-container">
-        <div className="waiting-screen">
-          <Avatar src={callerInfo?.profile} sx={{ width: 140, height: 140 }} />
-          <h2>{callerInfo?.username || "Unknown"}</h2>
-
-          {callStatus === "calling" && <p>Calling...</p>}
-          {callStatus === "ringing" && <p>Ringing...</p>}
-          {callStatus === "connecting" && <p>Connecting...</p>}
-          {callStatus === "busy" && <p>User is busy</p>}
-          {callStatus === "no-answer" && <p>No answer</p>}
-
-          <IconButton
-            onClick={handleEnd}
-            sx={{ backgroundColor: "#e53935", color: "#fff", mt: 3 }}
-          >
-            <CallEndIcon />
-          </IconButton>
-        </div>
-      </div>
-    );
-  }
-
   if (!inCall) return null;
 
   const remoteUids = Object.keys(remoteUsers);
@@ -234,6 +210,24 @@ export default function CallPage() {
           ))}
 
         {showAvatar && <AudioAvatar caller={callerInfo} callType={callType} />}
+
+        {callStatus !== "connected" && (
+          <div className="waiting-container">
+            <div className="waiting-screen">
+              <Avatar
+                src={callerInfo?.profile}
+                sx={{ width: 140, height: 140 }}
+              />
+              <h2>{callerInfo?.username || "Unknown"}</h2>
+
+              {callStatus === "calling" && <p>Calling...</p>}
+              {callStatus === "ringing" && <p>Ringing...</p>}
+              {callStatus === "connecting" && <p>Connecting...</p>}
+              {callStatus === "busy" && <p>User is busy</p>}
+              {callStatus === "no-answer" && <p>No answer</p>}
+            </div>
+          </div>
+        )}
 
         {callType === "video" && (
           <div className="local-pip">
