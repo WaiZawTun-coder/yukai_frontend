@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { useApi } from "@/utilities/api";
 import Popup from "@/components/ui/Popup";
+import { useApi } from "@/utilities/api";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const BlockedUsers = () => {
   const [blockedUsers, setBlockedUsers] = useState([]);
@@ -60,7 +61,13 @@ const BlockedUsers = () => {
 
   return (
     <div className="blocked-container">
-      <h2>Blocked Users</h2>
+      <div className="page-header">
+        <button onClick={() => {}} className="back-button" disabled={loading}>
+          <ArrowBackIosIcon fontSize="small" />
+        </button>
+
+        <span className="page-name">Change Email Address</span>
+      </div>
 
       {loading ? (
         <p className="info-text">Loading blocked users...</p>
