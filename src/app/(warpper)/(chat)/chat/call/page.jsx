@@ -15,7 +15,19 @@ import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import CallEndIcon from "@mui/icons-material/CallEnd";
 
-import { endCall, onEndCall, offEndCall } from "@/utilities/socket";
+import {
+  endCall,
+  onEndCall,
+  offEndCall,
+  onRejectedCall,
+  onCallUserJoin,
+  onCallUserOffline,
+  offRejectCall,
+  offCallUserJoin,
+  offCallUserOffline,
+  onUserBusy,
+  offUserBusy,
+} from "@/utilities/socket";
 
 const INACTIVITY_TIMEOUT = 3000;
 
@@ -49,6 +61,9 @@ export default function CallPage() {
   const [controlsVisible, setControlsVisible] = useState(true);
   const inactivityTimerRef = useRef(null);
 
+  const [callStatus, setCallStatus] = useState("calling");
+  // calling | ringing | connecting | connected | busy | no-answer
+
   /* ---------------- End Call from socket ---------------- */
   useEffect(() => {
     const handleEnd = () => {
@@ -61,6 +76,56 @@ export default function CallPage() {
     onEndCall(handleEnd);
     return () => offEndCall(handleEnd);
   }, [stopCall, router, callType]);
+
+  useEffect(() => {
+    const handleReject = () => setCallStatus("busy");
+    const handleConnecting = () => setCallStatus("conneting");
+    const handleOffline = () => setCallStatus("offline");
+    const handleBusy = () => setCallStatus("busy");
+
+    onRejectedCall(handleReject);
+    onCallUserJoin(handleConnecting);
+    onCallUserOffline(handleOffline);
+    onUserBusy(handleBusy);
+
+    return () => {
+      offRejectCall(handleReject);
+      offCallUserJoin(handleConnecting);
+      offCallUserOffline(handleOffline);
+      offUserBusy(handleBusy);
+    };
+  }, []);
+
+  useEffect(() => {
+    const remoteCount = Object.keys(remoteUsers).length;
+
+    if (remoteCount > 0) {
+      setCallStatus("connected");
+    }
+  }, [remoteUsers]);
+
+  useEffect(() => {
+    if (callStatus === "calling") {
+      const timer = setTimeout(() => {
+        setCallStatus("no-answer");
+      }, 30000); // 30 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [callStatus]);
+
+  useEffect(() => {
+    if (
+      callStatus === "busy" ||
+      callStatus === "no-answer" ||
+      callStatus === "offline"
+    ) {
+      setTimeout(() => {
+        stopCall();
+        router.back();
+      }, 2000);
+    }
+  }, [callStatus, router, stopCall]);
 
   /* ---------------- Local video ---------------- */
   useEffect(() => {
@@ -90,7 +155,7 @@ export default function CallPage() {
 
     inactivityTimerRef.current = setTimeout(
       () => setControlsVisible(false),
-      INACTIVITY_TIMEOUT
+      INACTIVITY_TIMEOUT,
     );
   }, []);
 
@@ -100,7 +165,7 @@ export default function CallPage() {
     resetInactivityTimer();
     return () =>
       events.forEach((e) =>
-        window.removeEventListener(e, resetInactivityTimer)
+        window.removeEventListener(e, resetInactivityTimer),
       );
   }, [resetInactivityTimer]);
 
@@ -112,6 +177,30 @@ export default function CallPage() {
     stopCall();
     router.back();
   };
+
+  if (callStatus !== "connected") {
+    return (
+      <div className="waiting-container">
+        <div className="waiting-screen">
+          <Avatar src={callerInfo?.profile} sx={{ width: 140, height: 140 }} />
+          <h2>{callerInfo?.display_name || "Unknown"}</h2>
+
+          {callStatus === "calling" && <p>Calling...</p>}
+          {callStatus === "ringing" && <p>Ringing...</p>}
+          {callStatus === "connecting" && <p>Connecting...</p>}
+          {callStatus === "busy" && <p>User is busy</p>}
+          {callStatus === "no-answer" && <p>No answer</p>}
+
+          <IconButton
+            onClick={handleEnd}
+            sx={{ backgroundColor: "#e53935", color: "#fff", mt: 3 }}
+          >
+            <CallEndIcon />
+          </IconButton>
+        </div>
+      </div>
+    );
+  }
 
   if (!inCall) return null;
 

@@ -119,3 +119,24 @@
   margin-top: 16px;
   font-weight: 600;
 }
+
+.waiting-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100dvw;
+  height: 100dvh;
+}
+
+.waiting-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.waiting-screen h2,
+.waiting-screen p {
+  text-align: center;
+}

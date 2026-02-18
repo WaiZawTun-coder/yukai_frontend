@@ -435,7 +435,7 @@ const ChatInfoPanel = ({
 const ChatView = ({ username, type = "private", group_id = null }) => {
   const router = useRouter();
   const apiFetch = useApi();
-  const { startCall, stopCall } = useCall();
+  const { startCall, stopCall, inCall } = useCall();
   const { isUserBusy } = useBusy();
 
   const { user, getDeviceId, encryptForDevices, decryptPayload } = useAuth();
@@ -462,7 +462,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const [typingUser, setTypingUser] = useState(null);
 
   const [selected, setSelected] = useState(new Set());
-  const [isInCall, setIsInCall] = useState(false);
 
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -1073,7 +1072,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   };
 
   const handleVideoCall = async () => {
-    setIsInCall(true);
     // const callee = chatData.
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },
@@ -1117,7 +1115,6 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   };
 
   const handleAudioCall = async () => {
-    setIsInCall(true);
     const roomId = createRoomId(
       { username: user.username, user_id: user.user_id },
       {
@@ -1223,7 +1220,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
             isCalleeBusy={
               (chatData.type === "private"
                 ? isUserBusy(chatData.other_user_id)
-                : false) && isInCall
+                : false) && !!inCall
             }
             isMuted={mutedIds.has(user.user_id)}
           />

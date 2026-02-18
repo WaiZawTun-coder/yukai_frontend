@@ -202,7 +202,7 @@ export function CallProvider({ children }) {
         console.error("Failed to start call", err);
       }
     },
-    [inCall, stopIncomingUI]
+    [inCall, stopIncomingUI],
   );
 
   const stopCall = useCallback(async () => {
@@ -249,7 +249,7 @@ export function CallProvider({ children }) {
       container.innerHTML = "";
       user.videoTrack.play(container);
     },
-    [remoteUsers]
+    [remoteUsers],
   );
 
   // -------------------
@@ -272,7 +272,7 @@ export function CallProvider({ children }) {
               src={
                 callData.caller.profile_image
                   ? `/api/images?url=${encodeURIComponent(
-                      callData.caller.profile_image
+                      callData.caller.profile_image,
                     )}`
                   : "/Images/default-profiles/male.jpg"
               }
@@ -280,9 +280,11 @@ export function CallProvider({ children }) {
               height={50}
               alt=""
             />
-            <div>
-              <div>{callData.caller.display_name}</div>
-              <div>
+            <div className="message-body">
+              <div className="message-username">
+                {callData.caller.display_name}
+              </div>
+              <div className="message-text">
                 {callData.type === "video" ? "Video Call" : "Audio Call"}
               </div>
             </div>
@@ -290,8 +292,18 @@ export function CallProvider({ children }) {
         ),
         actions: (
           <div className="snackbar-actions">
-            <button onClick={() => answerCall(callData)} className="snackbar-action-btn accept">Accept</button>
-            <button onClick={() => rejectCall(callData)} className="snackbar-action-btn reject">Reject</button>
+            <button
+              onClick={() => answerCall(callData)}
+              className="snackbar-action-btn accept"
+            >
+              Accept
+            </button>
+            <button
+              onClick={() => rejectCall(callData)}
+              className="snackbar-action-btn reject"
+            >
+              Reject
+            </button>
           </div>
         ),
       });
@@ -299,25 +311,35 @@ export function CallProvider({ children }) {
 
     const stopUI = () => stopIncomingUI();
 
+    const handleCallerEnd = () => {
+      stopUI();
+    };
+
     onIncomingCall(handleIncomingCall);
     onStopRinging(stopUI);
     onRejectedCall(stopUI);
-    onEndCall(stopUI);
+    onEndCall(handleCallerEnd);
+    onStopRinging(() => {
+      console.log("on-stop-ringing");
+    });
 
     return () => {
       offIncomingCall(handleIncomingCall);
       offStopRinging(stopUI);
       offRejectCall(stopUI);
-      offEndCall(stopUI);
+      offEndCall(handleCallerEnd);
     };
   }, [showSnackbar, stopIncomingUI]);
 
   const answerCall = async (callData) => {
+    if (inCall) return;
+
     stopIncomingUI();
+
     await startCall(
       callData.caller,
       callData.roomId,
-      callData.type || callData.callType
+      callData.type || callData.callType,
     );
     emitAnswerCall(callData.callId, callData.caller.user_id);
 
