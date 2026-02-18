@@ -6,8 +6,9 @@ export const useApi = () => {
 
   const apiFetch = async (
     url,
-    { method = "GET", body = null, headers = {}, retry = true } = {}
+    { method = "GET", body = null, headers = {}, retry = true } = {},
   ) => {
+    if (!accessToken) return;
     const isFormData = body instanceof FormData;
 
     const defaultHeaders = {
