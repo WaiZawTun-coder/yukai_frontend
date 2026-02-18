@@ -468,6 +468,8 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [mutedIds, setMutedIds] = useState(new Set());
 
+  const [loading, setLoading] = useState(true);
+
   const messageEndRef = useRef(null);
 
   const typingTimeoutRef = useRef(null);
@@ -560,6 +562,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
       checkUserOnline(String(chat.other_user_id));
 
       setChatData(chat);
+      setLoading(false);
 
       if (!chat?.chat_id) return;
 
@@ -1197,7 +1200,7 @@ const ChatView = ({ username, type = "private", group_id = null }) => {
 
   console.log({ chatData });
 
-  if (!chatData.type) {
+  if (!chatData.type && !loading) {
     return (
       <NotFound title="Sorry" message="You cannot message with this user" />
     );
