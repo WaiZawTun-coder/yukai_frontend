@@ -40,6 +40,10 @@ export const useApi = () => {
           throw err;
         }
       }
+      if (res.status === 403) {
+        logout();
+        throw new Error({ status: false, message: "This account is banned" });
+      }
       // showSnackbar("Failed", "", "error");
       throw data;
     }
