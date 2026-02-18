@@ -150,6 +150,7 @@ export default function NotificationMenu() {
         method: "POST",
         body: { id },
       });
+      setNotificationCount(0);
     } catch (err) {
       console.error("Failed to mark read", err);
     }
