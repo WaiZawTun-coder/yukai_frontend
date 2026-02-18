@@ -360,41 +360,44 @@ const Home = () => {
           data[activeTab].map((post, index) => {
             const isLast = index === data[activeTab].length - 1;
             return (
-              <PostCard
-                user={{
-                  userId: post?.creator?.id,
-                  username: post?.creator?.username,
-                  name: post?.creator?.display_name ?? "",
-                  avatar:
-                    post?.creator?.profile_image !== ""
-                      ? `/api/images?url=${post?.creator?.profile_image}`
-                      : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
-                }}
-                createdAt={post?.created_at}
-                privacy={post.privacy}
-                taggedUsers={post?.tagged_users}
-                content={post?.content}
-                images={post?.attachments}
-                likes={post?.react_count}
-                comments={post?.comment_count}
-                onLike={handleReact}
-                onComment={() => {
-                  if (!isModalOpen) {
-                    setIsModalOpen(true);
-                    setModalPost(post);
-                  }
-                }}
-                onShare={() => handleShare(post?.post_id)}
-                postId={post?.post_id}
-                userReaction={post?.reaction ?? null}
-                handleDelete={() => {
-                  setOpenPopup(true);
-                  setTargetPostId(post?.post_id);
-                }}
-                isSaved={post?.isSaved}
+              <div
                 ref={isLast ? lastPostRef : null}
                 key={post?.post_id ?? index}
-              />
+              >
+                <PostCard
+                  user={{
+                    userId: post?.creator?.id,
+                    username: post?.creator?.username,
+                    name: post?.creator?.display_name ?? "",
+                    avatar:
+                      post?.creator?.profile_image !== ""
+                        ? `/api/images?url=${post?.creator?.profile_image}`
+                        : `/Images/default-profiles/${post?.creator?.gender}.jpg`,
+                  }}
+                  createdAt={post?.created_at}
+                  privacy={post.privacy}
+                  taggedUsers={post?.tagged_users}
+                  content={post?.content}
+                  images={post?.attachments}
+                  likes={post?.react_count}
+                  comments={post?.comment_count}
+                  onLike={handleReact}
+                  onComment={() => {
+                    if (!isModalOpen) {
+                      setIsModalOpen(true);
+                      setModalPost(post);
+                    }
+                  }}
+                  onShare={() => handleShare(post?.post_id)}
+                  postId={post?.post_id}
+                  userReaction={post?.reaction ?? null}
+                  handleDelete={() => {
+                    setOpenPopup(true);
+                    setTargetPostId(post?.post_id);
+                  }}
+                  isSaved={post?.isSaved}
+                />
+              </div>
             );
           })}
         {isFetchPosts && (

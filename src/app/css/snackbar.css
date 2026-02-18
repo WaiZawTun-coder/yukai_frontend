@@ -92,7 +92,7 @@
   opacity: 1;
 }
 
-.snackbar-actions{
+.snackbar-actions {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,20 +101,20 @@
   gap: 12px;
 }
 
-.snackbar-action-btn{
+.snackbar-action-btn {
   flex: 1;
   outline: none;
-  border:none;
+  border: none;
   min-height: 46px;
   border-radius: 16px;
 }
 
-.snackbar-action-btn.accept{
+.snackbar-action-btn.accept {
   background-color: var(--status-success);
   color: white;
 }
 
-.snackbar-action-btn.reject{
+.snackbar-action-btn.reject {
   background-color: var(--status-error);
   color: white;
 }
@@ -129,4 +129,29 @@
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+.message-notification {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-color);
+}
+
+.message-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--text-color);
+}
+
+.message-username {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.message-text {
+  font-size: 14px;
+  color: var(--text-color);
 }

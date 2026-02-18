@@ -1,0 +1,84 @@
+.blocked-container {
+  max-width: 720px;
+  width: 95%;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.blocked-container h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.info-text {
+  color: var(--text-color);
+  text-align: center;
+  padding: 30px 0;
+}
+
+.blocked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.blocked-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: var(--secondary-color);
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.blocked-card:hover {
+  transform: translateY(-1px);
+  background: var(--surface-3);
+}
+
+.blocked-user-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.blocked-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.blocked-name {
+  font-weight: 600;
+  margin: 0;
+}
+
+.blocked-username {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.unblock-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: #ff4d4f;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-weight: 500;
+}
+
+.unblock-btn:hover {
+  background-color: #e04344;
+}
+
+.unblock-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
