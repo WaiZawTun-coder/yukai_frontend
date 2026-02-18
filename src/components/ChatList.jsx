@@ -135,9 +135,6 @@ const ChatList = ({ onSelectChat }) => {
         sender_signed_prekey_pub,
       });
 
-      console.log({ [chat_id]: preview }); // real time message data is updating on group chat (only for receiving message) unread count is working too
-      //TODO
-
       setDecryptedMessages((prev) => ({ ...prev, [chat_id]: preview }));
 
       setChatsList((prev) => {
