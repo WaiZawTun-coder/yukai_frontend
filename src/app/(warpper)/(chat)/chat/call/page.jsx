@@ -183,7 +183,7 @@ export default function CallPage() {
       <div className="waiting-container">
         <div className="waiting-screen">
           <Avatar src={callerInfo?.profile} sx={{ width: 140, height: 140 }} />
-          <h2>{callerInfo?.display_name || "Unknown"}</h2>
+          <h2>{callerInfo?.username || "Unknown"}</h2>
 
           {callStatus === "calling" && <p>Calling...</p>}
           {callStatus === "ringing" && <p>Ringing...</p>}
