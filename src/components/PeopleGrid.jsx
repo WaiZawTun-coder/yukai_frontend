@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, forwardRef } from "react";
 import Image from "next/image";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import Button from "./ui/Button";
@@ -113,12 +113,12 @@ export default function PeopleGrid({
           root: null,
           rootMargin: "200px",
           threshold: 0,
-        }
+        },
       );
 
       if (node) observerRef.current.observe(node);
     },
-    [loading, hasMore, onLoadMore]
+    [loading, hasMore, onLoadMore],
   );
 
   return (
@@ -132,10 +132,10 @@ export default function PeopleGrid({
             type={type}
             removeCard={() =>
               setList((prev) =>
-                prev.filter((p) => p.user_id !== person.user_id)
+                prev.filter((p) => p.user_id !== person.user_id),
               )
             }
-            setOpenMenuId={() => { }}
+            setOpenMenuId={() => {}}
             key={person.user_id}
             ref={isLast ? lastItemRef : null}
           />
@@ -163,13 +163,10 @@ export default function PeopleGrid({
 
 /* ---------------- CARD ---------------- */
 
-export function PeopleCard({
-  person,
-  type,
-  openMenuId,
-  setOpenMenuId,
-  removeCard,
-}) {
+export const PeopleCard = forwardRef(function PeopleCard(
+  { person, type, openMenuId, setOpenMenuId, removeCard },
+  ref,
+) {
   const apiFetch = useApi();
   const router = useRouter();
   const menuRef = useRef(null);
@@ -341,6 +338,7 @@ export function PeopleCard({
 
   return (
     <div
+      ref={ref}
       className="people-card"
       onClick={() => {
         router.replace(`/${person.username}`);
@@ -353,7 +351,7 @@ export function PeopleCard({
           onClick={(e) => {
             e.stopPropagation();
             setOpenMenuId(
-              openMenuId === person.user_id ? null : person.user_id
+              openMenuId === person.user_id ? null : person.user_id,
             );
           }}
         >
@@ -404,7 +402,7 @@ export function PeopleCard({
           >
             {
               config.primary.label[
-              loading ? "pending" : completed ? "done" : "default"
+                loading ? "pending" : completed ? "done" : "default"
               ]
             }
           </Button>
@@ -422,4 +420,4 @@ export function PeopleCard({
       </div>
     </div>
   );
-}
+});
