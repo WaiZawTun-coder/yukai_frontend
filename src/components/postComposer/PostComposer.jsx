@@ -168,6 +168,8 @@ export default function PostComposer({
         variant: "success",
       });
 
+      setTaggedFriends([]);
+
       setText("");
       setImages([]);
       setFiles([]);
@@ -189,6 +191,8 @@ export default function PostComposer({
           message: `${user.display_name} added new post.`,
           target_user_id: followerIds,
         };
+
+        if (privacy == "private") return;
 
         await apiFetch(`/api/add-notification`, {
           method: "POST",
