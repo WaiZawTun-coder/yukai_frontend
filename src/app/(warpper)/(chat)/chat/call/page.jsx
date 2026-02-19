@@ -181,7 +181,7 @@ export default function CallPage() {
   if (!inCall) return null;
 
   const remoteUids = Object.keys(remoteUsers);
-  const showAvatar = callType === "audio";
+const showAvatar = callType === "audio";
 
   const totalParticipants =
     callType === "video"

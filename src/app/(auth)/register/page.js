@@ -101,10 +101,21 @@ const Register = () => {
     const password = (formData.password ?? "").trim();
     const confirmPassword = (formData.confirmPassword ?? "").trim();
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+
     const nextErrors = {};
     if (!fullName) nextErrors.fullName = { status: true, message: "Required" };
     if (!email) nextErrors.email = { status: true, message: "Required" };
-    if (!password) nextErrors.password = { status: true, message: "Required" };
+    if (!password) {
+      nextErrors.password = { status: true, message: "Required" };
+    } else if (!passwordRegex.test(password)) {
+      nextErrors.password = {
+        status: true,
+        message:
+          "Min 8 chars, 1 uppercase, 1 lowercase & 1 special character required",
+      };
+    }
+
     if (password !== confirmPassword)
       nextErrors.confirmPassword = { status: true, message: "Not match" };
 
