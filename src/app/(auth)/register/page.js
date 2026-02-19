@@ -112,7 +112,7 @@ const Register = () => {
       nextErrors.password = {
         status: true,
         message:
-          "Min 8 chars, 1 uppercase, 1 lowercase & 1 special character required",
+          "Minimum 8 characters, 1 uppercase letter, 1 lowercase letter and 1 special character letter required",
       };
     }
 
