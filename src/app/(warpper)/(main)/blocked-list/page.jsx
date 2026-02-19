@@ -66,7 +66,7 @@ const BlockedUsers = () => {
           <ArrowBackIosIcon fontSize="small" />
         </button>
 
-        <span className="page-name">Change Email Address</span>
+        <span className="page-name">Blocked List</span>
       </div>
 
       {loading ? (
