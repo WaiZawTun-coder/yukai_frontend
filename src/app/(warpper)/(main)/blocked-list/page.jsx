@@ -4,6 +4,7 @@ import Popup from "@/components/ui/Popup";
 import { useApi } from "@/utilities/api";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const BlockedUsers = () => {
@@ -13,6 +14,8 @@ const BlockedUsers = () => {
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [openPopup, setOpenPopup] = useState(false);
+
+  const router = useRouter();
 
   const apiFetch = useApi();
 
@@ -62,7 +65,11 @@ const BlockedUsers = () => {
   return (
     <div className="blocked-container">
       <div className="page-header">
-        <button onClick={() => {}} className="back-button" disabled={loading}>
+        <button
+          onClick={() => router.back()}
+          className="back-button"
+          disabled={loading}
+        >
           <ArrowBackIosIcon fontSize="small" />
         </button>
 
